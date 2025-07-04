@@ -1,6 +1,6 @@
 # @reserve-protocol/react-zapper
 
-A React component library for integrating DTF (Decentralized Token Folio) zap functionality into your Web3 applications. This package provides a complete zapping solution with support for both modal and inline modes, built on top of Wagmi v2, Viem, and RainbowKit v2.
+A React component library for integrating DTF (Decentralized Token Folio) zap functionality into your Web3 applications. This package provides a complete zapping solution with support for both modal and inline modes, built on top of Wagmi v2.
 
 ## Features
 
