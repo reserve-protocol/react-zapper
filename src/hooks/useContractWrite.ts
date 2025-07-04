@@ -29,16 +29,17 @@ const useContractWrite = <
   const enabled =
     call?.query?.enabled !== undefined ? call?.query?.enabled : true
 
-  if (call.args && enabled && process.env.NODE_ENV === 'development') {
-    console.log(
-      'callData',
-      encodeFunctionData({
-        abi: call.abi as any,
-        functionName: call.functionName,
-        args: call.args as any,
-      })
-    )
-  }
+  // Development logging commented out to avoid process reference
+  // if (call.args && enabled) {
+  //   console.log(
+  //     'callData',
+  //     encodeFunctionData({
+  //       abi: call.abi as any,
+  //       functionName: call.functionName,
+  //       args: call.args as any,
+  //     })
+  //   )
+  // }
 
   const { data: gas } = useEstimateGas(
     data?.request && enabled

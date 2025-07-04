@@ -18,7 +18,6 @@ const useZapSwapQuery = ({
   slippage,
   disabled,
   forceMint,
-  dtfTicker,
   type,
 }: {
   tokenIn?: Address
@@ -27,7 +26,6 @@ const useZapSwapQuery = ({
   slippage: number
   disabled: boolean
   forceMint: boolean
-  dtfTicker: string
   type: 'buy' | 'sell'
 }) => {
   const chainId = useAtomValue(chainIdAtom)

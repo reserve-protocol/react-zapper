@@ -89,7 +89,6 @@ const SubmitZapButton = ({
   const {
     write: approve,
     isReady: approvalReady,
-    gas: approvalGas,
     isLoading: approving,
     hash: approvalHash,
     error: approvalError,

@@ -37,7 +37,7 @@ interface ZapperContentProps {
   className?: string
 }
 
-const ZapperContent: React.FC<ZapperContentProps> = ({ mode, className }) => {
+const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   const [open, setOpen] = useAtom(openZapMintModalAtom)
   const [currentTab, setCurrentTab] = useAtom(zapperCurrentTabAtom)
   const [showSettings, setShowSettings] = useAtom(showZapSettingsAtom)

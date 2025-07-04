@@ -1,4 +1,4 @@
-import React, { ReactNode, SVGProps } from 'react'
+import React, { SVGProps } from 'react'
 import { ChainId } from '../utils/chains'
 import Base from './icons/Base'
 import Ethereum from './icons/Ethereum'

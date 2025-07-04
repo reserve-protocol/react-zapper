@@ -307,8 +307,8 @@ export const TokenOutputBox = ({
   const [slowLoading, setSlowLoading] = useState(false)
 
   useEffect(() => {
-    let slowLoadingTimeout: NodeJS.Timeout | undefined
-    let minimumDisplayTimeout: NodeJS.Timeout | undefined
+    let slowLoadingTimeout: ReturnType<typeof setTimeout> | undefined
+    let minimumDisplayTimeout: ReturnType<typeof setTimeout> | undefined
 
     if (loading) {
       slowLoadingTimeout = setTimeout(() => {

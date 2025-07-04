@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import { ReactNode, useEffect } from 'react'
 import { Button } from '../ui/button'
@@ -32,7 +32,7 @@ const ZapMint = ({ children }: { children: ReactNode }) => {
   const currentTab = useAtomValue(zapperCurrentTabAtom)
   const [showSettings, setShowSettings] = useAtom(showZapSettingsAtom)
   const defaultToken = useAtomValue(defaultSelectedTokenAtom)
-  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom)
+  const [, setSelectedToken] = useAtom(selectedTokenAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const chainId = useAtomValue(chainIdAtom)
   const zapRefetch = useAtomValue(zapRefetchAtom)

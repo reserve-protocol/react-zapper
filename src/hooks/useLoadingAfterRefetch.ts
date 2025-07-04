@@ -4,7 +4,7 @@ const useLoadingAfterRefetch = (data: any) => {
   const [loadingAfterRefetch, setLoadingAfterRefetch] = useState(false)
 
   useEffect(() => {
-    let loadingTimeout: NodeJS.Timeout | undefined
+    let loadingTimeout: ReturnType<typeof setTimeout> | undefined
 
     if (data) {
       setLoadingAfterRefetch(true)
