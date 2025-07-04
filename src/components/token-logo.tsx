@@ -194,9 +194,9 @@ export default TokenLogo
 export const TRANSPARENT_TOKENS = new Set(['altt', 'emp'])
 
 const SVG_LOGOS: Record<string, string> = {
-  'usdc': usdcSvg,
-  'eth': ethSvg,
-  'weth': wethSvg,
+  usdc: usdcSvg,
+  eth: ethSvg,
+  weth: wethSvg,
 }
 
 export const SVGS = new Set(['usdc', 'eth', 'weth'])

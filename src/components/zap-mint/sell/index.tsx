@@ -157,7 +157,9 @@ const Sell = () => {
         inputSymbol={indexDTF.token.symbol}
         outputSymbol={selectedToken.symbol}
         inputAmount={formatCurrency(Number(inputAmount))}
-        outputAmount={formatCurrency(Number(formatEther(BigInt(valueTo || 0))))}
+        outputAmount={formatCurrency(
+          Number(formatUnits(BigInt(valueTo || 0), selectedToken.decimals))
+        )}
         showTxButton={showTxButton}
         fetchingZapper={isLoading}
         insufficientBalance={insufficientBalance}
