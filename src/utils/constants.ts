@@ -83,4 +83,4 @@ export const reducedZappableTokens: Record<number, Token[]> = {
 export const PRICE_IMPACT_THRESHOLD = 3
 
 // Hardcoded Mixpanel token for analytics
-export const MIXPANEL_TOKEN = '38b91d7b8b87d95e01c755fb6e2e3b2e'
+export const MIXPANEL_TOKEN = 'e65e717c4fda5362acaa778bf27d9801'
