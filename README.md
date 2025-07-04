@@ -141,7 +141,6 @@ The zapper currently supports:
 
 - **Ethereum Mainnet** (Chain ID: 1)
 - **Base** (Chain ID: 8453)
-- **Arbitrum One** (Chain ID: 42161)
 
 Each chain has its own set of supported tokens for zapping. The component automatically detects the current chain and shows appropriate tokens.
 
