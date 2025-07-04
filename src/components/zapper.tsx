@@ -30,7 +30,6 @@ import RefreshQuote from './zap-mint/refresh-quote'
 import Sell from './zap-mint/sell'
 import ZapHealthcheck from './zap-mint/zap-healthcheck'
 import ZapSettings from './zap-mint/zap-settings'
-import useNotification from '../hooks/use-notification'
 
 interface ZapperContentProps {
   mode: 'modal' | 'inline'

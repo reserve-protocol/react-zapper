@@ -1,5 +1,3 @@
-import { ReactNode } from 'react'
-import { Config } from 'wagmi'
 import { Address } from 'viem'
 
 export interface Token {

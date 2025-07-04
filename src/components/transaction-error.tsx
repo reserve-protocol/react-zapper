@@ -1,11 +1,12 @@
-import { BoxProps, Box, Text } from 'theme-ui'
+import React from 'react'
+import { cn } from '../utils/cn'
 
-interface Props extends BoxProps {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   error?: Error | null
   withName?: boolean
 }
 
-const TransactionError = ({ error, withName = true, ...props }: Props) => {
+const TransactionError = ({ error, withName = true, className, ...props }: Props) => {
   if (!error) {
     return null
   }
@@ -24,20 +25,18 @@ const TransactionError = ({ error, withName = true, ...props }: Props) => {
   }
 
   return (
-    <Box {...props}>
-      <Text
-        variant="error"
-        sx={{
-          whiteSpace: 'break-spaces',
-          fontSize: 1,
-          wordBreak: parsed ? 'break-word' : 'break-all',
-        }}
+    <div className={cn(className)} {...props}>
+      <p
+        className={cn(
+          "text-red-500 text-sm whitespace-pre-wrap",
+          parsed ? "break-words" : "break-all"
+        )}
       >
         {withName && `${error.name}:`}
         {withName && <br />}
         {message}
-      </Text>
-    </Box>
+      </p>
+    </div>
   )
 }
 
