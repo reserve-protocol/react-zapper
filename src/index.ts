@@ -1,3 +1,5 @@
+import './styles/index.css'
+
 export { Zapper } from './components/zapper'
 export { useZapperModal } from './hooks/use-zapper-modal'
 export { Toaster } from './components/ui/sonner'

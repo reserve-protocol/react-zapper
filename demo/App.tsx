@@ -36,12 +36,12 @@ function App() {
   }, [chainId])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-foreground">
               React Zapper Demo
             </h1>
             <p className="text-muted-foreground mt-1">
@@ -53,10 +53,10 @@ function App() {
 
         {/* DTF Selector */}
         {availableDTFs.length > 0 && (
-          <Card className="mb-6 border-blue-200 dark:border-blue-900 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+          <Card className="mb-6 bg-secondary/30 border-border-secondary">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                 Select DTF
               </CardTitle>
               <CardDescription>
@@ -109,7 +109,7 @@ function App() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="w-2 h-2 bg-success rounded-full" />
                   Modal Mode
                 </CardTitle>
                 <CardDescription>
@@ -122,11 +122,7 @@ function App() {
                   dtfAddress={selectedDTF.address}
                   mode="modal"
                 />
-                <Button
-                  onClick={open}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-                  size="lg"
-                >
+                <Button onClick={open} className="w-full" size="lg">
                   Open Zapper Modal
                 </Button>
               </CardContent>
@@ -136,13 +132,13 @@ function App() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full" />
+                  <span className="w-2 h-2 bg-primary rounded-full" />
                   Inline Mode
                 </CardTitle>
                 <CardDescription>Embedded zapper component</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="p-4">
+                <div className="p-4 border-t border-muted">
                   <Zapper
                     chain={chainId}
                     dtfAddress={selectedDTF.address}

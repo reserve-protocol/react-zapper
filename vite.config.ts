@@ -18,6 +18,7 @@ export default defineConfig(({ mode, command }) => {
           '@reserve-protocol/react-zapper': resolve(__dirname, './src/index.ts'),
         },
       },
+      assetsInclude: ['**/*.svg'],
     }
   }
   
@@ -77,5 +78,6 @@ export default defineConfig(({ mode, command }) => {
       '@': resolve(__dirname, './src'),
     },
   },
+  assetsInclude: ['**/*.svg'],
   }
 })
