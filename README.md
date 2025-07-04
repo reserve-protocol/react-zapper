@@ -44,17 +44,17 @@ import '@reserve-protocol/react-zapper/dist/react-zapper.css'
 
 function MyApp() {
   const { open } = useZapperModal()
-  
+
   return (
     <>
-      <Zapper 
+      <Zapper
         chain={1} // Ethereum mainnet
         dtfAddress="0x123..." // Your DTF contract address
         mode="modal"
       />
-      
+
       <button onClick={open}>Open Zapper</button>
-      
+
       <Toaster position="bottom-right" />
     </>
   )
@@ -71,11 +71,7 @@ function ZapperPage() {
   return (
     <div className="max-w-md mx-auto">
       <h1>Zap into My DTF</h1>
-      <Zapper 
-        chain={1}
-        dtfAddress="0x123..."
-        mode="inline"
-      />
+      <Zapper chain={1} dtfAddress="0x123..." mode="inline" />
     </div>
   )
 }
@@ -85,15 +81,13 @@ function ZapperPage() {
 
 ### ZapperProps
 
-| Property       | Type                       | Required | Description                                      |
-| -------------- | -------------------------- | -------- | ------------------------------------------------ |
-| `chain`        | `number`                   | ✅       | Chain ID where the DTF is deployed               |
-| `dtfAddress`   | `Address`                  | ✅       | DTF contract address                             |
-| `mode`         | `'modal' \| 'inline'`      | ❌       | Display mode (defaults to 'modal')               |
-| `apiUrl`       | `string`                   | ❌       | Custom API endpoint (defaults to Reserve API)    |
-| `onSuccess`    | `(txHash: string) => void` | ❌       | Transaction success callback                     |
-| `onError`      | `(error: Error) => void`   | ❌       | Error callback                                   |
-| `className`    | `string`                   | ❌       | Additional CSS classes                           |
+| Property     | Type                  | Required | Description                                   |
+| ------------ | --------------------- | -------- | --------------------------------------------- |
+| `chain`      | `number`              | ✅       | Chain ID where the DTF is deployed            |
+| `dtfAddress` | `Address`             | ✅       | DTF contract address                          |
+| `mode`       | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
+| `apiUrl`     | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
+| `className`  | `string`              | ❌       | Additional CSS classes                        |
 
 ### useZapperModal Hook
 
@@ -124,13 +118,7 @@ function AdvancedZapper() {
 
   return (
     <>
-      <Zapper
-        chain={1}
-        dtfAddress="0x123..."
-        mode="modal"
-        onSuccess={handleSuccess}
-        onError={handleError}
-      />
+      <Zapper chain={1} dtfAddress="0x123..." mode="modal" />
       <Toaster />
     </>
   )

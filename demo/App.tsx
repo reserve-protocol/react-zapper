@@ -25,6 +25,7 @@ function App() {
   const { isConnected } = useAccount()
   const availableDTFs = DTF_BY_CHAIN[chainId] || []
   const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
+  const [apiUrl, setApiUrl] = useState('')
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -57,31 +58,57 @@ function App() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                Select DTF
+                Configuration
               </CardTitle>
               <CardDescription>
-                Choose a DTF token to interact with on the current network
+                Configure the DTF token and API endpoint for the zapper
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Select
-                value={selectedDTF?.address}
-                onValueChange={(value) => {
-                  const dtf = availableDTFs.find((d) => d.address === value)
-                  if (dtf) setSelectedDTF(dtf)
-                }}
-              >
-                <SelectTrigger className="w-full md:w-64">
-                  <SelectValue placeholder="Select a DTF" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableDTFs.map((dtf) => (
-                    <SelectItem key={dtf.address} value={dtf.address}>
-                      {dtf.symbol}
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">DTF Token</label>
+                <Select
+                  value={selectedDTF?.address}
+                  onValueChange={(value) => {
+                    const dtf = availableDTFs.find((d) => d.address === value)
+                    if (dtf) setSelectedDTF(dtf)
+                  }}
+                >
+                  <SelectTrigger className="w-full md:w-64">
+                    <SelectValue placeholder="Select a DTF" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDTFs.map((dtf) => (
+                      <SelectItem key={dtf.address} value={dtf.address}>
+                        {dtf.symbol}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-2 block">API Endpoint</label>
+                <Select
+                  value={apiUrl || 'default'}
+                  onValueChange={(value) => setApiUrl(value === 'default' ? '' : value)}
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">
+                      Default - https://api.reserve.org/
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    <SelectItem value="http://api-staging.reserve.org/">
+                      Staging - http://api-staging.reserve.org/
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select the API endpoint for the zapper
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -121,6 +148,7 @@ function App() {
                   chain={chainId}
                   dtfAddress={selectedDTF.address}
                   mode="modal"
+                  apiUrl={apiUrl || undefined}
                 />
                 <Button onClick={open} className="w-full" size="lg">
                   Open Zapper Modal
@@ -143,6 +171,7 @@ function App() {
                     chain={chainId}
                     dtfAddress={selectedDTF.address}
                     mode="inline"
+                    apiUrl={apiUrl || undefined}
                   />
                 </div>
               </CardContent>
