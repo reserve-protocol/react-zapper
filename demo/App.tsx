@@ -1,74 +1,162 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Zapper } from "../src";
-import React, { useState } from "react";
-import { base } from "wagmi/chains";
-
-const DTF_ADDRESS = "0x23418de10d422ad71c9d5713a2b8991a9c586443";
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useZapperModal, Zapper } from '@reserve-protocol/react-zapper'
+import { Toaster } from '@reserve-protocol/react-zapper'
+import React, { useState } from 'react'
+import { useAccount, useChainId } from 'wagmi'
+import { DTF_BY_CHAIN } from './dtf-config'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './components/ui/select'
+import { Button } from './components/ui/button'
 
 function App() {
-  const [showInline, setShowInline] = useState(false);
+  const chainId = useChainId()
+  const { isConnected } = useAccount()
+  const availableDTFs = DTF_BY_CHAIN[chainId] || []
+  const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
+  const { open } = useZapperModal()
+
+  // Update selected DTF when chain changes
+  React.useEffect(() => {
+    const newDTFs = DTF_BY_CHAIN[chainId] || []
+    if (newDTFs.length > 0) {
+      setSelectedDTF(newDTFs[0])
+    }
+  }, [chainId])
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">
-          React Zapper Demo
-        </h1>
-
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Wallet Connection</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
+      <div className="container mx-auto p-6 max-w-7xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              React Zapper Demo
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Test the zapper component with different DTFs and modes
+            </p>
+          </div>
           <ConnectButton />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-2xl font-semibold mb-4">Modal Mode</h2>
-            <p className="text-gray-600 mb-4">
-              Click the button below to open the zapper in a modal.
-            </p>
-            <Zapper chain={base.id} dtfAddress={DTF_ADDRESS} mode="modal" />
-            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-              Open Zapper Modal
-            </button>
-          </div>
+        {/* DTF Selector */}
+        {availableDTFs.length > 0 && (
+          <Card className="mb-6 border-blue-200 dark:border-blue-900 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                Select DTF
+              </CardTitle>
+              <CardDescription>
+                Choose a DTF token to interact with on the current network
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select
+                value={selectedDTF?.address}
+                onValueChange={(value) => {
+                  const dtf = availableDTFs.find((d) => d.address === value)
+                  if (dtf) setSelectedDTF(dtf)
+                }}
+              >
+                <SelectTrigger className="w-full md:w-64">
+                  <SelectValue placeholder="Select a DTF" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableDTFs.map((dtf) => (
+                    <SelectItem key={dtf.address} value={dtf.address}>
+                      {dtf.symbol}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        )}
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-2xl font-semibold mb-4">Inline Mode</h2>
-            <p className="text-gray-600 mb-4">
-              Toggle to show the zapper inline.
-            </p>
-            <button
-              onClick={() => setShowInline(!showInline)}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors mb-4"
-            >
-              {showInline ? "Hide" : "Show"} Inline Zapper
-            </button>
-            {showInline && (
-              <div className="border border-gray-200 rounded-lg p-4">
+        {!isConnected ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <p className="text-lg text-muted-foreground mb-4">
+                Please connect your wallet to use the Zapper
+              </p>
+              <ConnectButton />
+            </CardContent>
+          </Card>
+        ) : !selectedDTF ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <p className="text-lg text-muted-foreground">
+                No DTFs available on this network
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Modal Mode */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full" />
+                  Modal Mode
+                </CardTitle>
+                <CardDescription>
+                  Opens the zapper in a modal dialog
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <Zapper
-                  chain={base.id}
-                  dtfAddress={DTF_ADDRESS}
-                  mode="inline"
+                  chain={chainId}
+                  dtfAddress={selectedDTF.address}
+                  mode="modal"
                 />
-              </div>
-            )}
-          </div>
-        </div>
+                <Button
+                  onClick={open}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                  size="lg"
+                >
+                  Open Zapper Modal
+                </Button>
+              </CardContent>
+            </Card>
 
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-semibold mb-4">Configuration</h2>
-          <div className="space-y-2 text-sm font-mono bg-gray-100 p-4 rounded">
-            <p>
-              Chain: {base.name} (ID: {base.id})
-            </p>
-            <p>DTF Address: {DTF_ADDRESS}</p>
-            <p>DTF Symbol: hyRSI</p>
-            <p>DTF Name: High Yield RSI</p>
+            {/* Inline Mode */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full" />
+                  Inline Mode
+                </CardTitle>
+                <CardDescription>Embedded zapper component</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="p-4">
+                  <Zapper
+                    chain={chainId}
+                    dtfAddress={selectedDTF.address}
+                    mode="inline"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
+        )}
       </div>
+      <Toaster position="bottom-right" />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
