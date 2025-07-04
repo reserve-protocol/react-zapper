@@ -106,16 +106,6 @@ import { Zapper, Toaster } from '@reserve-protocol/react-zapper'
 import { toast } from 'sonner'
 
 function AdvancedZapper() {
-  const handleSuccess = (txHash: string) => {
-    toast.success(`Transaction successful: ${txHash}`)
-    // Refresh user balances, analytics, etc.
-  }
-
-  const handleError = (error: Error) => {
-    console.error('Zap failed:', error)
-    toast.error(`Zap failed: ${error.message}`)
-  }
-
   return (
     <>
       <Zapper chain={1} dtfAddress="0x123..." mode="modal" />
