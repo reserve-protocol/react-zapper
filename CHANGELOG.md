@@ -1,3 +1,9 @@
+## [1.0.2] - 2024-07-04
+
+### Changed
+
+- Update peer dependencies
+
 ## [1.0.1] - 2024-07-04
 
 ### Fixed

@@ -23,7 +23,7 @@ npm install @reserve-protocol/react-zapper
 Make sure you have these peer dependencies installed:
 
 ```bash
-npm install react react-dom @tanstack/react-query@^5 wagmi@^2 viem@^2 @rainbow-me/rainbowkit@^2 jotai
+npm install react react-dom @tanstack/react-query@^5 wagmi@^2 viem@^2 jotai
 ```
 
 ## Quick Start
