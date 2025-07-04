@@ -34,7 +34,6 @@ import ZapSettings from './zap-mint/zap-settings'
 interface ZapperContentProps {
   mode: 'modal' | 'inline'
   onClose?: () => void
-  className?: string
 }
 
 const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
