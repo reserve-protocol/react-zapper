@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-
-// Default API URL - can be overridden via config
-const DEFAULT_API_URL = 'https://api.reserve.org/'
+import { getApiUrl } from '../types/api'
 
 // Available chain IDs type
 type AvailableChain = number
@@ -15,7 +13,7 @@ const useZapHealthcheck = (chainId: AvailableChain) => {
   const { data } = useQuery({
     queryKey: ['zapper-healthcheck', chainId],
     queryFn: async (): Promise<ZapperStatus[]> => {
-      const response = await fetch(`${DEFAULT_API_URL}/zapper/healthcheck`)
+      const response = await fetch(`${getApiUrl()}zapper/healthcheck`)
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`)

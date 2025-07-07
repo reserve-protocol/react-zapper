@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'
-
-const DEFAULT_API_URL = 'https://api.reserve.org/'
+import { getApiUrl } from '../types/api'
 
 /**
  * Hook to fetch price data for a token using Reserve API
  */
-export function useChainlinkPrice(
+export function usePrice(
   chainId: number,
   tokenAddress: Address,
   apiUrl?: string
@@ -16,7 +15,7 @@ export function useChainlinkPrice(
     queryFn: async () => {
       if (!tokenAddress) return null
 
-      const baseUrl = apiUrl || DEFAULT_API_URL
+      const baseUrl = apiUrl || getApiUrl()
       const url = `${baseUrl}current/prices?chainId=${chainId}&tokens=${tokenAddress}`
 
       try {

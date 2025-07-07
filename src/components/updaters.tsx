@@ -16,8 +16,7 @@ import {
 } from '../state/atoms'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import { useAccount } from 'wagmi'
-
-const RESERVE_API = 'https://api.reserve.org/'
+import { getApiUrl } from '../types/api'
 
 type IndexDTFBrand = {
   dtf?: {
@@ -44,7 +43,7 @@ const IndexDTFMetadataUpdater: React.FC<{
       if (!data) return undefined
 
       const res = await fetch(
-        `${RESERVE_API}folio-manager/read?folio=${data.id.toLowerCase()}&chainId=${chainId}`
+        `${getApiUrl()}folio-manager/read?folio=${data.id.toLowerCase()}&chainId=${chainId}`
       )
 
       const response = await res.json()
@@ -134,7 +133,7 @@ const IndexDTFIconsUpdater = () => {
   const { data } = useQuery({
     queryKey: ['icons'],
     queryFn: async () => {
-      const res = await fetch(RESERVE_API + 'dtf/icons')
+      const res = await fetch(getApiUrl() + 'dtf/icons')
       return res.json()
     },
   })

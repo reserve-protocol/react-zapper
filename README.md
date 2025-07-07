@@ -2,6 +2,8 @@
 
 A React component library for integrating DTF (Decentralized Token Folio) zap functionality into your Web3 applications. This package provides a complete zapping solution with support for both modal and inline modes, built on top of Wagmi v2.
 
+**📖 [Live Demo](https://react-zapper.reserve.org/)**
+
 ## Features
 
 - 🔄 **Zap Minting**: Convert any supported token directly into DTF tokens
@@ -41,6 +43,7 @@ import '@reserve-protocol/react-zapper/dist/react-zapper.css'
 ```tsx
 import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import { wagmiConfig } from './wagmi-config'
 
 function MyApp() {
   const { open } = useZapperModal()
@@ -48,6 +51,7 @@ function MyApp() {
   return (
     <>
       <Zapper
+        wagmiConfig={wagmiConfig}
         chain={1} // Ethereum mainnet
         dtfAddress="0x123..." // Your DTF contract address
         mode="modal"
@@ -66,12 +70,20 @@ function MyApp() {
 ```tsx
 import { Zapper } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import { useConfig } from 'wagmi'
 
 function ZapperPage() {
+  const wagmiConfig = useConfig()
+
   return (
     <div className="max-w-md mx-auto">
       <h1>Zap into My DTF</h1>
-      <Zapper chain={1} dtfAddress="0x123..." mode="inline" />
+      <Zapper
+        wagmiConfig={wagmiConfig}
+        chain={1}
+        dtfAddress="0x123..."
+        mode="inline"
+      />
     </div>
   )
 }
@@ -81,13 +93,14 @@ function ZapperPage() {
 
 ### ZapperProps
 
-| Property     | Type                  | Required | Description                                   |
-| ------------ | --------------------- | -------- | --------------------------------------------- |
-| `chain`      | `number`              | ✅       | Chain ID where the DTF is deployed            |
-| `dtfAddress` | `Address`             | ✅       | DTF contract address                          |
-| `mode`       | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
-| `apiUrl`     | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
-| `className`  | `string`              | ❌       | Additional CSS classes                        |
+| Property      | Type                  | Required | Description                                   |
+| ------------- | --------------------- | -------- | --------------------------------------------- |
+| `wagmiConfig` | `WagmiConfig`         | ✅       | Wagmi v2 configuration for the app            |
+| `chain`       | `number`              | ✅       | Chain ID where the DTF is deployed            |
+| `dtfAddress`  | `Address`             | ✅       | DTF contract address                          |
+| `mode`        | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
+| `apiUrl`      | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
+| `className`   | `string`              | ❌       | Additional CSS classes                        |
 
 ### useZapperModal Hook
 
@@ -104,11 +117,17 @@ const { isOpen, open, close } = useZapperModal()
 ```tsx
 import { Zapper, Toaster } from '@reserve-protocol/react-zapper'
 import { toast } from 'sonner'
+import { wagmiConfig } from './wagmi-config'
 
 function AdvancedZapper() {
   return (
     <>
-      <Zapper chain={1} dtfAddress="0x123..." mode="modal" />
+      <Zapper
+        wagmiConfig={wagmiConfig}
+        chain={1}
+        dtfAddress="0x123..."
+        mode="modal"
+      />
       <Toaster />
     </>
   )

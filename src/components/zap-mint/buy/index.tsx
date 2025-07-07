@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { formatEther, parseUnits } from 'viem'
-import { useChainlinkPrice } from '../../../hooks/useChainlinkPrice'
+import { usePrice } from '../../../hooks/usePrice'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import { chainIdAtom, indexDTFAtom } from '../../../state/atoms'
@@ -41,7 +41,7 @@ const Buy = () => {
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
-  const selectedTokenPrice = useChainlinkPrice(chainId, selectedToken.address)
+  const selectedTokenPrice = usePrice(chainId, selectedToken.address)
   const inputPrice = (selectedTokenPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(selectedTokenBalance?.balance || '0')
 
@@ -123,7 +123,9 @@ const Buy = () => {
           price: `$${formatCurrency(priceFrom ?? inputPrice)}`,
           address: selectedToken.address,
           symbol: selectedToken.symbol,
-          balance: `${formatCurrency(Number(selectedTokenBalance?.balance || '0'))}`,
+          balance: `${formatCurrency(
+            Number(selectedTokenBalance?.balance || '0')
+          )}`,
           value: inputAmount,
           onChange: setInputAmount,
           onMax,

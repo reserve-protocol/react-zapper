@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { Address } from 'viem'
+import { getApiUrl } from '../types/api'
 import { Token } from '../types'
-
-const RESERVE_API = 'https://api.reserve.org/'
 
 type Response = {
   price: number
@@ -25,7 +24,7 @@ const useIndexPrice = (token: string | undefined, chainId: number) => {
       sp.set('chainId', chainId.toString())
       sp.set('address', token.toLowerCase())
 
-      const response = await fetch(`${RESERVE_API}current/dtf?${sp.toString()}`)
+      const response = await fetch(`${getApiUrl()}current/dtf?${sp.toString()}`)
 
       if (!response.ok) {
         throw new Error('Failed to fetch dtf price')
@@ -45,19 +44,16 @@ const useTokensInfo = (addresses: Address[]) => {
 
       // For now, create basic token info from addresses
       // In a real implementation, you'd fetch from a token list or API
-      return addresses.reduce(
-        (acc, address) => {
-          acc[address] = {
-            address,
-            symbol: 'TOKEN', // Would be fetched from token contract or API
-            name: 'Token', // Would be fetched from token contract or API
-            decimals: 18, // Would be fetched from token contract
-            chainId: 1, // Would be determined from context
-          } as Token
-          return acc
-        },
-        {} as Record<string, Token>
-      )
+      return addresses.reduce((acc, address) => {
+        acc[address] = {
+          address,
+          symbol: 'TOKEN', // Would be fetched from token contract or API
+          name: 'Token', // Would be fetched from token contract or API
+          decimals: 18, // Would be fetched from token contract
+          chainId: 1, // Would be determined from context
+        } as Token
+        return acc
+      }, {} as Record<string, Token>)
     },
     enabled: addresses.length > 0,
   })

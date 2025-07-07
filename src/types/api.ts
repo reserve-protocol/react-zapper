@@ -12,7 +12,7 @@ export const setCustomApiUrl = (apiUrl?: string) => {
 }
 
 // Function to get current API URL
-const getApiUrl = () => CUSTOM_API_URL || DEFAULT_API_URL
+export const getApiUrl = () => CUSTOM_API_URL || DEFAULT_API_URL
 
 const getBaseZapApiUrl = () => getApiUrl() + 'zapper'
 const getOldZapApi = () => getBaseZapApiUrl()

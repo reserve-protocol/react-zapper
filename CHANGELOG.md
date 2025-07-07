@@ -1,4 +1,11 @@
-## [1.0.3] - 2025-07-007
+## [1.0.4] - 2025-07-07
+
+### Changed
+
+- Update docs
+- Fix zapper healthcheck
+
+## [1.0.3] - 2025-07-07
 
 ### Changed
 
