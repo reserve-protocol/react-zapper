@@ -2,7 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useZapperModal, Zapper } from '@reserve-protocol/react-zapper'
 import { Toaster } from '@reserve-protocol/react-zapper'
 import React, { useState } from 'react'
-import { useAccount, useChainId } from 'wagmi'
+import { useAccount, useChainId, useConfig } from 'wagmi'
 import { DTF_BY_CHAIN } from './dtf-config'
 import {
   Card,
@@ -21,6 +21,7 @@ import {
 import { Button } from './components/ui/button'
 
 function App() {
+  const wagmiConfig = useConfig()
   const chainId = useChainId()
   const { isConnected } = useAccount()
   const availableDTFs = DTF_BY_CHAIN[chainId] || []
@@ -66,7 +67,9 @@ function App() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">DTF Token</label>
+                <label className="text-sm font-medium mb-2 block">
+                  DTF Token
+                </label>
                 <Select
                   value={selectedDTF?.address}
                   onValueChange={(value) => {
@@ -86,12 +89,16 @@ function App() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
-                <label className="text-sm font-medium mb-2 block">API Endpoint</label>
+                <label className="text-sm font-medium mb-2 block">
+                  API Endpoint
+                </label>
                 <Select
                   value={apiUrl || 'default'}
-                  onValueChange={(value) => setApiUrl(value === 'default' ? '' : value)}
+                  onValueChange={(value) =>
+                    setApiUrl(value === 'default' ? '' : value)
+                  }
                 >
                   <SelectTrigger className="w-full md:w-96">
                     <SelectValue />
@@ -145,6 +152,7 @@ function App() {
               </CardHeader>
               <CardContent>
                 <Zapper
+                  wagmiConfig={wagmiConfig}
                   chain={chainId}
                   dtfAddress={selectedDTF.address}
                   mode="modal"
@@ -168,6 +176,7 @@ function App() {
               <CardContent className="p-0">
                 <div className="p-4 border-t border-muted">
                   <Zapper
+                    wagmiConfig={wagmiConfig}
                     chain={chainId}
                     dtfAddress={selectedDTF.address}
                     mode="inline"

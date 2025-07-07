@@ -1,4 +1,5 @@
 import { Address } from 'viem'
+import { Config } from 'wagmi'
 
 export interface Token {
   address: Address
@@ -20,6 +21,7 @@ export interface ZapperProps {
   chain: number
   dtfAddress: Address
   apiUrl?: string
+  wagmiConfig: Config
 }
 
 export interface UseZapperModalReturn {
