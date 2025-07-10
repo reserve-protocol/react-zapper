@@ -1,11 +1,11 @@
-import React from 'react'
-import { Button } from './ui/button'
-import { cn } from '../utils/cn'
-import { Loader } from 'lucide-react'
 import { chainIdAtom, connectWalletAtom } from '@/state/atoms'
-import { useAtomValue } from 'jotai'
-import { useAccount, useSwitchChain } from 'wagmi'
 import { CHAIN_TAGS } from '@/utils/chains'
+import { useAtomValue } from 'jotai'
+import { Loader } from 'lucide-react'
+import React from 'react'
+import { useAccount, useSwitchChain } from 'wagmi'
+import { cn } from '../utils/cn'
+import { Button } from './ui/button'
 
 interface TransactionButtonProps {
   children: React.ReactNode
@@ -35,6 +35,20 @@ export function TransactionButton({
   variant = 'default',
   size = 'lg',
 }: TransactionButtonProps) {
+  const account = useAccount()
+  const chainId = useAtomValue(chainIdAtom)
+  const walletChainId = account.chain?.id
+  const isConnected = account.isConnected
+  const isWrongChain = walletChainId && walletChainId !== chainId
+
+  if (!isConnected) {
+    return <ConnectWalletButton />
+  }
+
+  if (isWrongChain) {
+    return <SwitchChainButton />
+  }
+
   return (
     <Button
       onClick={onClick}
@@ -62,13 +76,26 @@ export const ConnectWalletButton = () => {
   )
 }
 
+export const SwitchChainButton = () => {
+  const { switchChain } = useSwitchChain()
+  const chainId = useAtomValue(chainIdAtom)
+  return (
+    <Button
+      size="lg"
+      onClick={() => switchChain({ chainId })}
+      className="w-full rounded-xl"
+    >
+      Switch to {CHAIN_TAGS[chainId]}
+    </Button>
+  )
+}
+
 export function TransactionButtonContainer({
   children,
 }: {
   children: React.ReactNode
 }) {
   const account = useAccount()
-  const { switchChain } = useSwitchChain()
   const chainId = useAtomValue(chainIdAtom)
   const walletChainId = account.chain?.id
   const isConnected = account.isConnected
@@ -78,15 +105,8 @@ export function TransactionButtonContainer({
     return <ConnectWalletButton />
   }
 
-  if (isWrongChain && switchChain) {
-    return (
-      <Button
-        className="w-full rounded-xl"
-        onClick={() => switchChain({ chainId })}
-      >
-        Switch to {CHAIN_TAGS[chainId]}
-      </Button>
-    )
+  if (isWrongChain) {
+    return <SwitchChainButton />
   }
 
   return <div className="space-y-2">{children}</div>

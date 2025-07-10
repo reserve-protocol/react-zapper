@@ -1,3 +1,10 @@
+## [1.0.7] - 2025-07-10
+
+### Changed
+
+- Updated refresh block intervals.
+- Refactored switch chain logic
+
 ## [1.0.6] - 2025-07-10
 
 ### Changed

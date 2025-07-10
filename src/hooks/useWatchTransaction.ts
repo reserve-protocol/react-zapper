@@ -41,7 +41,7 @@ const useWatchTransaction = ({
     isLoading: isMining,
   } = useWaitForTransactionReceipt({
     hash,
-    confirmations: chainId === ChainId.Mainnet ? 1 : 3,
+    confirmations: chainId === ChainId.Mainnet ? 1 : 2,
   })
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit'
-import { Toaster, useZapperModal, Zapper } from '@reserve-protocol/react-zapper'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { Toaster, useZapperModal } from '@reserve-protocol/react-zapper'
 import React, { useState } from 'react'
 import { useChains, useConfig } from 'wagmi'
 import { Button } from './components/ui/button'
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from './components/ui/select'
 import { DTF_BY_CHAIN } from './dtf-config'
+import ZapperWrapper from './components/zapper-wrapper'
 
 function App() {
   const wagmiConfig = useConfig()
@@ -29,7 +30,6 @@ function App() {
   const availableDTFs = DTF_BY_CHAIN[selectedChain.id] || []
   const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
   const [apiUrl, setApiUrl] = useState('')
-  const { openConnectModal } = useConnectModal()
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -168,13 +168,12 @@ function App() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Zapper
+                <ZapperWrapper
                   wagmiConfig={wagmiConfig}
                   chain={selectedChain.id}
                   dtfAddress={selectedDTF.address}
                   mode="modal"
                   apiUrl={apiUrl || undefined}
-                  connectWallet={openConnectModal}
                 />
                 <Button onClick={open} className="w-full rounded-xl" size="lg">
                   Open Zapper Modal
@@ -193,13 +192,12 @@ function App() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="p-4 border-t border-muted">
-                  <Zapper
+                  <ZapperWrapper
                     wagmiConfig={wagmiConfig}
                     chain={selectedChain.id}
                     dtfAddress={selectedDTF.address}
                     mode="inline"
                     apiUrl={apiUrl || undefined}
-                    connectWallet={openConnectModal}
                   />
                 </div>
               </CardContent>
