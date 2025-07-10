@@ -1,9 +1,8 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { useZapperModal, Zapper } from '@reserve-protocol/react-zapper'
-import { Toaster } from '@reserve-protocol/react-zapper'
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit'
+import { Toaster, useZapperModal, Zapper } from '@reserve-protocol/react-zapper'
 import React, { useState } from 'react'
-import { useAccount, useChainId, useConfig } from 'wagmi'
-import { DTF_BY_CHAIN } from './dtf-config'
+import { useChains, useConfig } from 'wagmi'
+import { Button } from './components/ui/button'
 import {
   Card,
   CardContent,
@@ -18,24 +17,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from './components/ui/select'
-import { Button } from './components/ui/button'
+import { DTF_BY_CHAIN } from './dtf-config'
 
 function App() {
   const wagmiConfig = useConfig()
-  const chainId = useChainId()
-  const { isConnected } = useAccount()
-  const availableDTFs = DTF_BY_CHAIN[chainId] || []
+  const chains = useChains().map((chain) => ({
+    id: chain.id,
+    label: chain.name,
+  }))
+  const [selectedChain, setSelectedChain] = useState(chains[0])
+  const availableDTFs = DTF_BY_CHAIN[selectedChain.id] || []
   const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
   const [apiUrl, setApiUrl] = useState('')
+  const { openConnectModal } = useConnectModal()
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
   React.useEffect(() => {
-    const newDTFs = DTF_BY_CHAIN[chainId] || []
+    const newDTFs = DTF_BY_CHAIN[selectedChain.id] || []
     if (newDTFs.length > 0) {
       setSelectedDTF(newDTFs[0])
     }
-  }, [chainId])
+  }, [selectedChain.id])
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,6 +69,29 @@ function App() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Chain</label>
+                <Select
+                  value={selectedChain.id.toString()}
+                  onValueChange={(value) => {
+                    setSelectedChain(
+                      chains.find((chain) => chain.id.toString() === value) ||
+                        chains[0]
+                    )
+                  }}
+                >
+                  <SelectTrigger className="w-full md:w-64">
+                    <SelectValue placeholder="Select a chain" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {chains.map((chain) => (
+                      <SelectItem key={chain.id} value={chain.id.toString()}>
+                        {chain.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">
                   DTF Token
@@ -120,16 +146,7 @@ function App() {
           </Card>
         )}
 
-        {!isConnected ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <p className="text-lg text-muted-foreground mb-4">
-                Please connect your wallet to use the Zapper
-              </p>
-              <ConnectButton />
-            </CardContent>
-          </Card>
-        ) : !selectedDTF ? (
+        {!selectedDTF ? (
           <Card className="text-center py-12">
             <CardContent>
               <p className="text-lg text-muted-foreground">
@@ -153,12 +170,13 @@ function App() {
               <CardContent>
                 <Zapper
                   wagmiConfig={wagmiConfig}
-                  chain={chainId}
+                  chain={selectedChain.id}
                   dtfAddress={selectedDTF.address}
                   mode="modal"
                   apiUrl={apiUrl || undefined}
+                  connectWallet={openConnectModal}
                 />
-                <Button onClick={open} className="w-full" size="lg">
+                <Button onClick={open} className="w-full rounded-xl" size="lg">
                   Open Zapper Modal
                 </Button>
               </CardContent>
@@ -177,10 +195,11 @@ function App() {
                 <div className="p-4 border-t border-muted">
                   <Zapper
                     wagmiConfig={wagmiConfig}
-                    chain={chainId}
+                    chain={selectedChain.id}
                     dtfAddress={selectedDTF.address}
                     mode="inline"
                     apiUrl={apiUrl || undefined}
+                    connectWallet={openConnectModal}
                   />
                 </div>
               </CardContent>

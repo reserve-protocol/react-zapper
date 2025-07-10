@@ -6,7 +6,6 @@ import { WagmiProvider } from 'wagmi'
 import { hashFn, structuralSharing } from 'wagmi/query'
 import { chainIdAtom, indexDTFAtom } from '../state/atoms'
 import { ZapperProps } from '../types'
-import { setCustomApiUrl } from '../types/api'
 import {
   trackQuoteRefresh,
   trackSettings,
@@ -230,17 +229,17 @@ export const Zapper: React.FC<ZapperProps> = ({
   chain,
   dtfAddress,
   apiUrl,
+  connectWallet,
 }) => {
-  useEffect(() => {
-    if (apiUrl) {
-      setCustomApiUrl(apiUrl)
-    }
-  }, [apiUrl])
-
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <Updaters dtfAddress={dtfAddress} chainId={chain} />
+        <Updaters
+          dtfAddress={dtfAddress}
+          chainId={chain}
+          apiUrl={apiUrl}
+          connectWallet={connectWallet}
+        />
         <ZapperContent mode={mode} />
       </QueryClientProvider>
     </WagmiProvider>

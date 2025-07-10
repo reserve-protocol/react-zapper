@@ -14,6 +14,11 @@ export const chainIdAtom = atom<number>(ChainId.Mainnet)
 export const walletAtom = atom<Address | undefined>(undefined)
 
 /**
+ * Connect wallet atom - callback to be called to connect a wallet
+ */
+export const connectWalletAtom = atom<{ fn: () => void }>({ fn: () => {} })
+
+/**
  * Token balances atom - maps token addresses to their balances
  */
 export const balancesAtom = atom<Record<string, TokenBalance>>({})

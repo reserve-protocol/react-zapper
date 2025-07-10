@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import React, { useEffect } from 'react'
+import { useAccount } from 'wagmi'
 import { useIndexBasket } from '../hooks/use-index-basket'
 import { useIndexDTF } from '../hooks/use-index-dtf'
 import {
   chainIdAtom,
+  connectWalletAtom,
   indexDTFAtom,
   indexDTFBasketAmountsAtom,
   indexDTFBasketAtom,
@@ -14,9 +16,8 @@ import {
   indexDTFIconsAtom,
   walletAtom,
 } from '../state/atoms'
+import { getApiUrl, setCustomApiUrl } from '../types/api'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
-import { useAccount } from 'wagmi'
-import { getApiUrl } from '../types/api'
 
 type IndexDTFBrand = {
   dtf?: {
@@ -27,6 +28,8 @@ type IndexDTFBrand = {
 interface UpdatersProps {
   dtfAddress: string
   chainId: number
+  apiUrl?: string
+  connectWallet?: () => void
 }
 
 const IndexDTFMetadataUpdater: React.FC<{
@@ -106,6 +109,16 @@ const IndexDTFBasketUpdater: React.FC<{
   return null
 }
 
+const ApiUrlUpdater = ({ apiUrl }: { apiUrl?: string }) => {
+  useEffect(() => {
+    if (apiUrl) {
+      setCustomApiUrl(apiUrl)
+    }
+  }, [apiUrl])
+
+  return null
+}
+
 const ChainIdUpdater: React.FC<{ chainId: number }> = ({ chainId }) => {
   const setChainId = useSetAtom(chainIdAtom)
 
@@ -123,6 +136,18 @@ const WalletUpdater = () => {
   useEffect(() => {
     setWallet(address)
   }, [address, setWallet])
+
+  return null
+}
+
+const ConnectWalletUpdater = ({ connect }: { connect?: () => void }) => {
+  const setConnectWallet = useSetAtom(connectWalletAtom)
+
+  useEffect(() => {
+    if (connect) {
+      setConnectWallet({ fn: connect })
+    }
+  }, [connect, setConnectWallet])
 
   return null
 }
@@ -147,9 +172,16 @@ const IndexDTFIconsUpdater = () => {
   return null
 }
 
-const Updaters: React.FC<UpdatersProps> = ({ dtfAddress, chainId }) => {
+const Updaters: React.FC<UpdatersProps> = ({
+  dtfAddress,
+  chainId,
+  apiUrl,
+  connectWallet,
+}) => {
   return (
     <>
+      <ConnectWalletUpdater connect={connectWallet} />
+      <ApiUrlUpdater apiUrl={apiUrl} />
       <WalletUpdater />
       <ChainIdUpdater chainId={chainId} />
       <IndexDTFMetadataUpdater dtfAddress={dtfAddress} />

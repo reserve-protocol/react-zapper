@@ -1,3 +1,14 @@
+## [1.0.5] - 2025-07-10
+
+### Added
+
+- Add `connectWallet?: () => void` prop to Zapper component for custom wallet connection handling
+- Add switch chain button when connected wallet is on different chain than DTF
+
+### Changed
+
+- Updated token balance display precision for better readability
+
 ## [1.0.4] - 2025-07-07
 
 ### Changed

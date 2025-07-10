@@ -22,6 +22,7 @@ export interface ZapperProps {
   dtfAddress: Address
   apiUrl?: string
   wagmiConfig: Config
+  connectWallet?: () => void
 }
 
 export interface UseZapperModalReturn {

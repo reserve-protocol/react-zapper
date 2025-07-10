@@ -93,14 +93,15 @@ function ZapperPage() {
 
 ### ZapperProps
 
-| Property      | Type                  | Required | Description                                   |
-| ------------- | --------------------- | -------- | --------------------------------------------- |
-| `wagmiConfig` | `WagmiConfig`         | ✅       | Wagmi v2 configuration for the app            |
-| `chain`       | `number`              | ✅       | Chain ID where the DTF is deployed            |
-| `dtfAddress`  | `Address`             | ✅       | DTF contract address                          |
-| `mode`        | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
-| `apiUrl`      | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
-| `className`   | `string`              | ❌       | Additional CSS classes                        |
+| Property        | Type                  | Required | Description                                   |
+| --------------- | --------------------- | -------- | --------------------------------------------- |
+| `wagmiConfig`   | `WagmiConfig`         | ✅       | Wagmi v2 configuration for the app            |
+| `chain`         | `number`              | ✅       | Chain ID where the DTF is deployed            |
+| `dtfAddress`    | `Address`             | ✅       | DTF contract address                          |
+| `mode`          | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
+| `apiUrl`        | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
+| `connectWallet` | `() => void`          | ❌       | Function to trigger wallet connection         |
+| `className`     | `string`              | ❌       | Additional CSS classes                        |
 
 ### useZapperModal Hook
 
@@ -143,6 +144,26 @@ function AdvancedZapper() {
   apiUrl="https://custom-api.example.com"
   mode="inline"
 />
+```
+
+### With Custom Wallet Connection
+
+```tsx
+import { useConnectModal } from '@rainbow-me/rainbowkit'
+
+function ZapperWithCustomWallet() {
+  const { openConnectModal } = useConnectModal()
+
+  return (
+    <Zapper
+      wagmiConfig={wagmiConfig}
+      chain={1}
+      dtfAddress="0x123..."
+      mode="modal"
+      connectWallet={openConnectModal}
+    />
+  )
+}
 ```
 
 ### Setting Custom API URL Globally

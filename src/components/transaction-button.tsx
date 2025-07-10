@@ -2,6 +2,10 @@ import React from 'react'
 import { Button } from './ui/button'
 import { cn } from '../utils/cn'
 import { Loader } from 'lucide-react'
+import { chainIdAtom, connectWalletAtom } from '@/state/atoms'
+import { useAtomValue } from 'jotai'
+import { useAccount, useSwitchChain } from 'wagmi'
+import { CHAIN_TAGS } from '@/utils/chains'
 
 interface TransactionButtonProps {
   children: React.ReactNode
@@ -49,11 +53,42 @@ export function TransactionButton({
   )
 }
 
+export const ConnectWalletButton = () => {
+  const { fn: connectWallet } = useAtomValue(connectWalletAtom)
+  return (
+    <Button size="lg" onClick={connectWallet} className="w-full rounded-xl">
+      Connect Wallet
+    </Button>
+  )
+}
+
 export function TransactionButtonContainer({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const account = useAccount()
+  const { switchChain } = useSwitchChain()
+  const chainId = useAtomValue(chainIdAtom)
+  const walletChainId = account.chain?.id
+  const isConnected = account.isConnected
+  const isWrongChain = walletChainId && walletChainId !== chainId
+
+  if (!isConnected) {
+    return <ConnectWalletButton />
+  }
+
+  if (isWrongChain && switchChain) {
+    return (
+      <Button
+        className="w-full rounded-xl"
+        onClick={() => switchChain({ chainId })}
+      >
+        Switch to {CHAIN_TAGS[chainId]}
+      </Button>
+    )
+  }
+
   return <div className="space-y-2">{children}</div>
 }
 

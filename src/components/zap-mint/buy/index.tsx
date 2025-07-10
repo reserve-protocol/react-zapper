@@ -1,15 +1,15 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { formatEther, parseUnits } from 'viem'
-import { usePrice } from '../../../hooks/usePrice'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
+import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import { chainIdAtom, indexDTFAtom } from '../../../state/atoms'
-import { formatCurrency } from '../../../utils'
 import { Token } from '../../../types'
+import { formatCurrency } from '../../../utils'
+import { trackTabSwitch, trackTokenSelection } from '../../../utils/tracking'
 import Swap from '../../ui/swap'
 import {
-  zapperCurrentTabAtom,
   forceMintAtom,
   openZapMintModalAtom,
   selectedTokenAtom,
@@ -20,11 +20,11 @@ import {
   zapFetchingAtom,
   zapMintInputAtom,
   zapOngoingTxAtom,
+  zapperCurrentTabAtom,
   zapRefetchAtom,
 } from '../atom'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
-import { trackTokenSelection, trackTabSwitch } from '../../../utils/tracking'
 
 const Buy = () => {
   const chainId = useAtomValue(chainIdAtom)
@@ -124,7 +124,8 @@ const Buy = () => {
           address: selectedToken.address,
           symbol: selectedToken.symbol,
           balance: `${formatCurrency(
-            Number(selectedTokenBalance?.balance || '0')
+            Number(selectedTokenBalance?.balance || '0'),
+            4
           )}`,
           value: inputAmount,
           onChange: setInputAmount,

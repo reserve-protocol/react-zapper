@@ -1,8 +1,8 @@
-import { useWatchReadContracts } from '../../hooks/use-watch-read-contracts'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Address, erc20Abi, formatUnits } from 'viem'
 import { useBalance } from 'wagmi'
+import { useWatchReadContracts } from '../../hooks/use-watch-read-contracts'
 import {
   balancesAtom,
   chainIdAtom,
@@ -51,6 +51,7 @@ export const TokenBalancesUpdater = ({
   const setBalances = useSetAtom(balancesAtom)
   const setIndexDTFBalance = useSetAtom(indexDTFBalanceAtom)
   const wallet = useAtomValue(walletAtom)
+  const chainId = useAtomValue(chainIdAtom)
 
   const { data }: { data: bigint[] | undefined } = useWatchReadContracts({
     contracts: calls,
@@ -58,23 +59,21 @@ export const TokenBalancesUpdater = ({
   })
   const { data: balance } = useBalance({
     address: wallet || undefined,
+    chainId,
   })
 
   useEffect(() => {
     if (data && tokens) {
-      const balances = data.reduce(
-        (prev, value, index) => {
-          const [address, decimals] = tokens[index]
-          prev[address] = {
-            balance: formatUnits(value, decimals),
-            value,
-            decimals,
-          }
+      const balances = data.reduce((prev, value, index) => {
+        const [address, decimals] = tokens[index]
+        prev[address] = {
+          balance: formatUnits(value, decimals),
+          value,
+          decimals,
+        }
 
-          return prev
-        },
-        {} as Record<string, TokenBalance>
-      )
+        return prev
+      }, {} as Record<string, TokenBalance>)
 
       balances['0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'] = {
         balance: balance ? balance.formatted : '0',
