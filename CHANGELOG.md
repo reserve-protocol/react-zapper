@@ -1,3 +1,9 @@
+## [1.0.6] - 2025-07-10
+
+### Changed
+
+- Updated refresh block intervals
+
 ## [1.0.5] - 2025-07-10
 
 ### Added

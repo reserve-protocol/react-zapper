@@ -17,9 +17,9 @@ import {
 import { type ReadContractData, type ReadContractsData } from 'wagmi/query'
 
 const REFRESH_BLOCKS = {
-  [ChainId.Mainnet]: 1n,
-  [ChainId.Base]: 3n,
-  [ChainId.Arbitrum]: 5n,
+  [ChainId.Mainnet]: 2n,
+  [ChainId.Base]: 6n,
+  [ChainId.Arbitrum]: 6n,
 }
 
 export const useShouldRefresh = (chain?: number) => {
@@ -37,7 +37,7 @@ export function useWatchReadContract<
   functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
   args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   config extends Config = ResolvedRegister['config'],
-  selectData = ReadContractData<abi, functionName, args>,
+  selectData = ReadContractData<abi, functionName, args>
 >(
   parameters: UseReadContractParameters<
     abi,
@@ -66,7 +66,7 @@ export function useWatchReadContracts<
   const contracts extends readonly unknown[],
   allowFailure extends boolean = true,
   config extends Config = ResolvedRegister['config'],
-  selectData = ReadContractsData<contracts, allowFailure>,
+  selectData = ReadContractsData<contracts, allowFailure>
 >(
   parameters: UseReadContractsParameters<
     contracts,
