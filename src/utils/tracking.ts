@@ -8,7 +8,7 @@ mixpanel.init(MIXPANEL_TOKEN, {
   track_pageview: true,
 })
 
-export const track = (event: string, data?: any) => {
+export const mixpanelTrack = (event: string, data?: any) => {
   try {
     mixpanel.track(event, data)
   } catch (error) {
@@ -36,7 +36,7 @@ export const trackIndexDTFQuoteError = ({
   tokenOut?: string
   error: number
 }) => {
-  track('index-dtf-zap-swap', {
+  mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
     wa: account,
     ca: tokenIn,
@@ -78,7 +78,7 @@ export const trackIndexDTFQuote = ({
   dustValue?: string
   truePriceImpact?: string
 }) => {
-  track('index-dtf-zap-swap', {
+  mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
     wa: account,
     ca: tokenIn,
@@ -103,9 +103,9 @@ export const useTrackIndexDTF = (
 ) => {
   const indexDTF = useAtomValue(indexDTFAtom)
 
-  const _track = (ctaLabel: string) => {
+  const track = (ctaLabel: string) => {
     if (!indexDTF) return
-    track(event, {
+    mixpanelTrack(event, {
       page,
       subpage,
       cta: ctaLabel,
@@ -115,7 +115,7 @@ export const useTrackIndexDTF = (
     })
   }
 
-  return { track: _track }
+  return { track }
 }
 
 export const useTrackIndexDTFClick = (page: string, subpage?: string) => {
@@ -130,13 +130,13 @@ export const useTrackIndexDTFZap = (
 ) => {
   const indexDTF = useAtomValue(indexDTFAtom)
 
-  const _track = (
+  const track = (
     ctaLabel: string,
     inputSymbol: string,
     outputSymbol: string
   ) => {
     if (!indexDTF) return
-    track(event, {
+    mixpanelTrack(event, {
       page,
       subpage,
       cta: ctaLabel,
@@ -148,7 +148,7 @@ export const useTrackIndexDTFZap = (
     })
   }
 
-  return { track: _track }
+  return { track }
 }
 
 export const useTrackIndexDTFZapClick = (page: string, subpage?: string) => {
