@@ -1,3 +1,10 @@
+## [1.0.8] - 2025-07-21
+
+### Changed
+
+- Updated mixpanel tracking
+- Input disabled when wallet is disconnected
+
 ## [1.0.7] - 2025-07-10
 
 ### Changed

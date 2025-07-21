@@ -4,10 +4,9 @@ import { formatEther, parseUnits } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
-import { chainIdAtom, indexDTFAtom } from '../../../state/atoms'
+import { chainIdAtom, indexDTFAtom, walletAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
-import { formatCurrency } from '../../../utils'
-import { trackTabSwitch, trackTokenSelection } from '../../../utils/tracking'
+import { formatCurrency, useTrackQuoteErrorUX } from '../../../utils'
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
@@ -27,6 +26,7 @@ import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
 const Buy = () => {
+  const account = useAtomValue(walletAtom)
   const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
@@ -47,13 +47,6 @@ const Buy = () => {
 
   const handleTokenSelect = (token: Token) => {
     setInputToken(token)
-    trackTokenSelection(
-      token.symbol,
-      'input',
-      indexDTF?.token.symbol,
-      indexDTF?.id,
-      chainId
-    )
   }
 
   const insufficientBalance =
@@ -68,8 +61,19 @@ const Buy = () => {
       slippage: isFinite(Number(slippage)) ? Number(slippage) : 10000,
       disabled: ongoingTx,
       forceMint,
+      dtfTicker: indexDTF?.token.symbol || '',
       type: 'buy',
     })
+
+  const zapperErrorMessage = isFetching
+    ? ''
+    : data?.error || failureReason?.message || ''
+
+  useTrackQuoteErrorUX({
+    tokenIn: selectedToken.address,
+    tokenOut: indexDTF?.id || '',
+    zapError: zapperErrorMessage,
+  })
 
   const { loadingAfterRefetch } = useLoadingAfterRefetch(data)
 
@@ -83,9 +87,6 @@ const Buy = () => {
       !isLoading
   )
   const fetchingZapper = isLoading || isFetching
-  const zapperErrorMessage = isFetching
-    ? ''
-    : data?.error || failureReason?.message || ''
   const dustValue = data?.result?.dustValue || 0
 
   const changeTab = () => {
@@ -93,7 +94,6 @@ const Buy = () => {
     setCurrentTab(newTab)
     setInputToken(tokens[0])
     setInputAmount('')
-    trackTabSwitch(newTab, indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
 
   useEffect(() => {
@@ -132,6 +132,7 @@ const Buy = () => {
           onMax,
           tokens,
           onTokenSelect: handleTokenSelect,
+          disabled: !account,
         }}
         to={{
           address: indexDTF.id,

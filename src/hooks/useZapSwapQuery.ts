@@ -2,11 +2,15 @@ import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { Address } from 'viem'
-import { chainIdAtom, walletAtom, indexDTFAtom } from '../state/atoms'
-import zapper, { ZapResponse } from '../types/api'
 import { zapSwapEndpointAtom } from '../components/zap-mint/atom'
+import { chainIdAtom, walletAtom } from '../state/atoms'
+import zapper, { ZapResponse } from '../types/api'
+import {
+  trackIndexDTFQuote,
+  trackIndexDTFQuoteError,
+  trackIndexDTFQuoteRequested,
+} from '../utils/tracking'
 import useDebounce from './useDebounce'
-import { trackApiError, trackQuoteRefresh } from '../utils/tracking'
 
 const DUST_REFRESH_THRESHOLD = 0.025
 const PRICE_IMPACT_THRESHOLD = 2
@@ -18,6 +22,7 @@ const useZapSwapQuery = ({
   slippage,
   disabled,
   forceMint,
+  dtfTicker,
   type,
 }: {
   tokenIn?: Address
@@ -26,15 +31,19 @@ const useZapSwapQuery = ({
   slippage: number
   disabled: boolean
   forceMint: boolean
+  dtfTicker: string
   type: 'buy' | 'sell'
 }) => {
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)
-  const indexDTF = useAtomValue(indexDTFAtom)
   const setZapSwapEndpoint = useSetAtom(zapSwapEndpointAtom)
 
   const getEndpoint = (bypassCache = false) =>
-    !tokenIn || !tokenOut || isNaN(Number(amountIn)) || Number(amountIn) === 0
+    !tokenIn ||
+    !tokenOut ||
+    isNaN(Number(amountIn)) ||
+    Number(amountIn) === 0 ||
+    !account
       ? null
       : zapper.zap({
           chainId,
@@ -76,25 +85,53 @@ const useZapSwapQuery = ({
 
         if (!currentEndpoint) throw new Error('No endpoint available')
 
+        trackIndexDTFQuoteRequested({
+          account,
+          tokenIn,
+          tokenOut,
+          dtfTicker,
+          chainId,
+          type,
+          endpoint: currentEndpoint,
+        })
+
         const response = await fetch(currentEndpoint)
         if (!response.ok) {
           const error = response.status
-          // Track API error
-          trackApiError(currentEndpoint, `HTTP ${error}`, indexDTF?.token.symbol, indexDTF?.id, chainId)
+          trackIndexDTFQuoteError({
+            account,
+            tokenIn,
+            tokenOut,
+            dtfTicker,
+            chainId,
+            type,
+            endpoint: currentEndpoint,
+            status: 'error',
+            error,
+          })
           throw new Error(`Error: ${error}`)
         }
         const data = await response.json()
 
         if (data) {
-          // Track successful quote fetch
-          trackQuoteRefresh('auto', indexDTF?.token.symbol, indexDTF?.id, chainId, {
-            amount: amountIn,
-            tab: type,
-            quote: data.result?.amountOutValue || 'unknown',
+          trackIndexDTFQuote({
+            account,
+            tokenIn,
+            tokenOut,
+            dtfTicker,
+            chainId,
+            type,
+            endpoint: currentEndpoint,
+            status: data.status,
+            amountInValue: data.result?.amountInValue,
+            amountOutValue: data.result?.amountOutValue,
+            dustValue: data.result?.dustValue,
+            truePriceImpact: data.result?.truePriceImpact,
           })
         }
 
         if (data && data.status === 'error') {
+          // No need to track error here, it's already tracked before
           throw new Error(data.error)
         }
 

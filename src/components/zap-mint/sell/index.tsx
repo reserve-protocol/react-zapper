@@ -6,13 +6,12 @@ import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
   indexDTFAtom,
   indexDTFPriceAtom,
-  chainIdAtom,
+  walletAtom,
 } from '../../../state/atoms'
-import { formatCurrency } from '../../../utils'
 import { Token } from '../../../types'
+import { formatCurrency, useTrackQuoteErrorUX } from '../../../utils'
 import Swap from '../../ui/swap'
 import {
-  zapperCurrentTabAtom,
   forceMintAtom,
   indexDTFBalanceAtom,
   openZapMintModalAtom,
@@ -23,16 +22,16 @@ import {
   zapFetchingAtom,
   zapMintInputAtom,
   zapOngoingTxAtom,
+  zapperCurrentTabAtom,
   zapRefetchAtom,
 } from '../atom'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
-import { trackTokenSelection, trackTabSwitch } from '../../../utils/tracking'
 
 const Sell = () => {
+  const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
-  const chainId = useAtomValue(chainIdAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const indexDTFBalance = useAtomValue(indexDTFBalanceAtom)
@@ -51,13 +50,6 @@ const Sell = () => {
 
   const handleTokenSelect = (token: Token) => {
     setOutputToken(token)
-    trackTokenSelection(
-      token.symbol,
-      'output',
-      indexDTF?.token.symbol,
-      indexDTF?.id,
-      chainId
-    )
   }
 
   const insufficientBalance = parseEther(inputAmount) > indexDTFBalance
@@ -70,8 +62,19 @@ const Sell = () => {
       slippage: Number(slippage),
       disabled: ongoingTx,
       forceMint,
+      dtfTicker: indexDTF?.token.symbol || '',
       type: 'sell',
     })
+
+  const zapperErrorMessage = isFetching
+    ? ''
+    : data?.error || failureReason?.message || ''
+
+  useTrackQuoteErrorUX({
+    tokenIn: indexDTF?.id || '',
+    tokenOut: selectedToken.address,
+    zapError: zapperErrorMessage,
+  })
 
   const { loadingAfterRefetch } = useLoadingAfterRefetch(data)
 
@@ -85,9 +88,7 @@ const Sell = () => {
       !isLoading
   )
   const fetchingZapper = isLoading || isFetching
-  const zapperErrorMessage = isFetching
-    ? ''
-    : data?.error || failureReason?.message || ''
+
   const dustValue = data?.result?.dustValue || 0
 
   const changeTab = () => {
@@ -95,7 +96,6 @@ const Sell = () => {
     setCurrentTab(newTab)
     setOutputToken(tokens[0])
     setInputAmount('')
-    trackTabSwitch(newTab, indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
 
   useEffect(() => {
@@ -129,6 +129,7 @@ const Sell = () => {
           value: inputAmount,
           onChange: setInputAmount,
           onMax,
+          disabled: !account,
         }}
         to={{
           address: selectedToken.address,
