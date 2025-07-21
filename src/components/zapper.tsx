@@ -77,7 +77,6 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   }
 
   const handleRefreshClick = () => {
-    console.log('refresh')
     zapRefetch.fn?.()
     trackClick('zap_refresh', tokenIn?.symbol || '', tokenOut?.symbol || '')
   }
