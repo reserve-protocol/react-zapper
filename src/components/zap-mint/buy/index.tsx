@@ -4,7 +4,7 @@ import { formatEther, parseUnits } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
-import { chainIdAtom, indexDTFAtom } from '../../../state/atoms'
+import { chainIdAtom, indexDTFAtom, walletAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
 import { formatCurrency, useTrackQuoteErrorUX } from '../../../utils'
 import Swap from '../../ui/swap'
@@ -26,6 +26,7 @@ import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
 const Buy = () => {
+  const account = useAtomValue(walletAtom)
   const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
@@ -131,6 +132,7 @@ const Buy = () => {
           onMax,
           tokens,
           onTokenSelect: handleTokenSelect,
+          disabled: !account,
         }}
         to={{
           address: indexDTF.id,

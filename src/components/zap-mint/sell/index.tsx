@@ -3,7 +3,11 @@ import { useCallback, useEffect } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
-import { indexDTFAtom, indexDTFPriceAtom } from '../../../state/atoms'
+import {
+  indexDTFAtom,
+  indexDTFPriceAtom,
+  walletAtom,
+} from '../../../state/atoms'
 import { Token } from '../../../types'
 import { formatCurrency, useTrackQuoteErrorUX } from '../../../utils'
 import Swap from '../../ui/swap'
@@ -25,6 +29,7 @@ import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
 const Sell = () => {
+  const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
@@ -124,6 +129,7 @@ const Sell = () => {
           value: inputAmount,
           onChange: setInputAmount,
           onMax,
+          disabled: !account,
         }}
         to={{
           address: selectedToken.address,

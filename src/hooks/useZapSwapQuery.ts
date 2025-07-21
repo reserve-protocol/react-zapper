@@ -39,7 +39,11 @@ const useZapSwapQuery = ({
   const setZapSwapEndpoint = useSetAtom(zapSwapEndpointAtom)
 
   const getEndpoint = (bypassCache = false) =>
-    !tokenIn || !tokenOut || isNaN(Number(amountIn)) || Number(amountIn) === 0
+    !tokenIn ||
+    !tokenOut ||
+    isNaN(Number(amountIn)) ||
+    Number(amountIn) === 0 ||
+    !account
       ? null
       : zapper.zap({
           chainId,
