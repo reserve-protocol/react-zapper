@@ -68,6 +68,7 @@ const Buy = () => {
       slippage: isFinite(Number(slippage)) ? Number(slippage) : 10000,
       disabled: ongoingTx,
       forceMint,
+      dtfTicker: indexDTF?.token.symbol || '',
       type: 'buy',
     })
 

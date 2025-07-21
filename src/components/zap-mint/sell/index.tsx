@@ -70,6 +70,7 @@ const Sell = () => {
       slippage: Number(slippage),
       disabled: ongoingTx,
       forceMint,
+      dtfTicker: indexDTF?.token.symbol || '',
       type: 'sell',
     })
 

@@ -40,7 +40,11 @@ export const track = (event: string, data?: TrackingData) => {
 }
 
 // Track page views - UNUSED, kept for future page tracking needs
-export const trackPageView = (page: string, subpage?: string, additionalData?: TrackingData) => {
+export const trackPageView = (
+  page: string,
+  subpage?: string,
+  additionalData?: TrackingData
+) => {
   try {
     mixpanel.track('page_view', {
       page,
@@ -72,7 +76,12 @@ export const trackClick = (
 }
 
 // Track zapper modal open/close
-export const trackZapperModal = (action: 'open' | 'close', ticker?: string, ca?: string, chain?: string | number) => {
+export const trackZapperModal = (
+  action: 'open' | 'close',
+  ticker?: string,
+  ca?: string,
+  chain?: string | number
+) => {
   track('zapper_modal', {
     page: 'zapper',
     cta: action,
@@ -83,7 +92,12 @@ export const trackZapperModal = (action: 'open' | 'close', ticker?: string, ca?:
 }
 
 // Track tab switches
-export const trackTabSwitch = (tab: 'buy' | 'sell', ticker?: string, ca?: string, chain?: string | number) => {
+export const trackTabSwitch = (
+  tab: 'buy' | 'sell',
+  ticker?: string,
+  ca?: string,
+  chain?: string | number
+) => {
   track('zapper_tab_switch', {
     page: 'zapper',
     cta: tab,
@@ -208,25 +222,6 @@ export const trackTransactionError = (
   })
 }
 
-// Track API errors
-export const trackApiError = (
-  endpoint: string,
-  error: string,
-  ticker?: string,
-  ca?: string,
-  chain?: string | number
-) => {
-  track('zapper_api_error', {
-    page: 'zapper',
-    cta: 'api_error',
-    endpoint,
-    error,
-    ticker,
-    ca,
-    chain,
-  })
-}
-
 // Track token selection
 export const trackTokenSelection = (
   tokenSymbol: string,
@@ -246,17 +241,82 @@ export const trackTokenSelection = (
   })
 }
 
-export default {
-  track,
-  trackPageView,
-  trackClick,
-  trackZapperModal,
-  trackTabSwitch,
-  trackSettings,
-  trackQuoteRefresh,
-  trackTransactionSubmit,
-  trackTransactionSuccess,
-  trackTransactionError,
-  trackApiError,
-  trackTokenSelection,
+export const trackIndexDTFQuoteError = ({
+  account,
+  tokenIn,
+  tokenOut,
+  dtfTicker,
+  chainId,
+  type,
+  endpoint,
+  error,
+}: {
+  dtfTicker: string
+  chainId: number
+  type: string
+  endpoint: string
+  status: string
+  account?: string
+  tokenIn?: string
+  tokenOut?: string
+  error: number
+}) => {
+  mixpanel.track('index-dtf-zap-swap', {
+    event: 'index-dtf-zap-swap',
+    wa: account,
+    ca: tokenIn,
+    ticker: dtfTicker,
+    chainId,
+    type,
+    endpoint,
+    status: 'error',
+    tokenIn,
+    tokenOut,
+    error,
+  })
+}
+
+export const trackIndexDTFQuote = ({
+  account,
+  tokenIn,
+  tokenOut,
+  dtfTicker,
+  chainId,
+  type,
+  endpoint,
+  status,
+  amountInValue,
+  amountOutValue,
+  dustValue,
+  truePriceImpact,
+}: {
+  dtfTicker: string
+  chainId: number
+  type: string
+  endpoint: string
+  status: string
+  account?: string
+  tokenIn?: string
+  tokenOut?: string
+  amountInValue?: string
+  amountOutValue?: string
+  dustValue?: string
+  truePriceImpact?: string
+}) => {
+  mixpanel.track('index-dtf-zap-swap', {
+    event: 'index-dtf-zap-swap',
+    wa: account,
+    ca: tokenIn,
+    ticker: dtfTicker,
+    chainId,
+    type,
+    endpoint,
+    status: status,
+    tokenIn,
+    tokenOut,
+    amountInValue: amountInValue,
+    amountOutValue: amountOutValue,
+    dustValue: dustValue,
+    truePriceImpact: truePriceImpact,
+  })
 }
