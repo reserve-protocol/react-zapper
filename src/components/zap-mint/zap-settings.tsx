@@ -1,12 +1,10 @@
+import { broom } from '@lucide/lab'
+import { useAtom } from 'jotai'
+import { Anvil, Icon } from 'lucide-react'
 import { Checkbox } from '../ui/checkbox'
 import Help from '../ui/help'
 import { SlippageSelector } from '../ui/swap'
-import { broom } from '@lucide/lab'
-import { useAtom, useAtomValue } from 'jotai'
-import { Anvil, Icon } from 'lucide-react'
 import { forceMintAtom, slippageAtom } from './atom'
-import { chainIdAtom, indexDTFAtom } from '../../state/atoms'
-import { trackSettings } from '../../utils/tracking'
 
 const ZapSettingsRowTitle = ({
   title,
@@ -24,18 +22,14 @@ const ZapSettingsRowTitle = ({
 const ZapSettings = () => {
   const [slippage, setSlippage] = useAtom(slippageAtom)
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
-  const chainId = useAtomValue(chainIdAtom)
-  const indexDTF = useAtomValue(indexDTFAtom)
 
   const handleSlippageChange = (value: string) => {
     setSlippage(value)
-    trackSettings('change', 'slippage', Number(value), indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
 
   const handleForceMintChange = (value: boolean | 'indeterminate') => {
     const newValue = value === 'indeterminate' ? false : value
     setForceMint(newValue)
-    trackSettings('change', 'force_mint', newValue, indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
   return (
     <div className="min-h-[306px] border-t border-border -mx-2 px-2 py-4 flex flex-col gap-4">

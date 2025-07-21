@@ -3,16 +3,11 @@ import { useCallback, useEffect } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
-import {
-  indexDTFAtom,
-  indexDTFPriceAtom,
-  chainIdAtom,
-} from '../../../state/atoms'
-import { formatCurrency } from '../../../utils'
+import { indexDTFAtom, indexDTFPriceAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
+import { formatCurrency } from '../../../utils'
 import Swap from '../../ui/swap'
 import {
-  zapperCurrentTabAtom,
   forceMintAtom,
   indexDTFBalanceAtom,
   openZapMintModalAtom,
@@ -23,16 +18,15 @@ import {
   zapFetchingAtom,
   zapMintInputAtom,
   zapOngoingTxAtom,
+  zapperCurrentTabAtom,
   zapRefetchAtom,
 } from '../atom'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
-import { trackTokenSelection, trackTabSwitch } from '../../../utils/tracking'
 
 const Sell = () => {
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
-  const chainId = useAtomValue(chainIdAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const indexDTFBalance = useAtomValue(indexDTFBalanceAtom)
@@ -51,13 +45,6 @@ const Sell = () => {
 
   const handleTokenSelect = (token: Token) => {
     setOutputToken(token)
-    trackTokenSelection(
-      token.symbol,
-      'output',
-      indexDTF?.token.symbol,
-      indexDTF?.id,
-      chainId
-    )
   }
 
   const insufficientBalance = parseEther(inputAmount) > indexDTFBalance
@@ -96,7 +83,6 @@ const Sell = () => {
     setCurrentTab(newTab)
     setOutputToken(tokens[0])
     setInputAmount('')
-    trackTabSwitch(newTab, indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
 
   useEffect(() => {

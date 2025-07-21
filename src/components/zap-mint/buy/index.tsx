@@ -7,7 +7,6 @@ import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import { chainIdAtom, indexDTFAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
 import { formatCurrency } from '../../../utils'
-import { trackTabSwitch, trackTokenSelection } from '../../../utils/tracking'
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
@@ -47,13 +46,6 @@ const Buy = () => {
 
   const handleTokenSelect = (token: Token) => {
     setInputToken(token)
-    trackTokenSelection(
-      token.symbol,
-      'input',
-      indexDTF?.token.symbol,
-      indexDTF?.id,
-      chainId
-    )
   }
 
   const insufficientBalance =
@@ -94,7 +86,6 @@ const Buy = () => {
     setCurrentTab(newTab)
     setInputToken(tokens[0])
     setInputAmount('')
-    trackTabSwitch(newTab, indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
 
   useEffect(() => {

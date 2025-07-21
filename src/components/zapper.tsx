@@ -1,16 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { WagmiProvider } from 'wagmi'
 import { hashFn, structuralSharing } from 'wagmi/query'
-import { chainIdAtom, indexDTFAtom } from '../state/atoms'
+import { indexDTFAtom } from '../state/atoms'
 import { ZapperProps } from '../types'
-import {
-  trackQuoteRefresh,
-  trackSettings,
-  trackTabSwitch,
-} from '../utils/tracking'
+import { useTrackIndexDTFZapClick } from '../utils/tracking'
 import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
@@ -43,14 +39,20 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   const [currentTab, setCurrentTab] = useAtom(zapperCurrentTabAtom)
   const [showSettings, setShowSettings] = useAtom(showZapSettingsAtom)
   const defaultToken = useAtomValue(defaultSelectedTokenAtom)
-  const setSelectedToken = useSetAtom(selectedTokenAtom)
-  const chainId = useAtomValue(chainIdAtom)
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const zapRefetch = useAtomValue(zapRefetchAtom)
   const zapFetching = useAtomValue(zapFetchingAtom)
   const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
   const input = useAtomValue(zapMintInputAtom)
   const invalidInput = isNaN(Number(input)) || Number(input) === 0
+
+  const tokenIn =
+    currentTab === 'buy' ? selectedToken || defaultToken : indexDTF?.token
+  const tokenOut =
+    currentTab === 'sell' ? indexDTF?.token : selectedToken || defaultToken
+
+  const { trackClick } = useTrackIndexDTFZapClick('overview')
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
@@ -71,28 +73,17 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
 
   const handleSettingsClick = () => {
     setShowSettings(true)
-    trackSettings(
-      'open',
-      undefined,
-      undefined,
-      indexDTF?.token.symbol,
-      indexDTF?.id,
-      chainId
-    )
+    trackClick('zap_settings', tokenIn?.symbol || '', tokenOut?.symbol || '')
   }
 
   const handleRefreshClick = () => {
     zapRefetch.fn?.()
-    trackQuoteRefresh('manual', indexDTF?.token.symbol, indexDTF?.id, chainId, {
-      amount: input,
-      tab: currentTab,
-    })
+    trackClick('zap_refresh', tokenIn?.symbol || '', tokenOut?.symbol || '')
   }
 
   const handleTabChange = (value: string) => {
     const newTab = value as 'buy' | 'sell'
     setCurrentTab(newTab)
-    trackTabSwitch(newTab, indexDTF?.token.symbol, indexDTF?.id, chainId)
   }
 
   if (mode === 'inline') {
