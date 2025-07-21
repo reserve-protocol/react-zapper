@@ -1,5 +1,7 @@
 import mixpanel from 'mixpanel-browser/src/loaders/loader-module-core'
 import { MIXPANEL_TOKEN } from './constants'
+import { indexDTFAtom } from '@/state/atoms'
+import { useAtomValue } from 'jotai'
 
 // Initialize Mixpanel with the hardcoded token
 mixpanel.init(MIXPANEL_TOKEN, {
@@ -37,42 +39,6 @@ export const track = (event: string, data?: TrackingData) => {
   } catch (error) {
     console.warn('Mixpanel tracking failed:', error)
   }
-}
-
-// Track page views - UNUSED, kept for future page tracking needs
-export const trackPageView = (
-  page: string,
-  subpage?: string,
-  additionalData?: TrackingData
-) => {
-  try {
-    mixpanel.track('page_view', {
-      page,
-      subpage,
-      ...additionalData,
-    })
-  } catch (error) {
-    console.warn('Mixpanel page view tracking failed:', error)
-  }
-}
-
-// Track user clicks/taps
-export const trackClick = (
-  page: string,
-  ctaLabel: string,
-  ca?: string,
-  ticker?: string,
-  chain?: string | number,
-  additionalData?: TrackingData
-) => {
-  track('tap', {
-    page,
-    cta: ctaLabel,
-    ca,
-    ticker,
-    chain,
-    ...additionalData,
-  })
 }
 
 // Track zapper modal open/close
@@ -139,82 +105,6 @@ export const trackQuoteRefresh = (
   track('zapper_quote_refresh', {
     page: 'zapper',
     cta: type,
-    ticker,
-    ca,
-    chain,
-    ...additionalData,
-  })
-}
-
-// Track transaction submission
-export const trackTransactionSubmit = (
-  type: 'buy' | 'sell',
-  inputSymbol?: string,
-  outputSymbol?: string,
-  amount?: string,
-  ticker?: string,
-  ca?: string,
-  chain?: string | number,
-  additionalData?: TrackingData
-) => {
-  track('zapper_transaction_submit', {
-    page: 'zapper',
-    cta: type,
-    input: inputSymbol,
-    output: outputSymbol,
-    amount,
-    ticker,
-    ca,
-    chain,
-    ...additionalData,
-  })
-}
-
-// Track transaction success
-export const trackTransactionSuccess = (
-  type: 'buy' | 'sell',
-  txHash: string,
-  inputSymbol?: string,
-  outputSymbol?: string,
-  amount?: string,
-  ticker?: string,
-  ca?: string,
-  chain?: string | number,
-  additionalData?: TrackingData
-) => {
-  track('zapper_transaction_success', {
-    page: 'zapper',
-    cta: type,
-    txHash,
-    input: inputSymbol,
-    output: outputSymbol,
-    amount,
-    ticker,
-    ca,
-    chain,
-    ...additionalData,
-  })
-}
-
-// Track transaction error
-export const trackTransactionError = (
-  type: 'buy' | 'sell',
-  error: string,
-  inputSymbol?: string,
-  outputSymbol?: string,
-  amount?: string,
-  ticker?: string,
-  ca?: string,
-  chain?: string | number,
-  additionalData?: TrackingData
-) => {
-  track('zapper_transaction_error', {
-    page: 'zapper',
-    cta: type,
-    error,
-    input: inputSymbol,
-    output: outputSymbol,
-    amount,
     ticker,
     ca,
     chain,
@@ -319,4 +209,64 @@ export const trackIndexDTFQuote = ({
     dustValue: dustValue,
     truePriceImpact: truePriceImpact,
   })
+}
+
+export const useTrackIndexDTF = (
+  event: string,
+  page: string,
+  subpage?: string
+) => {
+  const indexDTF = useAtomValue(indexDTFAtom)
+
+  const track = (ctaLabel: string) => {
+    if (!indexDTF) return
+    mixpanel.track(event, {
+      page,
+      subpage,
+      cta: ctaLabel,
+      ca: indexDTF.id,
+      ticker: indexDTF.token.symbol,
+      chain: indexDTF.chainId,
+    })
+  }
+
+  return { track }
+}
+
+export const useTrackIndexDTFClick = (page: string, subpage?: string) => {
+  const { track } = useTrackIndexDTF('tap', page, subpage)
+  return { trackClick: track }
+}
+
+export const useTrackIndexDTFZap = (
+  event: string,
+  page: string,
+  subpage?: string
+) => {
+  const indexDTF = useAtomValue(indexDTFAtom)
+
+  const track = (
+    ctaLabel: string,
+    inputSymbol: string,
+    outputSymbol: string
+  ) => {
+    if (!indexDTF) return
+    mixpanel.track(event, {
+      page,
+      subpage,
+      cta: ctaLabel,
+      ca: indexDTF.id,
+      ticker: indexDTF.token.symbol,
+      chain: indexDTF.chainId,
+      input: inputSymbol,
+      output: outputSymbol,
+    })
+  }
+
+  return { track }
+}
+
+export const useTrackIndexDTFZapClick = (page: string, subpage?: string) => {
+  const { track } = useTrackIndexDTFZap('tap', page, subpage)
+  return { trackClick: track }
 }

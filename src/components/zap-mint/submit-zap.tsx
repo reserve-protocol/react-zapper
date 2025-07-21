@@ -1,17 +1,14 @@
-import { formatCurrency } from '../../utils/format'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Address, erc20Abi } from 'viem'
 import { useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
-import { indexDTFAtom } from '../../state/atoms'
 import { ZapResult } from '../../types/api'
+import { formatCurrency } from '../../utils/format'
 import {
-  trackClick,
-  trackTransactionError,
-  trackTransactionSubmit,
-  trackTransactionSuccess,
+  useTrackIndexDTFZap,
+  useTrackIndexDTFZapClick,
 } from '../../utils/tracking'
 import FusionTokenLogo from '../fusion-token-logo'
 import TransactionButton, {
@@ -44,8 +41,8 @@ const LoadingButton = ({
         {fetchingZapper
           ? 'Loading...'
           : insufficientBalance
-            ? 'Insufficient balance'
-            : buttonLabel}
+          ? 'Insufficient balance'
+          : buttonLabel}
       </Button>
       <ZapErrorMsg error={zapperErrorMessage} />
     </>
@@ -82,7 +79,9 @@ const SubmitZapButton = ({
 }) => {
   const warningAccepted = useAtomValue(zapPriceImpactWarningCheckboxAtom)
   const highPriceImpact = useAtomValue(zapHighPriceImpactAtom)
-  const indexDTF = useAtomValue(indexDTFAtom)
+
+  const { trackClick } = useTrackIndexDTFZapClick('overview')
+  const { track } = useTrackIndexDTFZap('alert', 'overview')
 
   const setOngoingTx = useSetAtom(zapOngoingTxAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
@@ -134,7 +133,11 @@ const SubmitZapButton = ({
     label: `Swapped ${inputSymbol} for ${outputSymbol}`,
     successMessage: {
       title: `Swapped`,
-      subtitle: `${formatCurrency(Number(inputAmount))} ${inputSymbol} for ${formatCurrency(Number(outputAmount))} ${outputSymbol}`,
+      subtitle: `${formatCurrency(
+        Number(inputAmount)
+      )} ${inputSymbol} for ${formatCurrency(
+        Number(outputAmount)
+      )} ${outputSymbol}`,
       type: 'success',
       icon: (
         <FusionTokenLogo
@@ -147,21 +150,6 @@ const SubmitZapButton = ({
 
   const execute = () => {
     if (!tx || !readyToSubmit) return
-
-    // Track transaction submission
-    trackTransactionSubmit(
-      currentTab,
-      inputSymbol,
-      outputSymbol,
-      inputAmount,
-      indexDTF?.token.symbol,
-      indexDTF?.id,
-      chainId,
-      {
-        gas: gas?.toString(),
-        truePriceImpact: truePriceImpact?.toString(),
-      }
-    )
 
     sendTransaction({
       data: tx.data as Address,
@@ -180,25 +168,11 @@ const SubmitZapButton = ({
     (txError ? Error(txError) : undefined)
 
   useEffect(() => {
-    if (receipt && data) {
-      // Track transaction success
-      trackTransactionSuccess(
-        currentTab,
-        data,
-        inputSymbol,
-        outputSymbol,
-        inputAmount,
-        indexDTF?.token.symbol,
-        indexDTF?.id,
-        chainId,
-        {
-          outputAmount,
-          gas: gas?.toString(),
-        }
-      )
+    if (receipt?.status === 'success') {
+      track('zap_success_notification', inputSymbol, outputSymbol)
       onSuccess?.()
     }
-  }, [receipt, data])
+  }, [receipt?.status])
 
   useEffect(() => {
     if (
@@ -219,29 +193,6 @@ const SubmitZapButton = ({
     isErrorApproval,
     isErrorSend,
   ])
-
-  // Track transaction errors
-  useEffect(() => {
-    if (error) {
-      trackTransactionError(
-        currentTab,
-        error.message,
-        inputSymbol,
-        outputSymbol,
-        inputAmount,
-        indexDTF?.token.symbol,
-        indexDTF?.id,
-        chainId,
-        {
-          errorType: approvalError
-            ? 'approval_error'
-            : sendError
-              ? 'send_error'
-              : 'transaction_error',
-        }
-      )
-    }
-  }, [error])
 
   return (
     <div className="flex flex-col gap-1">
