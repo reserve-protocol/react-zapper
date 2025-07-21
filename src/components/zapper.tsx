@@ -77,6 +77,7 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   }
 
   const handleRefreshClick = () => {
+    console.log('refresh')
     zapRefetch.fn?.()
     trackClick('zap_refresh', tokenIn?.symbol || '', tokenOut?.symbol || '')
   }
@@ -112,13 +113,13 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
                 <Button
                   variant="outline"
                   className="h-[34px] px-2 rounded-xl"
-                  onClick={() => setShowSettings(true)}
+                  onClick={handleSettingsClick}
                 >
                   <Settings size={16} />
                 </Button>
                 <RefreshQuote
                   small
-                  onClick={zapRefetch.fn}
+                  onClick={handleRefreshClick}
                   loading={zapFetching}
                   disabled={zapFetching || zapOngoingTx || invalidInput}
                 />
