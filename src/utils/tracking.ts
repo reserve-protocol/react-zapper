@@ -1,7 +1,12 @@
 import mixpanel from 'mixpanel-browser/src/loaders/loader-module-core'
 import { MIXPANEL_TOKEN } from './constants'
-import { indexDTFAtom } from '@/state/atoms'
+import { chainIdAtom, indexDTFAtom, walletAtom } from '@/state/atoms'
 import { useAtomValue } from 'jotai'
+import { useEffect } from 'react'
+import {
+  zapperCurrentTabAtom,
+  zapSwapEndpointAtom,
+} from '@/components/zap-mint/atom'
 
 // Initialize Mixpanel with the hardcoded token
 mixpanel.init(MIXPANEL_TOKEN, {
@@ -48,6 +53,37 @@ export const trackIndexDTFQuoteError = ({
     tokenIn,
     tokenOut,
     error,
+  })
+}
+
+export const trackIndexDTFQuoteRequested = ({
+  account,
+  tokenIn,
+  tokenOut,
+  dtfTicker,
+  chainId,
+  type,
+  endpoint,
+}: {
+  dtfTicker: string
+  chainId: number
+  type: string
+  endpoint: string
+  account?: string
+  tokenIn?: string
+  tokenOut?: string
+}) => {
+  mixpanelTrack('index-dtf-zap-swap', {
+    event: 'index-dtf-zap-swap',
+    wa: account,
+    ca: tokenIn,
+    ticker: dtfTicker,
+    chainId,
+    type,
+    endpoint,
+    status: 'requested',
+    tokenIn,
+    tokenOut,
   })
 }
 
@@ -154,4 +190,38 @@ export const useTrackIndexDTFZap = (
 export const useTrackIndexDTFZapClick = (page: string, subpage?: string) => {
   const { track } = useTrackIndexDTFZap('tap', page, subpage)
   return { trackClick: track }
+}
+
+export const useTrackQuoteErrorUX = ({
+  tokenIn,
+  tokenOut,
+  zapError,
+}: {
+  tokenIn: string
+  tokenOut: string
+  zapError: string
+}) => {
+  const chainId = useAtomValue(chainIdAtom)
+  const account = useAtomValue(walletAtom)
+  const indexDTF = useAtomValue(indexDTFAtom)
+  const currentTab = useAtomValue(zapperCurrentTabAtom)
+  const endpoint = useAtomValue(zapSwapEndpointAtom)
+
+  useEffect(() => {
+    if (zapError) {
+      mixpanelTrack('index-dtf-zap-swap', {
+        event: 'index-dtf-zap-swap',
+        wa: account,
+        ca: tokenIn,
+        ticker: indexDTF?.token.symbol || '',
+        chainId,
+        type: currentTab,
+        endpoint,
+        status: 'user_error',
+        tokenIn,
+        tokenOut,
+        userError: zapError,
+      })
+    }
+  }, [zapError, account, tokenIn, tokenOut, indexDTF, currentTab, endpoint])
 }

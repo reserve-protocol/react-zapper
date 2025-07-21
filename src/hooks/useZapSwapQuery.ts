@@ -5,7 +5,11 @@ import { Address } from 'viem'
 import { zapSwapEndpointAtom } from '../components/zap-mint/atom'
 import { chainIdAtom, walletAtom } from '../state/atoms'
 import zapper, { ZapResponse } from '../types/api'
-import { trackIndexDTFQuote, trackIndexDTFQuoteError } from '../utils/tracking'
+import {
+  trackIndexDTFQuote,
+  trackIndexDTFQuoteError,
+  trackIndexDTFQuoteRequested,
+} from '../utils/tracking'
 import useDebounce from './useDebounce'
 
 const DUST_REFRESH_THRESHOLD = 0.025
@@ -77,6 +81,16 @@ const useZapSwapQuery = ({
 
         if (!currentEndpoint) throw new Error('No endpoint available')
 
+        trackIndexDTFQuoteRequested({
+          account,
+          tokenIn,
+          tokenOut,
+          dtfTicker,
+          chainId,
+          type,
+          endpoint: currentEndpoint,
+        })
+
         const response = await fetch(currentEndpoint)
         if (!response.ok) {
           const error = response.status
@@ -113,6 +127,7 @@ const useZapSwapQuery = ({
         }
 
         if (data && data.status === 'error') {
+          // No need to track error here, it's already tracked before
           throw new Error(data.error)
         }
 

@@ -5,7 +5,7 @@ import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import { indexDTFAtom, indexDTFPriceAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
-import { formatCurrency } from '../../../utils'
+import { formatCurrency, useTrackQuoteErrorUX } from '../../../utils'
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
@@ -61,6 +61,16 @@ const Sell = () => {
       type: 'sell',
     })
 
+  const zapperErrorMessage = isFetching
+    ? ''
+    : data?.error || failureReason?.message || ''
+
+  useTrackQuoteErrorUX({
+    tokenIn: indexDTF?.id || '',
+    tokenOut: selectedToken.address,
+    zapError: zapperErrorMessage,
+  })
+
   const { loadingAfterRefetch } = useLoadingAfterRefetch(data)
 
   const priceFrom = data?.result?.amountInValue
@@ -73,9 +83,7 @@ const Sell = () => {
       !isLoading
   )
   const fetchingZapper = isLoading || isFetching
-  const zapperErrorMessage = isFetching
-    ? ''
-    : data?.error || failureReason?.message || ''
+
   const dustValue = data?.result?.dustValue || 0
 
   const changeTab = () => {
