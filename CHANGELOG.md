@@ -1,3 +1,9 @@
+## [1.0.8] - 2025-07-21
+
+### Changed
+
+- Updated mixpanel tracking
+
 ## [1.0.7] - 2025-07-10
 
 ### Changed
