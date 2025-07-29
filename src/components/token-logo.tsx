@@ -7,6 +7,7 @@ import defaultLogoSvg from './icons/svgs/defaultLogo.svg'
 import ethSvg from './icons/svgs/eth.svg'
 import usdcSvg from './icons/svgs/usdc.svg'
 import wethSvg from './icons/svgs/weth.svg'
+import bnbSvg from './icons/svgs/bnb.svg'
 
 const routeCacheAtom = atom<Record<string, string>>({})
 
@@ -197,6 +198,7 @@ const SVG_LOGOS: Record<string, string> = {
   usdc: usdcSvg,
   eth: ethSvg,
   weth: wethSvg,
+  bnb: bnbSvg,
 }
 
 export const SVGS = new Set(['usdc', 'eth', 'weth'])

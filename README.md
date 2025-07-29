@@ -181,6 +181,7 @@ The zapper currently supports:
 
 - **Ethereum Mainnet** (Chain ID: 1)
 - **Base** (Chain ID: 8453)
+- **BNB Smart Chain** (Chain ID: 56)
 
 Each chain has its own set of supported tokens for zapping. The component automatically detects the current chain and shows appropriate tokens.
 

@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { base, mainnet } from 'wagmi/chains'
+import { base, bsc, mainnet } from 'wagmi/chains'
 
 export interface DTFConfig {
   address: Address
@@ -25,6 +25,12 @@ export const DTF_BY_CHAIN: Record<number, DTFConfig[]> = {
     {
       address: '0x23418de10d422ad71c9d5713a2b8991a9c586443',
       symbol: 'BGCI',
+    },
+  ],
+  [bsc.id]: [
+    {
+      address: '0xb1b317d781eacfeef75557c15708560e791cbd00',
+      symbol: 'TTCT',
     },
   ],
 }

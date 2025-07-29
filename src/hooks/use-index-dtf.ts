@@ -10,6 +10,8 @@ const INDEX_DTF_SUBGRAPH_URL = {
     'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-base/api',
   [ChainId.Arbitrum]:
     'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-arbitrum/api',
+  [ChainId.BSC]:
+    'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-bsc/api',
 }
 
 type DTFQueryResponse = {
