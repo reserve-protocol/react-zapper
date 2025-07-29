@@ -20,6 +20,7 @@ const REFRESH_BLOCKS = {
   [ChainId.Mainnet]: 2n,
   [ChainId.Base]: 6n,
   [ChainId.Arbitrum]: 6n,
+  [ChainId.BSC]: 6n,
 }
 
 export const useShouldRefresh = (chain?: number) => {
