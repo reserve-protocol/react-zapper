@@ -14,8 +14,7 @@ export const setCustomApiUrl = (apiUrl?: string) => {
 // Function to get current API URL
 export const getApiUrl = () => CUSTOM_API_URL || DEFAULT_API_URL
 
-const getBaseZapApiUrl = () => getApiUrl() + 'zapper'
-const getOldZapApi = () => getBaseZapApiUrl()
+const getBaseZapApiUrl = (chain: number) => getApiUrl() + `api/zapper/${chain}`
 
 export type ZapPayload = {
   chainId: number
@@ -76,7 +75,10 @@ const zapper = {
     signer,
     trade = true,
   }: ZapPayload) =>
-    `${getOldZapApi()}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}`,
+    `${getBaseZapApiUrl(
+      chainId
+    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}`,
+
   zap: ({
     chainId,
     tokenIn,
@@ -87,13 +89,15 @@ const zapper = {
     trade = true,
     bypassCache = false,
   }: ZapPayload) =>
-    `${getBaseZapApiUrl()}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}`,
+    `${getBaseZapApiUrl(
+      chainId
+    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}`,
 
   zapDeploy: (chainId: number) =>
-    `${getBaseZapApiUrl()}/deploy-zap?chainId=${chainId}`,
+    `${getBaseZapApiUrl(chainId)}/deploy-zap?chainId=${chainId}`,
 
   zapDeployUngoverned: (chainId: number) =>
-    `${getBaseZapApiUrl()}/deploy-ungoverned-zap?chainId=${chainId}`,
+    `${getBaseZapApiUrl(chainId)}/deploy-ungoverned-zap?chainId=${chainId}`,
 }
 
 export default zapper
