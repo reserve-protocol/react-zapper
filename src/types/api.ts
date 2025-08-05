@@ -1,22 +1,13 @@
 import { Address } from 'viem'
 
 // Default API URL - can be overridden via config
-const DEFAULT_API_URL = 'https://api.reserve.org/'
+export const DEFAULT_API_URL = 'https://api.reserve.org/'
 
-// Global variable to store custom API URL
-let CUSTOM_API_URL: string | undefined = undefined
-
-// Function to set custom API URL
-export const setCustomApiUrl = (apiUrl?: string) => {
-  CUSTOM_API_URL = apiUrl
-}
-
-// Function to get current API URL
-export const getApiUrl = () => CUSTOM_API_URL || DEFAULT_API_URL
-
-const getBaseZapApiUrl = (chain: number) => getApiUrl() + `api/zapper/${chain}`
+const getBaseZapApiUrl = (url: string, chain: number) =>
+  url + `api/zapper/${chain}`
 
 export type ZapPayload = {
+  url: string
   chainId: number
   tokenIn: Address
   tokenOut: Address
@@ -67,6 +58,7 @@ export const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 const zapper = {
   oldZap: ({
+    url,
     chainId,
     tokenIn,
     tokenOut,
@@ -76,10 +68,12 @@ const zapper = {
     trade = true,
   }: ZapPayload) =>
     `${getBaseZapApiUrl(
+      url,
       chainId
     )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}`,
 
   zap: ({
+    url,
     chainId,
     tokenIn,
     tokenOut,
@@ -90,14 +84,15 @@ const zapper = {
     bypassCache = false,
   }: ZapPayload) =>
     `${getBaseZapApiUrl(
+      url,
       chainId
     )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}`,
 
-  zapDeploy: (chainId: number) =>
-    `${getBaseZapApiUrl(chainId)}/deploy-zap?chainId=${chainId}`,
+  zapDeploy: (url: string, chainId: number) =>
+    `${getBaseZapApiUrl(url, chainId)}/deploy?chainId=${chainId}`,
 
-  zapDeployUngoverned: (chainId: number) =>
-    `${getBaseZapApiUrl(chainId)}/deploy-ungoverned-zap?chainId=${chainId}`,
+  zapDeployUngoverned: (url: string, chainId: number) =>
+    `${getBaseZapApiUrl(url, chainId)}/deploy-ungoverned?chainId=${chainId}`,
 }
 
 export default zapper

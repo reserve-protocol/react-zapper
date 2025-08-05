@@ -14,9 +14,9 @@ import {
   indexDTFBasketSharesAtom,
   indexDTFBrandAtom,
   indexDTFIconsAtom,
+  apiUrlAtom,
   walletAtom,
 } from '../state/atoms'
-import { getApiUrl, setCustomApiUrl } from '../types/api'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 
 type IndexDTFBrand = {
@@ -35,18 +35,19 @@ interface UpdatersProps {
 const IndexDTFMetadataUpdater: React.FC<{
   dtfAddress: string
 }> = ({ dtfAddress }) => {
+  const api = useAtomValue(apiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
   const setIndexDTF = useSetAtom(indexDTFAtom)
   const setIndexDTFBrand = useSetAtom(indexDTFBrandAtom)
   const { data } = useIndexDTF(dtfAddress, chainId)
 
   const { data: brandData } = useQuery({
-    queryKey: ['brand', data?.id],
+    queryKey: ['brand', api, data?.id],
     queryFn: async () => {
       if (!data) return undefined
 
       const res = await fetch(
-        `${getApiUrl()}folio-manager/read?folio=${data.id.toLowerCase()}&chainId=${chainId}`
+        `${api}folio-manager/read?folio=${data.id.toLowerCase()}&chainId=${chainId}`
       )
 
       const response = await res.json()
@@ -110,9 +111,11 @@ const IndexDTFBasketUpdater: React.FC<{
 }
 
 const ApiUrlUpdater = ({ apiUrl }: { apiUrl?: string }) => {
+  const setApiUrl = useSetAtom(apiUrlAtom)
+
   useEffect(() => {
     if (apiUrl) {
-      setCustomApiUrl(apiUrl)
+      setApiUrl(apiUrl)
     }
   }, [apiUrl])
 
@@ -153,12 +156,13 @@ const ConnectWalletUpdater = ({ connect }: { connect?: () => void }) => {
 }
 
 const IndexDTFIconsUpdater = () => {
+  const api = useAtomValue(apiUrlAtom)
   const setIcons = useSetAtom(indexDTFIconsAtom)
 
   const { data } = useQuery({
-    queryKey: ['icons'],
+    queryKey: ['icons', api],
     queryFn: async () => {
-      const res = await fetch(getApiUrl() + 'dtf/icons')
+      const res = await fetch(api + 'dtf/icons')
       return res.json()
     },
   })

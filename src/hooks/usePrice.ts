@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'
-import { getApiUrl } from '../types/api'
+import { useAtomValue } from 'jotai'
+import { apiUrlAtom } from '@/state/atoms'
 
 /**
  * Hook to fetch price data for a token using Reserve API
@@ -10,12 +11,13 @@ export function usePrice(
   tokenAddress: Address,
   apiUrl?: string
 ): number | null {
+  const atomUrl = useAtomValue(apiUrlAtom)
   const { data } = useQuery({
-    queryKey: ['chainlinkPrice', chainId, tokenAddress, apiUrl],
+    queryKey: ['chainlinkPrice', chainId, tokenAddress, apiUrl, atomUrl],
     queryFn: async () => {
       if (!tokenAddress) return null
 
-      const baseUrl = apiUrl || getApiUrl()
+      const baseUrl = apiUrl || atomUrl
       const url = `${baseUrl}current/prices?chainId=${chainId}&tokens=${tokenAddress}`
 
       try {
