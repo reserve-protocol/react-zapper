@@ -3,7 +3,7 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { Address } from 'viem'
 import { zapSwapEndpointAtom } from '../components/zap-mint/atom'
-import { chainIdAtom, walletAtom } from '../state/atoms'
+import { chainIdAtom, apiUrlAtom, walletAtom } from '../state/atoms'
 import zapper, { ZapResponse } from '../types/api'
 import {
   trackIndexDTFQuote,
@@ -34,6 +34,7 @@ const useZapSwapQuery = ({
   dtfTicker: string
   type: 'buy' | 'sell'
 }) => {
+  const api = useAtomValue(apiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)
   const setZapSwapEndpoint = useSetAtom(zapSwapEndpointAtom)
@@ -46,6 +47,7 @@ const useZapSwapQuery = ({
     !account
       ? null
       : zapper.zap({
+          url: api,
           chainId,
           tokenIn,
           tokenOut,
@@ -59,7 +61,7 @@ const useZapSwapQuery = ({
   const endpoint = useDebounce(
     useMemo(
       () => getEndpoint(false),
-      [chainId, account, tokenIn, tokenOut, amountIn, slippage, forceMint]
+      [api, chainId, account, tokenIn, tokenOut, amountIn, slippage, forceMint]
     ),
     500
   )
