@@ -1,3 +1,9 @@
+## [1.1.2] - 2025-08-26
+
+### Removed
+
+- USDC as an option for BSC zaps
+
 ## [1.0.9] - 2025-07-29
 
 ### Added
