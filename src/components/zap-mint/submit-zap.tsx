@@ -16,11 +16,14 @@ import TransactionButton, {
 } from '../transaction-button'
 import { Button } from '../ui/button'
 import {
+  zapDustWarningCheckboxAtom,
+  zapHighDustValueAtom,
   zapHighPriceImpactAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
 } from './atom'
+import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
 
@@ -59,6 +62,8 @@ const SubmitZapButton = ({
     tx,
     gas,
     truePriceImpact,
+    dustValue,
+    amountOutValue,
   },
   chainId,
   buttonLabel,
@@ -78,7 +83,9 @@ const SubmitZapButton = ({
   onSuccess?: () => void
 }) => {
   const warningAccepted = useAtomValue(zapPriceImpactWarningCheckboxAtom)
+  const dustWarningAccepted = useAtomValue(zapDustWarningCheckboxAtom)
   const highPriceImpact = useAtomValue(zapHighPriceImpactAtom)
+  const highDustValue = useAtomValue(zapHighDustValueAtom)
 
   const { trackClick } = useTrackIndexDTFZapClick('overview')
   const { track } = useTrackIndexDTFZap('alert', 'overview')
@@ -197,9 +204,14 @@ const SubmitZapButton = ({
   return (
     <div className="flex flex-col gap-1">
       <ZapPriceImpactWarningCheckbox priceImpact={truePriceImpact} />
+      <ZapDustWarningCheckbox
+        dustValue={dustValue ?? undefined}
+        amountOutValue={amountOutValue ?? undefined}
+      />
       <TransactionButton
         disabled={
           (highPriceImpact && !warningAccepted) ||
+          (highDustValue && !dustWarningAccepted) ||
           (approvalNeeded
             ? !approvalReady || confirmingApproval || approving
             : !readyToSubmit || loadingTx || validatingTx)

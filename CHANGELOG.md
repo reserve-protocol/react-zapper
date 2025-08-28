@@ -1,3 +1,14 @@
+## [1.1.3] - 2025-08-28
+
+### Added
+
+- High dust warning banner
+- Loading skeletons
+
+### Changed
+
+- Data refresh period
+
 ## [1.1.2] - 2025-08-26
 
 ### Removed

@@ -17,10 +17,10 @@ import {
 import { type ReadContractData, type ReadContractsData } from 'wagmi/query'
 
 const REFRESH_BLOCKS = {
-  [ChainId.Mainnet]: 2n,
-  [ChainId.Base]: 6n,
-  [ChainId.Arbitrum]: 6n,
-  [ChainId.BSC]: 6n,
+  [ChainId.Mainnet]: 1n,
+  [ChainId.Base]: 2n,
+  [ChainId.Arbitrum]: 2n,
+  [ChainId.BSC]: 2n,
 }
 
 export const useShouldRefresh = (chain?: number) => {
