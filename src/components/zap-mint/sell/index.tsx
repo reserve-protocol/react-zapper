@@ -27,6 +27,7 @@ import {
 } from '../atom'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const Sell = () => {
   const account = useAtomValue(walletAtom)
@@ -116,7 +117,7 @@ const Sell = () => {
     setOpen(false)
   }, [])
 
-  if (!indexDTF) return null
+  if (!indexDTF) return <Skeleton className="h-64" />
 
   return (
     <div className="flex flex-col gap-2 h-full">
