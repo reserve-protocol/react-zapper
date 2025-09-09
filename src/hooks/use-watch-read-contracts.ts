@@ -46,7 +46,7 @@ export function useWatchReadContract<
     args,
     config,
     selectData
-  > = {} as any
+  > = {} as UseReadContractParameters<abi, functionName, args, config, selectData>
 ): UseReadContractReturnType<abi, functionName, args, selectData> {
   const result = useReadContract(
     parameters as UseReadContractParameters
@@ -58,7 +58,7 @@ export function useWatchReadContract<
     if (shouldRefresh) {
       refetch()
     }
-  }, [shouldRefresh])
+  }, [shouldRefresh, refetch])
 
   return result
 }
@@ -86,7 +86,7 @@ export function useWatchReadContracts<
     if (shouldRefresh) {
       refetch()
     }
-  }, [shouldRefresh])
+  }, [shouldRefresh, refetch])
 
   return result
 }

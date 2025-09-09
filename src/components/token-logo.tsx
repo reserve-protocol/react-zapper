@@ -68,14 +68,14 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
     })
   }
 
-  const cacheUrl = (url: string) => {
+  const cacheUrl = React.useCallback((url: string) => {
     if (address && chain) {
       setRouteCache((prev) => ({
         ...prev,
         [`${address.toLowerCase()}-${chain}`]: url,
       }))
     }
-  }
+  }, [address, chain, setRouteCache])
 
   const loadImage = React.useCallback(async () => {
     try {
@@ -162,7 +162,7 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
       console.debug('Failed to load token logo:', error)
       setCurrentSrc(defaultLogoSvg)
     }
-  }, [propsSrc, symbol, address, chain, h, w, indexDTFIcons, routeCache])
+  }, [propsSrc, symbol, address, chain, h, w, indexDTFIcons, routeCache, cacheUrl])
 
   React.useEffect(() => {
     setCurrentSrc('')

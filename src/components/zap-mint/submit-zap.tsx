@@ -181,7 +181,7 @@ const SubmitZapButton = ({
       track('zap_success_notification', inputSymbol, outputSymbol, source)
       onSuccess?.()
     }
-  }, [receipt?.status])
+  }, [receipt?.status, inputSymbol, outputSymbol, source, track, onSuccess])
 
   useEffect(() => {
     if (
@@ -201,6 +201,7 @@ const SubmitZapButton = ({
     txError,
     isErrorApproval,
     isErrorSend,
+    setOngoingTx,
   ])
 
   return (

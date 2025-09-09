@@ -110,12 +110,12 @@ const Sell = () => {
   useEffect(() => {
     setOngoingTx(false)
     setInputAmount('')
-  }, [])
+  }, [setOngoingTx, setInputAmount])
 
   const onSuccess = useCallback(() => {
     setInputAmount('')
     setOpen(false)
-  }, [])
+  }, [setInputAmount, setOpen])
 
   if (!indexDTF) return <Skeleton className="h-64" />
 

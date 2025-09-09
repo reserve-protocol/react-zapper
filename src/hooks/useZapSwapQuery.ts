@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useCallback } from 'react'
 import { Address } from 'viem'
 import { zapSwapEndpointAtom } from '../components/zap-mint/atom'
 import { chainIdAtom, apiUrlAtom, walletAtom, quoteSourceAtom } from '../state/atoms'
@@ -40,7 +40,7 @@ const useZapSwapQuery = ({
   const quoteSource = useAtomValue(quoteSourceAtom)
   const setZapSwapEndpoint = useSetAtom(zapSwapEndpointAtom)
 
-  const getZapEndpoint = (bypassCache = false) =>
+  const getZapEndpoint = useCallback((bypassCache = false) =>
     !tokenIn ||
     !tokenOut ||
     isNaN(Number(amountIn)) ||
@@ -57,9 +57,9 @@ const useZapSwapQuery = ({
           signer: account as Address,
           trade: !forceMint,
           bypassCache,
-        })
+        }), [api, chainId, tokenIn, tokenOut, amountIn, slippage, account, forceMint])
 
-  const getOdosEndpoint = () =>
+  const getOdosEndpoint = useCallback(() =>
     !tokenIn ||
     !tokenOut ||
     isNaN(Number(amountIn)) ||
@@ -74,12 +74,12 @@ const useZapSwapQuery = ({
           amountIn,
           slippage,
           signer: account as Address,
-        })
+        }), [api, chainId, tokenIn, tokenOut, amountIn, slippage, account])
 
   const zapEndpoint = useDebounce(
     useMemo(
       () => getZapEndpoint(false),
-      [api, chainId, account, tokenIn, tokenOut, amountIn, slippage, forceMint]
+      [getZapEndpoint]
     ),
     500
   )
@@ -87,14 +87,14 @@ const useZapSwapQuery = ({
   const odosEndpoint = useDebounce(
     useMemo(
       () => getOdosEndpoint(),
-      [api, chainId, account, tokenIn, tokenOut, amountIn, slippage]
+      [getOdosEndpoint]
     ),
     500
   )
 
   useEffect(() => {
     setZapSwapEndpoint(zapEndpoint ?? '')
-  }, [zapEndpoint])
+  }, [zapEndpoint, setZapSwapEndpoint])
 
   // Fetch Zap quote with dust and price impact retries
   const fetchZapQuote = async (): Promise<ZapResponse & { source: 'zap' }> => {

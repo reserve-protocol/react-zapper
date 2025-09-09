@@ -20,9 +20,9 @@ const useContractWrite = <
   TAbi extends Abi | readonly unknown[],
   TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
 >(
-  call: UseSimulateContractParameters<TAbi, TFunctionName> = {} as any
+  call: UseSimulateContractParameters<TAbi, TFunctionName> = {} as UseSimulateContractParameters<TAbi, TFunctionName>
 ) => {
-  const { data, error, isLoading, isSuccess } = useSimulateContract(
+  const { data, error, isSuccess } = useSimulateContract(
     call as UseSimulateContractParameters
   )
 
@@ -46,9 +46,9 @@ const useContractWrite = <
       ? {
           to: data.request.address,
           data: encodeFunctionData({
-            abi: call.abi as any,
+            abi: call.abi as TAbi,
             functionName: call.functionName,
-            args: call.args as any,
+            args: call.args as readonly unknown[],
           }),
         }
       : undefined
@@ -82,12 +82,12 @@ const useContractWrite = <
     }),
     [
       error,
-      isLoading,
       contractWrite,
       gas,
       handleWrite,
       data?.request,
       isSuccess,
+      writeContract,
     ]
   )
 }

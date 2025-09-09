@@ -77,7 +77,7 @@ const useWatchTransaction = ({
         },
       })
     }
-  }, [hash, data, status, error, notify])
+  }, [hash, data, status, error, notify, successMessage?.title, successMessage?.subtitle, successMessage?.type, successMessage?.icon, label, chainId])
 
   return {
     data,

@@ -13,7 +13,7 @@ mixpanel.init(MIXPANEL_TOKEN, {
   track_pageview: true,
 })
 
-export const mixpanelTrack = (event: string, data?: any) => {
+export const mixpanelTrack = (event: string, data?: Record<string, unknown>) => {
   try {
     mixpanel.track(event, data)
   } catch (error) {
@@ -234,5 +234,5 @@ export const useTrackQuoteErrorUX = ({
         userError: zapError,
       })
     }
-  }, [zapError, account, tokenIn, tokenOut, indexDTF, currentTab, endpoint])
+  }, [zapError, account, tokenIn, tokenOut, indexDTF, currentTab, endpoint, chainId])
 }
