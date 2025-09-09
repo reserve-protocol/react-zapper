@@ -129,7 +129,7 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
           setCurrentSrc(url)
           setIsWrapped(true)
           return
-        } catch (error) {
+        } catch {
           console.debug(`Failed to load dexscreener image for ${address}`)
         }
       }
@@ -142,7 +142,7 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
           cacheUrl(url)
           setCurrentSrc(url)
           return
-        } catch (error) {
+        } catch {
           console.debug(`Failed to load dexscreener image for ${address}`)
         }
 
@@ -152,7 +152,7 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
           cacheUrl(url)
           setCurrentSrc(url)
           return
-        } catch (error) {
+        } catch {
           console.debug(`Failed to load llama image for ${address}`)
         }
       }
