@@ -537,7 +537,7 @@ export const SwapDetails = ({ visible, details }: SwapDetailsProps) => {
         <AccordionTrigger className="px-3 py-2 font-light">
           <SwapDetailItem
             left={visible.left}
-            right={open ? undefined : visible.right}
+            right={visible.right}
           />
         </AccordionTrigger>
         <AccordionContent>

@@ -65,6 +65,7 @@ const SubmitZapButton = ({
     dustValue,
     amountOutValue,
   },
+  source,
   chainId,
   buttonLabel,
   inputSymbol,
@@ -74,6 +75,7 @@ const SubmitZapButton = ({
   onSuccess,
 }: {
   data: ZapResult
+  source?: 'zap' | 'odos'
   chainId: number
   buttonLabel: string
   inputSymbol: string
@@ -176,7 +178,7 @@ const SubmitZapButton = ({
 
   useEffect(() => {
     if (receipt?.status === 'success') {
-      track('zap_success_notification', inputSymbol, outputSymbol)
+      track('zap_success_notification', inputSymbol, outputSymbol, source)
       onSuccess?.()
     }
   }, [receipt?.status])
@@ -221,10 +223,10 @@ const SubmitZapButton = ({
         onClick={() => {
           setOngoingTx(true)
           if (readyToSubmit) {
-            trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol)
+            trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
             execute()
           } else {
-            trackClick('zap-approve', inputSymbol, outputSymbol)
+            trackClick('zap-approve', inputSymbol, outputSymbol, source)
             approve()
           }
         }}
@@ -241,6 +243,7 @@ const SubmitZapButton = ({
 
 const SubmitZap = ({
   data,
+  source,
   chainId,
   buttonLabel,
   inputSymbol,
@@ -254,6 +257,7 @@ const SubmitZap = ({
   onSuccess,
 }: {
   data?: ZapResult
+  source?: 'zap' | 'odos'
   chainId: number
   buttonLabel: string
   inputSymbol: string
@@ -269,6 +273,7 @@ const SubmitZap = ({
   return showTxButton && data ? (
     <SubmitZapButton
       data={data}
+      source={source}
       chainId={chainId}
       buttonLabel={buttonLabel}
       inputSymbol={inputSymbol}

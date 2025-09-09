@@ -1,10 +1,19 @@
 import { broom } from '@lucide/lab'
 import { useAtom } from 'jotai'
-import { Anvil, Icon } from 'lucide-react'
+import { Anvil, Icon, Zap, Route } from 'lucide-react'
 import { Checkbox } from '../ui/checkbox'
 import Help from '../ui/help'
 import { SlippageSelector } from '../ui/swap'
 import { forceMintAtom, slippageAtom } from './atom'
+import { quoteSourceAtom, type QuoteSource } from '../../state/atoms'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import OdosIcon from '../icons/odos'
 
 const ZapSettingsRowTitle = ({
   title,
@@ -22,6 +31,7 @@ const ZapSettingsRowTitle = ({
 const ZapSettings = () => {
   const [slippage, setSlippage] = useAtom(slippageAtom)
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
+  const [quoteSource, setQuoteSource] = useAtom(quoteSourceAtom)
 
   const handleSlippageChange = (value: string) => {
     setSlippage(value)
@@ -31,6 +41,11 @@ const ZapSettings = () => {
     const newValue = value === 'indeterminate' ? false : value
     setForceMint(newValue)
   }
+
+  const handleQuoteSourceChange = (value: QuoteSource) => {
+    setQuoteSource(value)
+  }
+
   return (
     <div className="min-h-[306px] border-t border-border -mx-2 px-2 py-4 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
@@ -77,6 +92,37 @@ const ZapSettings = () => {
             onCheckedChange={handleForceMintChange}
           />
         </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <ZapSettingsRowTitle
+          title="Quote Source"
+          help="Select which quote provider to use. 'Best' automatically selects the best price, 'Zap' uses Reserve's native routing, 'Odos' uses Odos DEX aggregator."
+        />
+        <Select value={quoteSource} onValueChange={handleQuoteSourceChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="best">
+              <div className="flex items-center gap-2">
+                <Route size={14} />
+                <span>Best Quote</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="zap">
+              <div className="flex items-center gap-2">
+                <Zap size={14} />
+                <span>Zap</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="odos">
+              <div className="flex items-center gap-2">
+                <OdosIcon size={14} />
+                <span>Odos</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )

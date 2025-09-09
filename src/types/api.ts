@@ -88,6 +88,17 @@ const zapper = {
       chainId
     )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}`,
 
+  odosZap: ({
+    url,
+    chainId,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    slippage,
+    signer,
+  }: ZapPayload) =>
+    `${url}odos/swap?chainId=${chainId}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}&slippage=${slippage}&signer=${signer}`,
+
   zapDeploy: (url: string, chainId: number) =>
     `${getBaseZapApiUrl(url, chainId)}/deploy?chainId=${chainId}`,
 

@@ -20,6 +20,21 @@ import {
 import { DTF_BY_CHAIN } from './dtf-config'
 import ZapperWrapper from './components/zapper-wrapper'
 
+const API_URLS = [
+  {
+    label: 'Default',
+    value: 'https://api.reserve.org/',
+  },
+  {
+    label: 'Staging',
+    value: 'http://api-staging.reserve.org/',
+  },
+  {
+    label: 'Local',
+    value: 'http://localhost:3005/',
+  },
+]
+
 function App() {
   const wagmiConfig = useConfig()
   const chains = useChains().map((chain) => ({
@@ -29,7 +44,7 @@ function App() {
   const [selectedChain, setSelectedChain] = useState(chains[0])
   const availableDTFs = DTF_BY_CHAIN[selectedChain.id] || []
   const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
-  const [apiUrl, setApiUrl] = useState('')
+  const [apiUrl, setApiUrl] = useState(API_URLS[0].value)
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -130,12 +145,11 @@ function App() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="default">
-                      Default - https://api.reserve.org/
-                    </SelectItem>
-                    <SelectItem value="http://api-staging.reserve.org/">
-                      Staging - http://api-staging.reserve.org/
-                    </SelectItem>
+                    {API_URLS.map((url) => (
+                      <SelectItem key={url.value} value={url.value}>
+                        {url.label} - {url.value}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">

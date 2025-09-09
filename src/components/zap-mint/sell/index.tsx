@@ -151,9 +151,10 @@ const Sell = () => {
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
-      {!!data?.result && <ZapDetails data={data.result} />}
+      {!!data?.result && <ZapDetails data={data.result} source={data.source} />}
       <SubmitZap
         data={data?.result}
+        source={data?.source}
         chainId={indexDTF.chainId}
         buttonLabel={`Sell ${indexDTF.token.symbol}`}
         inputSymbol={indexDTF.token.symbol}
