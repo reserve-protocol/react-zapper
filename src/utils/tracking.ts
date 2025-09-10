@@ -13,7 +13,7 @@ mixpanel.init(MIXPANEL_TOKEN, {
   track_pageview: true,
 })
 
-export const mixpanelTrack = (event: string, data?: any) => {
+export const mixpanelTrack = (event: string, data?: Record<string, unknown>) => {
   try {
     mixpanel.track(event, data)
   } catch (error) {
@@ -30,6 +30,7 @@ export const trackIndexDTFQuoteError = ({
   type,
   endpoint,
   error,
+  source,
 }: {
   dtfTicker: string
   chainId: number
@@ -40,6 +41,7 @@ export const trackIndexDTFQuoteError = ({
   tokenIn?: string
   tokenOut?: string
   error: number
+  source?: 'zap' | 'odos'
 }) => {
   mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
@@ -53,6 +55,7 @@ export const trackIndexDTFQuoteError = ({
     tokenIn,
     tokenOut,
     error,
+    source,
   })
 }
 
@@ -64,6 +67,7 @@ export const trackIndexDTFQuoteRequested = ({
   chainId,
   type,
   endpoint,
+  source,
 }: {
   dtfTicker: string
   chainId: number
@@ -72,6 +76,7 @@ export const trackIndexDTFQuoteRequested = ({
   account?: string
   tokenIn?: string
   tokenOut?: string
+  source?: 'zap' | 'odos'
 }) => {
   mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
@@ -84,6 +89,7 @@ export const trackIndexDTFQuoteRequested = ({
     status: 'requested',
     tokenIn,
     tokenOut,
+    source,
   })
 }
 
@@ -100,6 +106,7 @@ export const trackIndexDTFQuote = ({
   amountOutValue,
   dustValue,
   truePriceImpact,
+  source,
 }: {
   dtfTicker: string
   chainId: number
@@ -113,6 +120,7 @@ export const trackIndexDTFQuote = ({
   amountOutValue?: string
   dustValue?: string
   truePriceImpact?: string
+  source?: 'zap' | 'odos'
 }) => {
   mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
@@ -129,6 +137,7 @@ export const trackIndexDTFQuote = ({
     amountOutValue: amountOutValue,
     dustValue: dustValue,
     truePriceImpact: truePriceImpact,
+    source,
   })
 }
 
@@ -169,7 +178,8 @@ export const useTrackIndexDTFZap = (
   const track = (
     ctaLabel: string,
     inputSymbol: string,
-    outputSymbol: string
+    outputSymbol: string,
+    source?: 'zap' | 'odos'
   ) => {
     if (!indexDTF) return
     mixpanelTrack(event, {
@@ -181,6 +191,7 @@ export const useTrackIndexDTFZap = (
       chain: indexDTF.chainId,
       input: inputSymbol,
       output: outputSymbol,
+      source,
     })
   }
 
@@ -223,5 +234,5 @@ export const useTrackQuoteErrorUX = ({
         userError: zapError,
       })
     }
-  }, [zapError, account, tokenIn, tokenOut, indexDTF, currentTab, endpoint])
+  }, [zapError, account, tokenIn, tokenOut, indexDTF, currentTab, endpoint, chainId])
 }

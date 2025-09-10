@@ -1,11 +1,18 @@
 import { SwapDetails } from '../ui/swap'
 import { indexDTFAtom } from '../../state/atoms'
-import { formatCurrency, formatPercentage, formatTokenAmount } from '../../utils'
+import {
+  formatCurrency,
+  formatPercentage,
+  formatTokenAmount,
+} from '../../utils'
 import { ZapResult } from '../../types/api'
 import Decimal from 'decimal.js-light'
 import { useAtomValue } from 'jotai'
 import { formatUnits } from 'viem'
 import { selectedTokenOrDefaultAtom } from './atom'
+import Help from '../ui/help'
+import { Zap } from 'lucide-react'
+import OdosIcon from '../icons/odos'
 
 export const ZapPriceImpact = ({
   data,
@@ -19,12 +26,12 @@ export const ZapPriceImpact = ({
     priceImpact > 10
       ? 'text-red-500'
       : priceImpact > 5
-        ? 'text-yellow-500'
-        : priceImpact < 0
-          ? 'text-green-500'
-          : isDetail
-            ? ''
-            : 'text-muted-foreground'
+      ? 'text-yellow-500'
+      : priceImpact < 0
+      ? 'text-green-500'
+      : isDetail
+      ? ''
+      : 'text-muted-foreground'
   return (
     <span className={priceImpactColor}>
       {isDetail ? '' : '('}
@@ -36,7 +43,13 @@ export const ZapPriceImpact = ({
   )
 }
 
-const ZapDetails = ({ data }: { data: ZapResult }) => {
+const ZapDetails = ({
+  data,
+  source,
+}: {
+  data: ZapResult
+  source?: 'zap' | 'odos'
+}) => {
   const indexDTF = useAtomValue(indexDTFAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const dtfAsTokenIn =
@@ -71,42 +84,64 @@ const ZapDetails = ({ data }: { data: ZapResult }) => {
       )
     : undefined
 
-  const amountInValue = new Decimal(data.amountInValue || 0)
+  // const amountInValue = new Decimal(data.amountInValue || 0)
   const ratio = amountIn.eq(0) ? undefined : amountOut.div(amountIn)
 
-  const ratioText = `1 ${tokenInSymbol} = ${formatCurrency(ratio?.toNumber() || 0)} ${tokenOutSymbol}`
-  const mintFeeValue = amountInValue.mul(indexDTF?.mintingFee || 0).toNumber()
+  const ratioText = `1 ${tokenInSymbol} = ${formatCurrency(
+    ratio?.toNumber() || 0
+  )} ${tokenOutSymbol}`
+  // const mintFeeValue = amountInValue.mul(indexDTF?.mintingFee || 0).toNumber()
 
   if (!indexDTF) return null
 
   return (
     <SwapDetails
       visible={{
-        left: ratioText,
-        right: !dtfAsTokenIn ? (
-          <span>
-            <span className="text-muted-foreground">Fee</span>{' '}
-            {formatPercentage((indexDTF.mintingFee || 0) * 100)}
-          </span>
+        left: (
+          <div className="flex items-center gap-1">
+            <span className="text-muted-foreground">Quote includes fees</span>
+            <Help content="The displayed quote already includes all applicable fees and price impact." />
+          </div>
+        ),
+        right: source ? (
+          <div className="flex items-center gap-1">
+            <span className="text-muted-foreground">Via</span>
+            {source === 'zap' ? (
+              <>
+                <Zap size={14} />
+                <span>Zap</span>
+              </>
+            ) : (
+              <>
+                <OdosIcon size={14} />
+                <span>Odos</span>
+              </>
+            )}
+          </div>
         ) : undefined,
       }}
       details={[
-        ...(!dtfAsTokenIn
-          ? [
-              {
-                left: <span className="text-muted-foreground">Mint Fee</span>,
-                right: (
-                  <span>
-                    ${formatCurrency(mintFeeValue)}{' '}
-                    <span className="text-muted-foreground">
-                      ({formatPercentage((indexDTF.mintingFee || 0) * 100)})
-                    </span>
-                  </span>
-                ),
-                help: 'A one-time fee deduction from the tokens you are using to create a share of the DTF. This fee is set by the Governors of the DTF.',
-              },
-            ]
-          : []),
+        {
+          left: <span className="text-muted-foreground">Exchange Rate</span>,
+          right: <span>{ratioText}</span>,
+          help: 'The current exchange rate between the tokens.',
+        },
+        // ...(!dtfAsTokenIn
+        //   ? [
+        //       {
+        //         left: <span className="text-muted-foreground">Mint Fee</span>,
+        //         right: (
+        //           <span>
+        //             ${formatCurrency(mintFeeValue)}{' '}
+        //             <span className="text-muted-foreground">
+        //               ({formatPercentage((indexDTF.mintingFee || 0) * 100)})
+        //             </span>
+        //           </span>
+        //         ),
+        //         help: 'A one-time fee deduction from the tokens you are using to create a share of the DTF. This fee is set by the Governors of the DTF.',
+        //       },
+        //     ]
+        //   : []),
         {
           left: <span className="text-muted-foreground">Price Impact</span>,
           right: <ZapPriceImpact data={data} isDetail />,

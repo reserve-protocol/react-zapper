@@ -77,3 +77,12 @@ export const indexDTFPriceAtom = atom((get) => {
 export const indexDTFIconsAtom = atom<Record<number, Record<string, string>>>(
   {}
 )
+
+/**
+ * Quote source preference atom - controls which quote source to use
+ * 'best' = automatic selection based on minAmountOut
+ * 'zap' = use only Zap quotes
+ * 'odos' = use only Odos quotes
+ */
+export type QuoteSource = 'best' | 'zap' | 'odos'
+export const quoteSourceAtom = atom<QuoteSource>('best')

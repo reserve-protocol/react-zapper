@@ -1,10 +1,19 @@
 import { broom } from '@lucide/lab'
 import { useAtom } from 'jotai'
-import { Anvil, Icon } from 'lucide-react'
+import { Anvil, Icon, Zap, Route } from 'lucide-react'
 import { Checkbox } from '../ui/checkbox'
 import Help from '../ui/help'
 import { SlippageSelector } from '../ui/swap'
 import { forceMintAtom, slippageAtom } from './atom'
+import { quoteSourceAtom, type QuoteSource } from '../../state/atoms'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import OdosIcon from '../icons/odos'
 
 const ZapSettingsRowTitle = ({
   title,
@@ -22,6 +31,7 @@ const ZapSettingsRowTitle = ({
 const ZapSettings = () => {
   const [slippage, setSlippage] = useAtom(slippageAtom)
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
+  const [quoteSource, setQuoteSource] = useAtom(quoteSourceAtom)
 
   const handleSlippageChange = (value: string) => {
     setSlippage(value)
@@ -31,24 +41,43 @@ const ZapSettings = () => {
     const newValue = value === 'indeterminate' ? false : value
     setForceMint(newValue)
   }
+
+  const handleQuoteSourceChange = (value: QuoteSource) => {
+    setQuoteSource(value)
+  }
+
   return (
     <div className="min-h-[306px] border-t border-border -mx-2 px-2 py-4 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
-          title="Collect dust?"
-          help="Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
+          title="Quote Source"
+          help="Select which quote provider to use. 'Best' automatically selects the best price, 'Zap' uses Reserve's native routing, 'Odos' uses Odos DEX aggregator."
         />
-        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
-          <div className="flex items-center gap-1">
-            <Icon
-              iconNode={broom}
-              size={16}
-              className="text-muted-foreground"
-            />
-            <div>Send dust back to wallet</div>
-          </div>
-          <Checkbox checked disabled />
-        </div>
+        <Select value={quoteSource} onValueChange={handleQuoteSourceChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="best">
+              <div className="flex items-center gap-2">
+                <Route size={14} />
+                <span>Best Quote</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="zap">
+              <div className="flex items-center gap-2">
+                <Zap size={14} />
+                <span>Zap</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="odos">
+              <div className="flex items-center gap-2">
+                <OdosIcon size={14} />
+                <span>Odos</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
@@ -76,6 +105,23 @@ const ZapSettings = () => {
             checked={forceMint}
             onCheckedChange={handleForceMintChange}
           />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <ZapSettingsRowTitle
+          title="Collect dust?"
+          help="Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
+        />
+        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
+          <div className="flex items-center gap-1">
+            <Icon
+              iconNode={broom}
+              size={16}
+              className="text-muted-foreground"
+            />
+            <div>Send dust back to wallet</div>
+          </div>
+          <Checkbox checked disabled />
         </div>
       </div>
     </div>

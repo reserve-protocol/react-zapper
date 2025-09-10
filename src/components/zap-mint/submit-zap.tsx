@@ -1,5 +1,5 @@
-import { useAtomValue, useSetAtom } from 'jotai'
-import { useEffect } from 'react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect } from 'react'
 import { Address, erc20Abi } from 'viem'
 import { useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
@@ -19,6 +19,7 @@ import {
   zapDustWarningCheckboxAtom,
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
+  zapMintInputCachedAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
@@ -65,6 +66,7 @@ const SubmitZapButton = ({
     dustValue,
     amountOutValue,
   },
+  source,
   chainId,
   buttonLabel,
   inputSymbol,
@@ -74,6 +76,7 @@ const SubmitZapButton = ({
   onSuccess,
 }: {
   data: ZapResult
+  source?: 'zap' | 'odos'
   chainId: number
   buttonLabel: string
   inputSymbol: string
@@ -92,6 +95,10 @@ const SubmitZapButton = ({
 
   const setOngoingTx = useSetAtom(zapOngoingTxAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
+  const [inputAmountCached, setInputAmountCached] = useAtom(
+    zapMintInputCachedAtom
+  )
+
   const {
     write: approve,
     isReady: approvalReady,
@@ -141,7 +148,7 @@ const SubmitZapButton = ({
     successMessage: {
       title: `Swapped`,
       subtitle: `${formatCurrency(
-        Number(inputAmount)
+        Number(inputAmountCached)
       )} ${inputSymbol} for ${formatCurrency(
         Number(outputAmount)
       )} ${outputSymbol}`,
@@ -155,17 +162,28 @@ const SubmitZapButton = ({
     },
   })
 
-  const execute = () => {
+  const execute = useCallback(() => {
     if (!tx || !readyToSubmit) return
 
+    setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Address,
-      gas: BigInt(gas ?? 0) || undefined,
+      gas: (BigInt(gas ?? 0) * 10n) / 6n || undefined,
       to: tx.to as Address,
       value: BigInt(tx.value),
       chainId,
     })
-  }
+  }, [
+    tx,
+    readyToSubmit,
+    inputAmount,
+    gas,
+    tx?.to,
+    tx?.value,
+    chainId,
+    setInputAmountCached,
+    sendTransaction,
+  ])
 
   const error =
     approvalError ||
@@ -176,10 +194,10 @@ const SubmitZapButton = ({
 
   useEffect(() => {
     if (receipt?.status === 'success') {
-      track('zap_success_notification', inputSymbol, outputSymbol)
+      track('zap_success_notification', inputSymbol, outputSymbol, source)
       onSuccess?.()
     }
-  }, [receipt?.status])
+  }, [receipt?.status, inputSymbol, outputSymbol, source, track, onSuccess])
 
   useEffect(() => {
     if (
@@ -199,6 +217,7 @@ const SubmitZapButton = ({
     txError,
     isErrorApproval,
     isErrorSend,
+    setOngoingTx,
   ])
 
   return (
@@ -221,10 +240,10 @@ const SubmitZapButton = ({
         onClick={() => {
           setOngoingTx(true)
           if (readyToSubmit) {
-            trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol)
+            trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
             execute()
           } else {
-            trackClick('zap-approve', inputSymbol, outputSymbol)
+            trackClick('zap-approve', inputSymbol, outputSymbol, source)
             approve()
           }
         }}
@@ -241,6 +260,7 @@ const SubmitZapButton = ({
 
 const SubmitZap = ({
   data,
+  source,
   chainId,
   buttonLabel,
   inputSymbol,
@@ -254,6 +274,7 @@ const SubmitZap = ({
   onSuccess,
 }: {
   data?: ZapResult
+  source?: 'zap' | 'odos'
   chainId: number
   buttonLabel: string
   inputSymbol: string
@@ -266,9 +287,12 @@ const SubmitZap = ({
   zapperErrorMessage: string
   onSuccess?: () => void
 }) => {
-  return showTxButton && data ? (
+  const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
+
+  return (showTxButton || zapOngoingTx) && data ? (
     <SubmitZapButton
       data={data}
+      source={source}
       chainId={chainId}
       buttonLabel={buttonLabel}
       inputSymbol={inputSymbol}

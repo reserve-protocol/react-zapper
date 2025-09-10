@@ -1,3 +1,16 @@
+## [1.2.0] - 2025-09-09
+
+### Added
+
+- Odos DEX aggregator integration
+- Quote source selector (Best Quote, Zap, Odos)
+- Source tracking in analytics events
+
+### Changed
+
+- Quote fetching now compares both Zap and Odos prices
+- Updated quote details UI to show provider information
+
 ## [1.1.3] - 2025-08-28
 
 ### Added

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const useLoadingAfterRefetch = (data: any) => {
+const useLoadingAfterRefetch = (data: unknown) => {
   const [loadingAfterRefetch, setLoadingAfterRefetch] = useState(false)
 
   useEffect(() => {

@@ -108,12 +108,12 @@ const Buy = () => {
   useEffect(() => {
     setOngoingTx(false)
     setInputAmount('')
-  }, [])
+  }, [setOngoingTx, setInputAmount])
 
   const onSuccess = useCallback(() => {
     setInputAmount('')
     setOpen(false)
-  }, [])
+  }, [setInputAmount, setOpen])
 
   if (!indexDTF) return <Skeleton className="h-64" />
 
@@ -152,9 +152,10 @@ const Buy = () => {
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
-      {!!data?.result && <ZapDetails data={data.result} />}
+      {!!data?.result && <ZapDetails data={data.result} source={data.source} />}
       <SubmitZap
         data={data?.result}
+        source={data?.source}
         chainId={indexDTF.chainId}
         buttonLabel={`Buy ${indexDTF.token.symbol}`}
         inputSymbol={selectedToken.symbol}

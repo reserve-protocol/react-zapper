@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { useIndexBasket } from '../hooks/use-index-basket'
 import { useIndexDTF } from '../hooks/use-index-dtf'
+import { Token } from '../types'
 import {
   chainIdAtom,
   connectWalletAtom,
@@ -90,7 +91,7 @@ const IndexDTFBasketUpdater: React.FC<{
     if (basketResult && !basketResult.isLoading && basketResult.data) {
       setBasket(
         basketResult.data.basket.sort(
-          (a: any, b: any) =>
+          (a: Token, b: Token) =>
             Number(basketResult.data.shares[b.address]) -
             Number(basketResult.data.shares[a.address])
         )
@@ -117,7 +118,7 @@ const ApiUrlUpdater = ({ apiUrl }: { apiUrl?: string }) => {
     if (apiUrl) {
       setApiUrl(apiUrl)
     }
-  }, [apiUrl])
+  }, [apiUrl, setApiUrl])
 
   return null
 }
@@ -171,7 +172,7 @@ const IndexDTFIconsUpdater = () => {
     if (data) {
       setIcons(data)
     }
-  }, [data])
+  }, [data, setIcons])
 
   return null
 }

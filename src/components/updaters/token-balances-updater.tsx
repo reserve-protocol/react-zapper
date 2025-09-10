@@ -84,7 +84,7 @@ export const TokenBalancesUpdater = ({
       setBalances(balances)
       setIndexDTFBalance(balances[dtfAddress]?.value || 0n)
     }
-  }, [data, balance, dtfAddress, setBalances, setIndexDTFBalance])
+  }, [data, balance, dtfAddress, setBalances, setIndexDTFBalance, tokens])
 
   return null
 }

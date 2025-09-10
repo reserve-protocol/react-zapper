@@ -5,7 +5,7 @@ import Ethereum from './icons/Ethereum'
 import Arbitrum from './icons/Arbitrum'
 import BSC from './icons/BSC'
 
-export const chainIcons: Record<number | string, any> = {
+export const chainIcons: Record<number | string, React.FC<SVGProps<SVGSVGElement>>> = {
   [ChainId.Mainnet]: Ethereum,
   [ChainId.Base]: Base,
   [ChainId.Arbitrum]: Arbitrum,
