@@ -27,25 +27,31 @@ const Help: React.FC<HelpProps> = ({
     <TooltipProvider delayDuration={0}>
       <Tooltip open={open}>
         <TooltipTrigger asChild>
-          <button
-            type="button"
-            className={cn('cursor-pointer', className)}
-            onClick={() => setOpen(!open)}
+          <span
+            className={cn('cursor-pointer inline-flex', className)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen(!open)
+            }}
             onMouseEnter={() => setOpen(true)}
             onMouseLeave={() => setOpen(false)}
             onTouchStart={(e) => {
               e.preventDefault()
+              e.stopPropagation()
               setOpen(!open)
             }}
+            role="button"
+            tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
+                e.stopPropagation()
                 setOpen(!open)
               }
             }}
           >
             <HelpCircle size={size} />
-          </button>
+          </span>
         </TooltipTrigger>
         <TooltipContent side={side} className={!content ? 'hidden' : ''}>
           <span className="inline-block max-w-xs">{content}</span>

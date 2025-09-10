@@ -2,7 +2,7 @@
 
 ### Added
 
-- Odos DEX aggregator integration for better quote prices
+- Odos DEX aggregator integration
 - Quote source selector (Best Quote, Zap, Odos)
 - Source tracking in analytics events
 

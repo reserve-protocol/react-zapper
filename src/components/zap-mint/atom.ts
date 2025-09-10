@@ -8,6 +8,7 @@ export const openZapMintModalAtom = atom(false)
 export const zapperCurrentTabAtom = atom<'buy' | 'sell'>('buy')
 export const showZapSettingsAtom = atom<boolean>(false)
 export const zapMintInputAtom = atomWithReset<string>('')
+export const zapMintInputCachedAtom = atom<string>('')
 export const indexDTFBalanceAtom = atom<bigint>(0n)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)

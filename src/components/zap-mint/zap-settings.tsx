@@ -50,20 +50,34 @@ const ZapSettings = () => {
     <div className="min-h-[306px] border-t border-border -mx-2 px-2 py-4 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
-          title="Collect dust?"
-          help="Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
+          title="Quote Source"
+          help="Select which quote provider to use. 'Best' automatically selects the best price, 'Zap' uses Reserve's native routing, 'Odos' uses Odos DEX aggregator."
         />
-        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
-          <div className="flex items-center gap-1">
-            <Icon
-              iconNode={broom}
-              size={16}
-              className="text-muted-foreground"
-            />
-            <div>Send dust back to wallet</div>
-          </div>
-          <Checkbox checked disabled />
-        </div>
+        <Select value={quoteSource} onValueChange={handleQuoteSourceChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="best">
+              <div className="flex items-center gap-2">
+                <Route size={14} />
+                <span>Best Quote</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="zap">
+              <div className="flex items-center gap-2">
+                <Zap size={14} />
+                <span>Zap</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="odos">
+              <div className="flex items-center gap-2">
+                <OdosIcon size={14} />
+                <span>Odos</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
@@ -95,34 +109,20 @@ const ZapSettings = () => {
       </div>
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
-          title="Quote Source"
-          help="Select which quote provider to use. 'Best' automatically selects the best price, 'Zap' uses Reserve's native routing, 'Odos' uses Odos DEX aggregator."
+          title="Collect dust?"
+          help="Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
         />
-        <Select value={quoteSource} onValueChange={handleQuoteSourceChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="best">
-              <div className="flex items-center gap-2">
-                <Route size={14} />
-                <span>Best Quote</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="zap">
-              <div className="flex items-center gap-2">
-                <Zap size={14} />
-                <span>Zap</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="odos">
-              <div className="flex items-center gap-2">
-                <OdosIcon size={14} />
-                <span>Odos</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
+          <div className="flex items-center gap-1">
+            <Icon
+              iconNode={broom}
+              size={16}
+              className="text-muted-foreground"
+            />
+            <div>Send dust back to wallet</div>
+          </div>
+          <Checkbox checked disabled />
+        </div>
       </div>
     </div>
   )

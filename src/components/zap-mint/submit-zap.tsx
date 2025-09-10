@@ -1,5 +1,5 @@
-import { useAtomValue, useSetAtom } from 'jotai'
-import { useEffect } from 'react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect } from 'react'
 import { Address, erc20Abi } from 'viem'
 import { useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
@@ -19,6 +19,7 @@ import {
   zapDustWarningCheckboxAtom,
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
+  zapMintInputCachedAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
@@ -94,6 +95,10 @@ const SubmitZapButton = ({
 
   const setOngoingTx = useSetAtom(zapOngoingTxAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
+  const [inputAmountCached, setInputAmountCached] = useAtom(
+    zapMintInputCachedAtom
+  )
+
   const {
     write: approve,
     isReady: approvalReady,
@@ -143,7 +148,7 @@ const SubmitZapButton = ({
     successMessage: {
       title: `Swapped`,
       subtitle: `${formatCurrency(
-        Number(inputAmount)
+        Number(inputAmountCached)
       )} ${inputSymbol} for ${formatCurrency(
         Number(outputAmount)
       )} ${outputSymbol}`,
@@ -157,17 +162,28 @@ const SubmitZapButton = ({
     },
   })
 
-  const execute = () => {
+  const execute = useCallback(() => {
     if (!tx || !readyToSubmit) return
 
+    setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Address,
-      gas: BigInt(gas ?? 0) || undefined,
+      gas: (BigInt(gas ?? 0) * 10n) / 6n || undefined,
       to: tx.to as Address,
       value: BigInt(tx.value),
       chainId,
     })
-  }
+  }, [
+    tx,
+    readyToSubmit,
+    inputAmount,
+    gas,
+    tx?.to,
+    tx?.value,
+    chainId,
+    setInputAmountCached,
+    sendTransaction,
+  ])
 
   const error =
     approvalError ||
@@ -271,7 +287,9 @@ const SubmitZap = ({
   zapperErrorMessage: string
   onSuccess?: () => void
 }) => {
-  return showTxButton && data ? (
+  const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
+
+  return (showTxButton || zapOngoingTx) && data ? (
     <SubmitZapButton
       data={data}
       source={source}

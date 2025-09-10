@@ -18,9 +18,12 @@ const getSafeGasLimit = (gas: bigint, multiplier = 200n) =>
  */
 const useContractWrite = <
   TAbi extends Abi | readonly unknown[],
-  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>,
+  TFunctionName extends ContractFunctionName<TAbi, 'nonpayable' | 'payable'>
 >(
-  call: UseSimulateContractParameters<TAbi, TFunctionName> = {} as UseSimulateContractParameters<TAbi, TFunctionName>
+  call: UseSimulateContractParameters<
+    TAbi,
+    TFunctionName
+  > = {} as UseSimulateContractParameters<TAbi, TFunctionName>
 ) => {
   const { data, error, isSuccess } = useSimulateContract(
     call as UseSimulateContractParameters
@@ -46,7 +49,7 @@ const useContractWrite = <
       ? {
           to: data.request.address,
           data: encodeFunctionData({
-            abi: call.abi as TAbi,
+            abi: call.abi as Abi,
             functionName: call.functionName,
             args: call.args as readonly unknown[],
           }),
