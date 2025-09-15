@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai'
 import mixpanel from 'mixpanel-browser/src/loaders/loader-module-core'
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 import { chainIdAtom } from '../state/atoms'
 import { CHAIN_TAGS } from '../utils/chains'
 import { Hex, TransactionReceipt } from 'viem'
@@ -33,6 +33,7 @@ const useWatchTransaction = ({
 }: WatchOptions): WatchResult => {
   const notify = useNotification()
   const chainId = useAtomValue(chainIdAtom)
+  const notifiedRef = useRef<{ [key: string]: boolean }>({})
 
   const {
     data,
@@ -46,7 +47,12 @@ const useWatchTransaction = ({
   useEffect(() => {
     if (!hash || !data) return
 
+    const notificationKey = `${hash}-${status}`
+
+    if (notifiedRef.current[notificationKey]) return
+
     if (status === 'success') {
+      notifiedRef.current[notificationKey] = true
       notify(
         successMessage?.title ?? `Transaction confirmed`,
         successMessage?.subtitle ?? `At block ${Number(data.blockNumber)}`,
@@ -64,6 +70,7 @@ const useWatchTransaction = ({
         },
       })
     } else if (status === 'error') {
+      notifiedRef.current[notificationKey] = true
       notify(`Transaction reverted`, error?.message ?? 'Unknown error', 'error')
       mixpanel.track('transaction', {
         product: label,
