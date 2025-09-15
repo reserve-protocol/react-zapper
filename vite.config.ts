@@ -52,13 +52,10 @@ export default defineConfig(({ mode, command }) => {
   ],
   build: {
     lib: {
-      entry: {
-        index: resolve(__dirname, 'src/index.ts'),
-        'index.styled': resolve(__dirname, 'src/index.styled.ts'),
-      },
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'ReactZapper',
       formats: ['es', 'cjs'],
-      fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'esm' : 'cjs'}.js`,
+      fileName: (format) => `index.${format === 'es' ? 'esm' : 'cjs'}.js`,
     },
     rollupOptions: {
       external: [

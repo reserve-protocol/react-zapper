@@ -2,15 +2,15 @@
 
 ### Added
 
-- Multiple entry points for better Tailwind CSS compatibility
-  - `@reserve-protocol/react-zapper` - For projects with existing Tailwind setup
-  - `@reserve-protocol/react-zapper/styled` - For projects without Tailwind (includes pre-compiled CSS)
 - Mixpanel tracking for winning quote source in `selectBestQuote` function
+  - Tracks which provider (Zap or Odos) won the quote comparison
+  - Includes reason for selection (better_output, tie_prefer_zap, only_x_available)
+- Export for styles via `@reserve-protocol/react-zapper/styles.css`
 
 ### Changed
 
-- Removed CSS import from main entry point to prevent style conflicts in Tailwind projects
-- Package now works out-of-the-box for both Tailwind and non-Tailwind projects
+- Simplified CSS import strategy - users now import styles separately as needed
+- Package works for both Tailwind and non-Tailwind projects with a single approach
 
 ## [1.2.0] - 2025-09-09
 

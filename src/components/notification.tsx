@@ -15,7 +15,7 @@ const Notification: React.FC<NotificationProps> = ({
     <div className="flex items-center gap-2">
       {icon && <div>{icon}</div>}
 
-      <div>
+      <div className="flex flex-col items-start">
         <div className="font-bold text-base text-primary">{title}</div>
         {subtitle && (
           <div className="text-sm text-muted-foreground">{subtitle}</div>

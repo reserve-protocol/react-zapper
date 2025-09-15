@@ -12,11 +12,6 @@
       "import": "./dist/index.esm.js",
       "require": "./dist/index.cjs.js"
     },
-    "./styled": {
-      "types": "./dist/index.styled.d.ts",
-      "import": "./dist/index.styled.esm.js",
-      "require": "./dist/index.styled.cjs.js"
-    },
     "./styles.css": "./dist/react-zapper.css"
   },
   "files": [

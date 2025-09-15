@@ -1,5 +1,4 @@
-// Entry point for projects WITH Tailwind CSS
-// Does NOT import CSS - projects should include their own Tailwind setup
+import './styles/index.css'
 
 export { Zapper, ZapperContent, Updaters } from './components/zapper'
 export { useZapperModal } from './hooks/use-zapper-modal'
