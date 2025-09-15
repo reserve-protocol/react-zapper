@@ -25,8 +25,10 @@ npm install @reserve-protocol/react-zapper
 Make sure you have these peer dependencies installed:
 
 ```bash
-npm install react react-dom @tanstack/react-query@^5 wagmi@^2 viem@^2 jotai
+npm install react@^18.0.0 @tanstack/react-query@^5.87.4 wagmi@^2.15.14
 ```
+
+Note: `viem` will be installed automatically as a dependency of `wagmi`.
 
 ## Quick Start
 
@@ -46,7 +48,7 @@ import '@reserve-protocol/react-zapper/styles.css'
 module.exports = {
   content: [
     // ... your other content paths
-    './node_modules/@reserve-protocol/react-zapper/dist/**/*.js'
+    './node_modules/@reserve-protocol/react-zapper/dist/**/*.js',
   ],
   // ... rest of your config
 }
