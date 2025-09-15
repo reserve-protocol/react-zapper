@@ -1,3 +1,17 @@
+## [1.3.0] - 2025-09-12
+
+### Added
+
+- Mixpanel tracking for winning quote source in `selectBestQuote` function
+  - Tracks which provider (Zap or Odos) won the quote comparison
+  - Includes reason for selection (better_output, tie_prefer_zap, only_x_available)
+- Export for styles via `@reserve-protocol/react-zapper/styles.css`
+
+### Changed
+
+- Simplified CSS import strategy - users now import styles separately as needed
+- Package works for both Tailwind and non-Tailwind projects with a single approach
+
 ## [1.2.0] - 2025-09-09
 
 ### Added

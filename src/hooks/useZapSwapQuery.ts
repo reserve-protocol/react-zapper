@@ -9,6 +9,7 @@ import {
   trackIndexDTFQuote,
   trackIndexDTFQuoteError,
   trackIndexDTFQuoteRequested,
+  mixpanelTrack,
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
 
@@ -259,16 +260,60 @@ const useZapSwapQuery = ({
     odosQuote?: ZapResponse & { source: 'odos' }
   ): (ZapResponse & { source: 'zap' | 'odos' }) | undefined => {
     if (!zapQuote && !odosQuote) return undefined
-    if (!zapQuote) return odosQuote
-    if (!odosQuote) return zapQuote
+    if (!zapQuote) {
+      mixpanelTrack('Quote Source Winner', {
+        source: 'odos',
+        reason: 'only_odos_available',
+        tokenIn,
+        tokenOut,
+        dtfTicker,
+        chainId,
+        type,
+      })
+      return odosQuote
+    }
+    if (!odosQuote) {
+      mixpanelTrack('Quote Source Winner', {
+        source: 'zap',
+        reason: 'only_zap_available',
+        tokenIn,
+        tokenOut,
+        dtfTicker,
+        chainId,
+        type,
+      })
+      return zapQuote
+    }
 
     const zapMinAmountOut = zapQuote.result?.minAmountOut ? BigInt(zapQuote.result.minAmountOut) : BigInt(0)
     const odosMinAmountOut = odosQuote.result?.minAmountOut ? BigInt(odosQuote.result.minAmountOut) : BigInt(0)
 
     // In case of tie, prefer zap
     if (odosMinAmountOut > zapMinAmountOut) {
+      mixpanelTrack('Quote Source Winner', {
+        source: 'odos',
+        reason: 'better_output',
+        zapMinAmountOut: zapMinAmountOut.toString(),
+        odosMinAmountOut: odosMinAmountOut.toString(),
+        tokenIn,
+        tokenOut,
+        dtfTicker,
+        chainId,
+        type,
+      })
       return odosQuote
     }
+    mixpanelTrack('Quote Source Winner', {
+      source: 'zap',
+      reason: odosMinAmountOut === zapMinAmountOut ? 'tie_prefer_zap' : 'better_output',
+      zapMinAmountOut: zapMinAmountOut.toString(),
+      odosMinAmountOut: odosMinAmountOut.toString(),
+      tokenIn,
+      tokenOut,
+      dtfTicker,
+      chainId,
+      type,
+    })
     return zapQuote
   }
 

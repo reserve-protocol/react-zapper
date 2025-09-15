@@ -25,24 +25,40 @@ npm install @reserve-protocol/react-zapper
 Make sure you have these peer dependencies installed:
 
 ```bash
-npm install react react-dom @tanstack/react-query@^5 wagmi@^2 viem@^2 jotai
+npm install react@^18.0.0 @tanstack/react-query@^5.87.4 wagmi@^2.15.14
 ```
+
+Note: `viem` will be installed automatically as a dependency of `wagmi`.
 
 ## Quick Start
 
-### 1. Import Styles
+### 1. Import Components and Styles
 
-The package includes its own styles that need to be imported:
+Import the components you need and the CSS file for styling:
 
 ```tsx
-import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
+import '@reserve-protocol/react-zapper/styles.css'
+```
+
+**Note for Tailwind users**: If your project already has Tailwind CSS configured, you can skip the CSS import and add the package to your Tailwind content configuration:
+
+```js
+// tailwind.config.js
+module.exports = {
+  content: [
+    // ... your other content paths
+    './node_modules/@reserve-protocol/react-zapper/dist/**/*.js',
+  ],
+  // ... rest of your config
+}
 ```
 
 ### 2. Basic Modal Usage
 
 ```tsx
 import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
-import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import '@reserve-protocol/react-zapper/styles.css'
 import { wagmiConfig } from './wagmi-config'
 
 function MyApp() {
@@ -69,7 +85,7 @@ function MyApp() {
 
 ```tsx
 import { Zapper } from '@reserve-protocol/react-zapper'
-import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import '@reserve-protocol/react-zapper/styles.css'
 import { useConfig } from 'wagmi'
 
 function ZapperPage() {
@@ -187,7 +203,17 @@ Each chain has its own set of supported tokens for zapping. The component automa
 
 ## Styling
 
-The package uses Tailwind CSS and injects its own styles. The styles are scoped to avoid conflicts with your application styles. The component respects your application's font family by default.
+The package uses Tailwind CSS for styling. You need to import the styles:
+
+```tsx
+import '@reserve-protocol/react-zapper/styles.css'
+```
+
+- **Projects WITHOUT Tailwind**: The imported CSS file includes all necessary styles
+- **Projects WITH Tailwind**: You can optionally skip the CSS import and configure Tailwind to process the package files (see Quick Start section)
+- **Custom Styling**: The package uses CSS variables for theming, making it easy to override colors and styles
+
+The component respects your application's font family by default.
 
 ### Custom Fonts
 
