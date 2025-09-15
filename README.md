@@ -30,19 +30,51 @@ npm install react react-dom @tanstack/react-query@^5 wagmi@^2 viem@^2 jotai
 
 ## Quick Start
 
-### 1. Import Styles
+### 1. Choose Your Import Method
 
-The package includes its own styles that need to be imported:
+The package provides two entry points to accommodate different project setups:
+
+#### For Projects WITHOUT Tailwind CSS
+
+Use the `/styled` entry point which includes pre-compiled CSS:
 
 ```tsx
-import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper/styled'
+// CSS is automatically included
+```
+
+#### For Projects WITH Tailwind CSS
+
+Use the default entry point and ensure your Tailwind config includes the package files:
+
+```tsx
+import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
+```
+
+Add to your `tailwind.config.js`:
+```js
+module.exports = {
+  content: [
+    // ... your other content paths
+    './node_modules/@reserve-protocol/react-zapper/dist/**/*.js'
+  ],
+  // ... rest of your config
+}
+```
+
+#### Alternative: Manual CSS Import
+
+You can also import the CSS file manually with either entry point:
+
+```tsx
+import { Zapper } from '@reserve-protocol/react-zapper'
+import '@reserve-protocol/react-zapper/styles.css'
 ```
 
 ### 2. Basic Modal Usage
 
 ```tsx
-import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
-import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper/styled'
 import { wagmiConfig } from './wagmi-config'
 
 function MyApp() {
@@ -68,8 +100,7 @@ function MyApp() {
 ### 3. Inline Usage
 
 ```tsx
-import { Zapper } from '@reserve-protocol/react-zapper'
-import '@reserve-protocol/react-zapper/dist/react-zapper.css'
+import { Zapper } from '@reserve-protocol/react-zapper/styled'
 import { useConfig } from 'wagmi'
 
 function ZapperPage() {
@@ -187,7 +218,13 @@ Each chain has its own set of supported tokens for zapping. The component automa
 
 ## Styling
 
-The package uses Tailwind CSS and injects its own styles. The styles are scoped to avoid conflicts with your application styles. The component respects your application's font family by default.
+The package uses Tailwind CSS for styling. Depending on your project setup:
+
+- **Projects WITHOUT Tailwind**: Use the `/styled` import which includes all necessary CSS
+- **Projects WITH Tailwind**: Use the default import and configure Tailwind to process the package files
+- **Custom Styling**: The package uses CSS variables for theming, making it easy to override colors and styles
+
+The component respects your application's font family by default.
 
 ### Custom Fonts
 

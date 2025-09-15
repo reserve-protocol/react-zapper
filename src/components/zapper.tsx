@@ -237,4 +237,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   )
 }
 
+// Export ZapperContent and Updaters for use without providers
+export { ZapperContent, Updaters }
+
 export default Zapper

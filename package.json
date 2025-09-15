@@ -1,6 +1,6 @@
 {
   "name": "@reserve-protocol/react-zapper",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "type": "module",
   "description": "React component for DTF minting with zap functionality",
   "main": "dist/index.cjs.js",
@@ -11,7 +11,13 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
       "require": "./dist/index.cjs.js"
-    }
+    },
+    "./styled": {
+      "types": "./dist/index.styled.d.ts",
+      "import": "./dist/index.styled.esm.js",
+      "require": "./dist/index.styled.cjs.js"
+    },
+    "./styles.css": "./dist/react-zapper.css"
   },
   "files": [
     "dist",
