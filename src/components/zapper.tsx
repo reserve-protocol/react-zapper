@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect } from 'react'
-import { WagmiProvider } from 'wagmi'
+import { Config, WagmiProvider } from 'wagmi'
 import { hashFn, structuralSharing } from 'wagmi/query'
 import { indexDTFAtom } from '../state/atoms'
 import { ZapperProps } from '../types'
@@ -223,7 +223,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   connectWallet,
 }) => {
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>
         <Updaters
           dtfAddress={dtfAddress}

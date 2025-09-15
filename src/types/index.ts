@@ -1,6 +1,4 @@
 import { Address } from 'viem'
-import { Config } from 'wagmi'
-
 export interface Token {
   address: Address
   symbol: string
@@ -16,12 +14,19 @@ export interface TokenBalance {
   decimals: number
 }
 
+// Relaxed wagmiConfig type to avoid strict type checking issues
+// between different viem/wagmi versions in host applications
+interface MinimalWagmiConfig {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
+}
+
 export interface ZapperProps {
   mode?: 'modal' | 'inline'
   chain: number
   dtfAddress: Address
   apiUrl?: string
-  wagmiConfig: Config
+  wagmiConfig: MinimalWagmiConfig
   connectWallet?: () => void
 }
 
