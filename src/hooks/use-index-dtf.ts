@@ -1,6 +1,5 @@
 import { ChainId } from '../utils/chains'
 import { useQuery } from '@tanstack/react-query'
-import request, { gql } from 'graphql-request'
 import { Address, formatEther } from 'viem'
 
 const INDEX_DTF_SUBGRAPH_URL = {
@@ -29,7 +28,7 @@ type DTFQueryResponse = {
   }
 }
 
-const dtfQuery = gql`
+const dtfQuery = `
   query getDTF($id: String!) {
     dtf(id: $id) {
       id
@@ -54,12 +53,39 @@ export const useIndexDTF = (address: string | undefined, chainId: number) => {
 
       const subgraphUrl =
         INDEX_DTF_SUBGRAPH_URL[chainId as keyof typeof INDEX_DTF_SUBGRAPH_URL]
-      if (!subgraphUrl) throw new Error(`Unsupported chain ID: ${chainId}`)
 
-      const { dtf }: DTFQueryResponse = await request(subgraphUrl, dtfQuery, {
-        id: address.toLowerCase(),
+      if (!subgraphUrl) throw new Error(`Unsupported chain ID: ${chainId}`)
+      const response = await fetch(subgraphUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: dtfQuery,
+          variables: { id: address.toLowerCase() },
+        }),
       })
 
+      if (!response.ok) {
+        throw new Error(
+          `Subgraph request failed: ${response.status} ${response.statusText}`
+        )
+      }
+
+      const json: {
+        data?: DTFQueryResponse
+        errors?: Array<{ message: string }>
+      } = await response.json()
+
+      if (json.errors && json.errors.length > 0) {
+        throw new Error(
+          `Subgraph GraphQL errors: ${json.errors
+            .map((e) => e.message)
+            .join('; ')}`
+        )
+      }
+
+      const { dtf } = json.data ?? ({} as DTFQueryResponse)
       if (!dtf) return undefined
 
       return {

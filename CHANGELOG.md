@@ -1,3 +1,9 @@
+## [1.3.1] - 2025-09-13
+
+### Changed
+
+- Removed graphql and graphql-request dependencies
+
 ## [1.3.0] - 2025-09-12
 
 ### Added
