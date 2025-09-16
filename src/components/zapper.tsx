@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Config, WagmiProvider } from 'wagmi'
 import { hashFn, structuralSharing } from 'wagmi/query'
 import { indexDTFAtom } from '../state/atoms'
@@ -204,16 +204,6 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   )
 }
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      queryKeyHashFn: hashFn,
-      structuralSharing,
-    },
-  },
-})
-
 export const Zapper: React.FC<ZapperProps> = ({
   wagmiConfig,
   mode = 'modal',
@@ -222,6 +212,19 @@ export const Zapper: React.FC<ZapperProps> = ({
   apiUrl,
   connectWallet,
 }) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000,
+            refetchOnWindowFocus: false,
+            queryKeyHashFn: hashFn,
+            structuralSharing,
+          },
+        },
+      })
+  )
   return (
     <WagmiProvider config={wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>
