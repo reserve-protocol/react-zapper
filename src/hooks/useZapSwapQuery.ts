@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useCallback } from 'react'
 import { Address } from 'viem'
-import { zapSwapEndpointAtom } from '../components/zap-mint/atom'
+import { zapperDebugAtom, zapSwapEndpointAtom } from '../components/zap-mint/atom'
 import { chainIdAtom, apiUrlAtom, walletAtom, quoteSourceAtom } from '../state/atoms'
 import zapper, { ZapResponse } from '../types/api'
 import {
@@ -40,6 +40,7 @@ const useZapSwapQuery = ({
   const account = useAtomValue(walletAtom)
   const quoteSource = useAtomValue(quoteSourceAtom)
   const setZapSwapEndpoint = useSetAtom(zapSwapEndpointAtom)
+  const debug = useAtomValue(zapperDebugAtom)
 
   const getZapEndpoint = useCallback((bypassCache = false) =>
     !tokenIn ||
@@ -58,7 +59,8 @@ const useZapSwapQuery = ({
           signer: account as Address,
           trade: !forceMint,
           bypassCache,
-        }), [api, chainId, tokenIn, tokenOut, amountIn, slippage, account, forceMint])
+          debug,
+        }), [api, chainId, tokenIn, tokenOut, amountIn, slippage, account, forceMint, debug])
 
   const getOdosEndpoint = useCallback(() =>
     !tokenIn ||

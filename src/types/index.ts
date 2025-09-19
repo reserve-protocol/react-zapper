@@ -1,3 +1,4 @@
+import { AvailableChain } from '@/utils/chains'
 import { Address } from 'viem'
 export interface Token {
   address: Address
@@ -23,11 +24,12 @@ interface MinimalWagmiConfig {
 
 export interface ZapperProps {
   mode?: 'modal' | 'inline'
-  chain: number
+  chain: AvailableChain
   dtfAddress: Address
   apiUrl?: string
   wagmiConfig: MinimalWagmiConfig
   connectWallet?: () => void
+  debug?: boolean
 }
 
 export interface UseZapperModalReturn {

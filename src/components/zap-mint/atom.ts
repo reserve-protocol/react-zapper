@@ -10,6 +10,7 @@ export const showZapSettingsAtom = atom<boolean>(false)
 export const zapMintInputAtom = atomWithReset<string>('')
 export const zapMintInputCachedAtom = atom<string>('')
 export const indexDTFBalanceAtom = atom<bigint>(0n)
+export const zapperDebugAtom = atom<boolean>(false)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)
 export const defaultSelectedTokenAtom = atom<Token>((get) => {

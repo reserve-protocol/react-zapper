@@ -3,8 +3,9 @@ export type AvailableChain =
   | typeof mainnet.id
   | typeof base.id
   | typeof arbitrum.id
+  | typeof bsc.id
 
-export const ChainId: Record<string, number> = {
+export const ChainId: Record<string, AvailableChain> = {
   Mainnet: mainnet.id,
   Base: base.id,
   Arbitrum: arbitrum.id,

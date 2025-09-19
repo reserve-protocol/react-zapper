@@ -27,7 +27,7 @@ const API_URLS = [
   },
   {
     label: 'Staging',
-    value: 'http://api-staging.reserve.org/',
+    value: 'https://api-staging.reserve.org/',
   },
   {
     label: 'Local',
@@ -44,6 +44,7 @@ function App() {
   const [selectedChain, setSelectedChain] = useState(chains[0])
   const availableDTFs = DTF_BY_CHAIN[selectedChain.id] || []
   const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
+  const [debug, setDebug] = useState(false)
   const [apiUrl, setApiUrl] = useState(API_URLS[0].value)
   const { open } = useZapperModal()
 
@@ -156,6 +157,28 @@ function App() {
                   Select the API endpoint for the zapper
                 </p>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Debug mode
+                </label>
+                <Select
+                  value={debug.toString()}
+                  onValueChange={(value) =>
+                    setDebug(value === 'true')
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[false, true].map(v => v.toString()).map((v) => (
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -212,6 +235,7 @@ function App() {
                     dtfAddress={selectedDTF.address}
                     mode="inline"
                     apiUrl={apiUrl || undefined}
+                    debug={debug}
                   />
                 </div>
               </CardContent>
