@@ -23,11 +23,13 @@ import {
   zapMintInputAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
+  zapperDebugAtom,
   zapRefetchAtom,
 } from '../atom'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Debug } from '../debug/debug'
 
 const Sell = () => {
   const account = useAtomValue(walletAtom)
@@ -40,6 +42,7 @@ const Sell = () => {
   const tokens = useAtomValue(tokensAtom)
   const slippage = useAtomValue(slippageAtom)
   const forceMint = useAtomValue(forceMintAtom)
+  const debug = useAtomValue(zapperDebugAtom)
   const setOutputToken = useSetAtom(selectedTokenAtom)
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const setZapRefetch = useSetAtom(zapRefetchAtom)
@@ -169,6 +172,7 @@ const Sell = () => {
         zapperErrorMessage={zapperErrorMessage}
         onSuccess={onSuccess}
       />
+      {debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
     </div>
   )
 }
