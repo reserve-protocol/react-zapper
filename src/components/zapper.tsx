@@ -227,7 +227,10 @@ export const Zapper: React.FC<ZapperProps> = ({
         },
       })
   )
-  useSetAtom(zapperDebugAtom)(!!debug)
+
+  const setZapperDebug = useSetAtom(zapperDebugAtom)
+  setZapperDebug(debug ?? false);
+
   return (
     <WagmiProvider config={wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>

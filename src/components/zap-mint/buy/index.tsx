@@ -26,7 +26,7 @@ import {
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 import { Skeleton } from '@/components/ui/skeleton'
-import {Debug} from '../debug/debug'
+import { Debug } from '../debug/debug'
 
 const Buy = () => {
   const account = useAtomValue(walletAtom)
