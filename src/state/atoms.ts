@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { Address } from 'viem'
 import { DEFAULT_API_URL, Token, TokenBalance } from '../types'
-import { ChainId } from '../utils/chains'
+import { AvailableChain, ChainId } from '../utils/chains'
 
 /**
  * API URL atom - configurable api url for the zapper
@@ -11,7 +11,7 @@ export const apiUrlAtom = atom<string>(DEFAULT_API_URL)
 /**
  * Chain ID atom - configurable chain ID for the zapper
  */
-export const chainIdAtom = atom<number>(ChainId.Mainnet)
+export const chainIdAtom = atom<AvailableChain>(ChainId.Mainnet)
 
 /**
  * Wallet/Account atom - current connected wallet address

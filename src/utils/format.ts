@@ -1,3 +1,5 @@
+import { getAddress } from 'viem'
+
 export function formatCurrency(
   value: number,
   decimals = 2,
@@ -22,6 +24,26 @@ export function formatTokenAmount(value: number) {
         notation: 'compact',
         compactDisplay: 'short',
       })
+}
+
+export function formatSignedPercentage(value: number) {
+  return (
+    (Math.sign(value) > 0 ? '+' : '') +
+    value.toLocaleString('en-US', {
+      style: 'percent',
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })
+  )
+}
+
+export function formatShortAddress(addr: string) {
+  try {
+    const checksumed = getAddress(addr)
+    return checksumed.slice(0, 6) + '...' + addr.slice(-4)
+  } catch {
+    return addr.slice(0, 6) + '...' + addr.slice(-4)
+  }
 }
 
 export const formatPercentage = (value: number, decimals = 2): string =>

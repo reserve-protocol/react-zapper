@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useSetAtom, useAtomValue } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Config, WagmiProvider } from 'wagmi'
@@ -20,6 +20,7 @@ import {
   zapMintInputAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
+  zapperDebugAtom,
   zapRefetchAtom,
 } from './zap-mint/atom'
 import Buy from './zap-mint/buy'
@@ -211,6 +212,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   dtfAddress,
   apiUrl,
   connectWallet,
+  debug,
 }) => {
   const [queryClient] = useState(
     () =>
@@ -225,6 +227,10 @@ export const Zapper: React.FC<ZapperProps> = ({
         },
       })
   )
+
+  const setZapperDebug = useSetAtom(zapperDebugAtom)
+  setZapperDebug(debug ?? false);
+
   return (
     <WagmiProvider config={wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>

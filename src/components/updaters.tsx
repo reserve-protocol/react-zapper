@@ -19,6 +19,7 @@ import {
   walletAtom,
 } from '../state/atoms'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
+import { AvailableChain } from '@/utils/chains'
 
 type IndexDTFBrand = {
   dtf?: {
@@ -28,7 +29,7 @@ type IndexDTFBrand = {
 
 interface UpdatersProps {
   dtfAddress: string
-  chainId: number
+  chainId: AvailableChain
   apiUrl?: string
   connectWallet?: () => void
 }
@@ -123,7 +124,7 @@ const ApiUrlUpdater = ({ apiUrl }: { apiUrl?: string }) => {
   return null
 }
 
-const ChainIdUpdater: React.FC<{ chainId: number }> = ({ chainId }) => {
+const ChainIdUpdater: React.FC<{ chainId: AvailableChain }> = ({ chainId }) => {
   const setChainId = useSetAtom(chainIdAtom)
 
   useEffect(() => {

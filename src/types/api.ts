@@ -16,6 +16,7 @@ export type ZapPayload = {
   signer: Address
   trade?: boolean
   bypassCache?: boolean
+  debug?: boolean
 }
 
 export type ZapResult = {
@@ -46,6 +47,20 @@ export type ZapResult = {
     to: Address
     value: string
   } | null
+  debug?: Debug
+}
+
+export type Debug = {
+  priceImpactStats: {
+    action: string
+    address: string[]
+    inputToken: string[]
+    outputToken: string[]
+    impact: number
+    input: number
+    output: number
+    success: boolean
+  }[]
 }
 
 export type ZapResponse = {
@@ -57,21 +72,6 @@ export type ZapResponse = {
 export const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 const zapper = {
-  oldZap: ({
-    url,
-    chainId,
-    tokenIn,
-    tokenOut,
-    amountIn,
-    slippage,
-    signer,
-    trade = true,
-  }: ZapPayload) =>
-    `${getBaseZapApiUrl(
-      url,
-      chainId
-    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}`,
-
   zap: ({
     url,
     chainId,
@@ -82,11 +82,14 @@ const zapper = {
     signer,
     trade = true,
     bypassCache = false,
+    debug = false,
   }: ZapPayload) =>
     `${getBaseZapApiUrl(
       url,
       chainId
-    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}`,
+    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}${
+      debug ? '&debug=true' : ''
+    }`,
 
   odosZap: ({
     url,
