@@ -1,3 +1,9 @@
+## [1.3.3] - 2025-09-22
+
+### Added
+
+- Added `debug` mode feature
+
 ## [1.3.2] - 2025-09-16
 
 ### Fixed
