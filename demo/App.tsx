@@ -19,6 +19,8 @@ import {
 } from './components/ui/select'
 import { DTF_BY_CHAIN } from './dtf-config'
 import ZapperWrapper from './components/zapper-wrapper'
+import { AvailableChain } from '../dist/utils/chains'
+import { QuoteSource } from '../dist/types'
 
 const API_URLS = [
   {
@@ -45,6 +47,7 @@ function App() {
   const availableDTFs = DTF_BY_CHAIN[selectedChain.id] || []
   const [selectedDTF, setSelectedDTF] = useState(availableDTFs[0])
   const [debug, setDebug] = useState(false)
+  const [quoteSource, setQuoteSource] = useState<QuoteSource>('best')
   const [apiUrl, setApiUrl] = useState(API_URLS[0].value)
   const { open } = useZapperModal()
 
@@ -163,19 +166,39 @@ function App() {
                 </label>
                 <Select
                   value={debug.toString()}
+                  onValueChange={(value) => setDebug(value === 'true')}
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[false, true]
+                      .map((v) => v.toString())
+                      .map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Default Quote Source
+                </label>
+                <Select
+                  value={quoteSource}
                   onValueChange={(value) =>
-                    setDebug(value === 'true')
+                    setQuoteSource(value as QuoteSource)
                   }
                 >
                   <SelectTrigger className="w-full md:w-96">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {[false, true].map(v => v.toString()).map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {v}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="best">Best Quote</SelectItem>
+                    <SelectItem value="zap">Zap Quote</SelectItem>
+                    <SelectItem value="odos">Odos Quote</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -207,10 +230,11 @@ function App() {
               <CardContent>
                 <ZapperWrapper
                   wagmiConfig={wagmiConfig}
-                  chain={selectedChain.id}
+                  chain={selectedChain.id as AvailableChain}
                   dtfAddress={selectedDTF.address}
                   mode="modal"
                   apiUrl={apiUrl || undefined}
+                  defaultSource={quoteSource}
                 />
                 <Button onClick={open} className="w-full rounded-xl" size="lg">
                   Open Zapper Modal
@@ -231,11 +255,12 @@ function App() {
                 <div className="p-4 border-t border-muted">
                   <ZapperWrapper
                     wagmiConfig={wagmiConfig}
-                    chain={selectedChain.id}
+                    chain={selectedChain.id as AvailableChain}
                     dtfAddress={selectedDTF.address}
                     mode="inline"
                     apiUrl={apiUrl || undefined}
                     debug={debug}
+                    defaultSource={quoteSource}
                   />
                 </div>
               </CardContent>

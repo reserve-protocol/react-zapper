@@ -1,11 +1,12 @@
+import { AvailableChain } from '@/utils/chains'
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import React, { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { useIndexBasket } from '../hooks/use-index-basket'
 import { useIndexDTF } from '../hooks/use-index-dtf'
-import { Token } from '../types'
 import {
+  apiUrlAtom,
   chainIdAtom,
   connectWalletAtom,
   indexDTFAtom,
@@ -15,11 +16,13 @@ import {
   indexDTFBasketSharesAtom,
   indexDTFBrandAtom,
   indexDTFIconsAtom,
-  apiUrlAtom,
+  QuoteSource,
+  quoteSourceAtom,
   walletAtom,
 } from '../state/atoms'
+import { Token } from '../types'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
-import { AvailableChain } from '@/utils/chains'
+import { zapperDebugAtom } from './zap-mint/atom'
 
 type IndexDTFBrand = {
   dtf?: {
@@ -32,6 +35,8 @@ interface UpdatersProps {
   chainId: AvailableChain
   apiUrl?: string
   connectWallet?: () => void
+  defaultSource?: QuoteSource
+  debug?: boolean
 }
 
 const IndexDTFMetadataUpdater: React.FC<{
@@ -178,11 +183,37 @@ const IndexDTFIconsUpdater = () => {
   return null
 }
 
+const QuoteSourceUpdater = ({
+  defaultSource,
+}: {
+  defaultSource?: QuoteSource
+}) => {
+  const setQuoteSource = useSetAtom(quoteSourceAtom)
+
+  useEffect(() => {
+    setQuoteSource(defaultSource ?? 'best')
+  }, [defaultSource, setQuoteSource])
+
+  return null
+}
+
+const DebugUpdater = ({ debug }: { debug?: boolean }) => {
+  const setDebug = useSetAtom(zapperDebugAtom)
+
+  useEffect(() => {
+    setDebug(debug ?? false)
+  }, [debug, setDebug])
+
+  return null
+}
+
 const Updaters: React.FC<UpdatersProps> = ({
   dtfAddress,
   chainId,
   apiUrl,
   connectWallet,
+  defaultSource,
+  debug,
 }) => {
   return (
     <>
@@ -194,6 +225,8 @@ const Updaters: React.FC<UpdatersProps> = ({
       <IndexDTFBasketUpdater dtfAddress={dtfAddress} />
       <IndexDTFIconsUpdater />
       <TokenBalancesUpdater dtfAddress={dtfAddress} />
+      <QuoteSourceUpdater defaultSource={defaultSource} />
+      <DebugUpdater debug={debug} />
     </>
   )
 }

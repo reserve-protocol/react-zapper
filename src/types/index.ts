@@ -1,3 +1,4 @@
+import { QuoteSource } from '@/state/atoms'
 import { AvailableChain } from '@/utils/chains'
 import { Address } from 'viem'
 export interface Token {
@@ -30,6 +31,7 @@ export interface ZapperProps {
   wagmiConfig: MinimalWagmiConfig
   connectWallet?: () => void
   debug?: boolean
+  defaultSource?: QuoteSource
 }
 
 export interface UseZapperModalReturn {
@@ -42,3 +44,4 @@ export interface UseZapperModalReturn {
 }
 
 export * from './api'
+export type { QuoteSource } from '@/state/atoms'
