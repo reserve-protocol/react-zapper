@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useAtom, useSetAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Config, WagmiProvider } from 'wagmi'
@@ -20,7 +20,6 @@ import {
   zapMintInputAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
-  zapperDebugAtom,
   zapRefetchAtom,
 } from './zap-mint/atom'
 import Buy from './zap-mint/buy'
@@ -212,6 +211,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   dtfAddress,
   apiUrl,
   connectWallet,
+  defaultSource,
   debug,
 }) => {
   const [queryClient] = useState(
@@ -228,9 +228,6 @@ export const Zapper: React.FC<ZapperProps> = ({
       })
   )
 
-  const setZapperDebug = useSetAtom(zapperDebugAtom)
-  setZapperDebug(debug ?? false);
-
   return (
     <WagmiProvider config={wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>
@@ -239,6 +236,8 @@ export const Zapper: React.FC<ZapperProps> = ({
           chainId={chain}
           apiUrl={apiUrl}
           connectWallet={connectWallet}
+          defaultSource={defaultSource}
+          debug={debug}
         />
         <ZapperContent mode={mode} />
       </QueryClientProvider>
@@ -247,6 +246,6 @@ export const Zapper: React.FC<ZapperProps> = ({
 }
 
 // Export ZapperContent and Updaters for use without providers
-export { ZapperContent, Updaters }
+export { Updaters, ZapperContent }
 
 export default Zapper

@@ -1,3 +1,9 @@
+## [1.3.4] - 2025-09-23
+
+### Added
+
+- Added `defaultSource` param
+
 ## [1.3.3] - 2025-09-22
 
 ### Added
