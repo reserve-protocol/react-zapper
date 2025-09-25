@@ -27,6 +27,7 @@ import {
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
+import { mainnet } from 'viem/chains'
 
 const LoadingButton = ({
   fetchingZapper,
@@ -164,11 +165,12 @@ const SubmitZapButton = ({
 
   const execute = useCallback(() => {
     if (!tx || !readyToSubmit) return
+    const multiplier = chainId === mainnet.id ? 2n : 3n
 
     setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Address,
-      gas: (BigInt(gas ?? 0) * 10n) / 6n || undefined,
+      gas: BigInt(gas ?? 0) * multiplier || undefined,
       to: tx.to as Address,
       value: BigInt(tx.value),
       chainId,
