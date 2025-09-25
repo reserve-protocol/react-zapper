@@ -1,3 +1,9 @@
+## [1.3.5] - 2025-09-25
+
+### Fix
+
+- Increased gas limit multiplier
+
 ## [1.3.4] - 2025-09-23
 
 ### Added
