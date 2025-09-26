@@ -13,7 +13,10 @@ mixpanel.init(MIXPANEL_TOKEN, {
   track_pageview: true,
 })
 
-export const mixpanelTrack = (event: string, data?: Record<string, unknown>) => {
+export const mixpanelTrack = (
+  event: string,
+  data?: Record<string, unknown>
+) => {
   try {
     mixpanel.track(event, data)
   } catch (error) {
@@ -207,10 +210,12 @@ export const useTrackQuoteErrorUX = ({
   tokenIn,
   tokenOut,
   zapError,
+  source,
 }: {
   tokenIn: string
   tokenOut: string
   zapError: string
+  source?: 'zap' | 'odos'
 }) => {
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)
@@ -232,7 +237,65 @@ export const useTrackQuoteErrorUX = ({
         tokenIn,
         tokenOut,
         userError: zapError,
+        source,
       })
     }
-  }, [zapError, account, tokenIn, tokenOut, indexDTF, currentTab, endpoint, chainId])
+  }, [
+    zapError,
+    account,
+    tokenIn,
+    tokenOut,
+    indexDTF,
+    currentTab,
+    endpoint,
+    chainId,
+    source,
+  ])
+}
+
+export const useTrackIndexDTFZapError = ({
+  tokenIn,
+  tokenOut,
+  zapError,
+  source,
+}: {
+  tokenIn: string
+  tokenOut: string
+  zapError: string
+  source?: 'zap' | 'odos'
+}) => {
+  const chainId = useAtomValue(chainIdAtom)
+  const account = useAtomValue(walletAtom)
+  const indexDTF = useAtomValue(indexDTFAtom)
+  const currentTab = useAtomValue(zapperCurrentTabAtom)
+  const endpoint = useAtomValue(zapSwapEndpointAtom)
+
+  useEffect(() => {
+    if (zapError) {
+      mixpanelTrack('index-dtf-zap-swap', {
+        event: 'index-dtf-zap-swap',
+        wa: account,
+        ca: tokenIn,
+        ticker: indexDTF?.token.symbol || '',
+        chainId,
+        type: currentTab,
+        endpoint,
+        status: 'user_tx_error',
+        tokenIn,
+        tokenOut,
+        userError: zapError,
+        source,
+      })
+    }
+  }, [
+    zapError,
+    account,
+    tokenIn,
+    tokenOut,
+    indexDTF,
+    currentTab,
+    endpoint,
+    chainId,
+    source,
+  ])
 }

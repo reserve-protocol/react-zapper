@@ -1,6 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
-import { Address, erc20Abi, formatUnits } from 'viem'
+import { Address, erc20Abi, ethAddress, formatUnits } from 'viem'
 import { useBalance } from 'wagmi'
 import { useWatchReadContracts } from '../../hooks/use-watch-read-contracts'
 import {
@@ -75,7 +75,7 @@ export const TokenBalancesUpdater = ({
         return prev
       }, {} as Record<string, TokenBalance>)
 
-      balances['0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'] = {
+      balances[ethAddress] = {
         balance: balance ? balance.formatted : '0',
         value: balance ? balance.value : 0n,
         decimals: 18,

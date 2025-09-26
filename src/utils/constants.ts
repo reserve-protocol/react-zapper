@@ -1,10 +1,10 @@
-import { Address } from 'viem'
+import { Address, ethAddress } from 'viem'
 import { ChainId } from './chains'
 import { Token } from '..'
 
 const reducedMainnetTokens = [
   {
-    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as Address,
+    address: ethAddress,
     symbol: 'ETH',
     name: 'Ether',
     decimals: 18,
@@ -28,7 +28,7 @@ const reducedMainnetTokens = [
 
 const reducedBaseTokens = [
   {
-    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as Address,
+    address: ethAddress,
     symbol: 'ETH',
     name: 'Ether',
     decimals: 18,
@@ -52,7 +52,7 @@ const reducedBaseTokens = [
 
 const reducedArbitrumTokens = [
   {
-    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as Address,
+    address: ethAddress,
     symbol: 'ETH',
     name: 'Ether',
     decimals: 18,
@@ -76,7 +76,7 @@ const reducedArbitrumTokens = [
 
 const bscTokens = [
   {
-    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as Address,
+    address: ethAddress,
     symbol: 'BNB',
     name: 'BNB',
     decimals: 18,

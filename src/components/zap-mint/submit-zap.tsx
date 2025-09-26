@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
-import { Address, erc20Abi } from 'viem'
+import { Address, erc20Abi, Hex } from 'viem'
+import { mainnet } from 'viem/chains'
 import { useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
@@ -9,6 +10,7 @@ import { formatCurrency } from '../../utils/format'
 import {
   useTrackIndexDTFZap,
   useTrackIndexDTFZapClick,
+  useTrackIndexDTFZapError,
 } from '../../utils/tracking'
 import FusionTokenLogo from '../fusion-token-logo'
 import TransactionButton, {
@@ -27,7 +29,6 @@ import {
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
-import { mainnet } from 'viem/chains'
 
 const LoadingButton = ({
   fetchingZapper,
@@ -169,7 +170,7 @@ const SubmitZapButton = ({
 
     setInputAmountCached(inputAmount)
     sendTransaction({
-      data: tx.data as Address,
+      data: tx.data as Hex,
       gas: BigInt(gas ?? 0) * multiplier || undefined,
       to: tx.to as Address,
       value: BigInt(tx.value),
@@ -180,8 +181,6 @@ const SubmitZapButton = ({
     readyToSubmit,
     inputAmount,
     gas,
-    tx?.to,
-    tx?.value,
     chainId,
     setInputAmountCached,
     sendTransaction,
@@ -221,6 +220,13 @@ const SubmitZapButton = ({
     isErrorSend,
     setOngoingTx,
   ])
+
+  useTrackIndexDTFZapError({
+    tokenIn: tokenIn,
+    tokenOut: tokenOut,
+    zapError: error?.message?.split('\n')[0] || error?.name || '',
+    source,
+  })
 
   return (
     <div className="flex flex-col gap-1">

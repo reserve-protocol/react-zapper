@@ -2,10 +2,7 @@ import TransactionError from '../transaction-error'
 import { useAtomValue } from 'jotai'
 import { zapperCurrentTabAtom, zapSwapEndpointAtom } from './atom'
 import Copy from '../ui/copy'
-// import { Link } from 'react-router-dom' // Removed router dependency
-// import { getFolioRoute } from '../../utils' // Removed routing
 import { indexDTFAtom } from '../../state/atoms'
-// import { ROUTES } from '../../utils/constants' // Removed routing
 
 const SWAP_ERROR_MSG =
   'Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit.'
@@ -69,11 +66,7 @@ const ZapErrorMsg = ({ error }: { error?: string }) => {
 export const ZapTxErrorMsg = ({ error }: { error?: Error | null }) => {
   if (!error) return null
 
-  const errorMsg =
-    Object.entries(ERROR_MAP).find(([key]) =>
-      error?.message?.toLowerCase().includes(key.toLowerCase())
-    )?.[1] || error?.message
-
+  const errorMsg = error?.message
   const newError = new Error(errorMsg)
 
   return (

@@ -1,3 +1,14 @@
+## [1.3.6] - 2025-09-26
+
+### Fixed
+
+- ETH price
+- TX reverted tracking
+
+### Added
+
+- More error tracking
+
 ## [1.3.5] - 2025-09-25
 
 ### Fix

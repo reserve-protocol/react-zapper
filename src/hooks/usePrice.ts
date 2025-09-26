@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Address } from 'viem'
+import { Address, ethAddress, zeroAddress } from 'viem'
 import { useAtomValue } from 'jotai'
 import { apiUrlAtom } from '@/state/atoms'
 
@@ -13,12 +13,15 @@ export function usePrice(
 ): number | null {
   const atomUrl = useAtomValue(apiUrlAtom)
   const { data } = useQuery({
-    queryKey: ['chainlinkPrice', chainId, tokenAddress, apiUrl, atomUrl],
+    queryKey: ['reserveAPIPrice', chainId, tokenAddress, apiUrl, atomUrl],
     queryFn: async () => {
       if (!tokenAddress) return null
 
+      const transformedTokenAddress =
+        tokenAddress === ethAddress ? zeroAddress : tokenAddress
+
       const baseUrl = apiUrl || atomUrl
-      const url = `${baseUrl}current/prices?chainId=${chainId}&tokens=${tokenAddress}`
+      const url = `${baseUrl}current/prices?chainId=${chainId}&tokens=${transformedTokenAddress}`
 
       try {
         const response = await fetch(url)

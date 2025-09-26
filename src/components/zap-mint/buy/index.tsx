@@ -76,6 +76,7 @@ const Buy = () => {
   useTrackQuoteErrorUX({
     tokenIn: selectedToken.address,
     tokenOut: indexDTF?.id || '',
+    source: data?.source,
     zapError: zapperErrorMessage,
   })
 

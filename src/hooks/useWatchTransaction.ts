@@ -45,13 +45,13 @@ const useWatchTransaction = ({
   })
 
   useEffect(() => {
-    if (!hash || !data) return
+    if (!hash) return
 
     const notificationKey = `${hash}-${status}`
 
     if (notifiedRef.current[notificationKey]) return
 
-    if (status === 'success') {
+    if (status === 'success' && data) {
       notifiedRef.current[notificationKey] = true
       notify(
         successMessage?.title ?? `Transaction confirmed`,
