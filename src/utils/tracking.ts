@@ -11,6 +11,7 @@ import {
 // Initialize Mixpanel with the hardcoded token
 mixpanel.init(MIXPANEL_TOKEN, {
   track_pageview: true,
+  debug: true, // TODO: Remove this in production
 })
 
 export const mixpanelTrack = (
@@ -21,6 +22,16 @@ export const mixpanelTrack = (
     mixpanel.track(event, data)
   } catch (error) {
     console.warn('Mixpanel tracking failed:', error)
+  }
+}
+
+export const mixpanelRegister = (key: string, value: string) => {
+  try {
+    mixpanel.register({
+      [key]: value,
+    })
+  } catch (error) {
+    console.warn('Mixpanel registration failed:', error)
   }
 }
 

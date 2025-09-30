@@ -1,11 +1,11 @@
 import { useAtomValue } from 'jotai'
-import mixpanel from 'mixpanel-browser/src/loaders/loader-module-core'
 import { ReactNode, useEffect, useRef } from 'react'
 import { chainIdAtom } from '../state/atoms'
 import { CHAIN_TAGS } from '../utils/chains'
 import { Hex, TransactionReceipt } from 'viem'
 import { useWaitForTransactionReceipt } from 'wagmi'
 import useNotification from './use-notification'
+import { mixpanelTrack } from '@/utils'
 
 interface WatchOptions {
   hash: Hex | undefined
@@ -59,7 +59,7 @@ const useWatchTransaction = ({
         successMessage?.type ?? 'success',
         successMessage?.icon
       )
-      mixpanel.track('transaction', {
+      mixpanelTrack('transaction', {
         product: label,
         action: 'transaction_succeeded',
         payload: {
@@ -72,7 +72,7 @@ const useWatchTransaction = ({
     } else if (status === 'error') {
       notifiedRef.current[notificationKey] = true
       notify(`Transaction reverted`, error?.message ?? 'Unknown error', 'error')
-      mixpanel.track('transaction', {
+      mixpanelTrack('transaction', {
         product: label,
         action: 'transaction_reverted',
         payload: {
