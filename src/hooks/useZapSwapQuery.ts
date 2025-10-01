@@ -186,7 +186,7 @@ const useZapSwapQuery = ({
       // if we need to add retries, we should generate a new retryId for each attempt
 
       // Get endpoint with tracking parameters
-      const currentEndpoint = getZapEndpoint(quoteId, retryId)
+      const currentEndpoint = getZapEndpoint(quoteId, retryId, true)
 
       if (!currentEndpoint) throw new Error('No Zap endpoint available')
 
