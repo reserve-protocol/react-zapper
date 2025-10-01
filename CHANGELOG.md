@@ -1,3 +1,9 @@
+## [1.3.7] - 2025-10-01
+
+### Changed
+
+- Tracking was improved (sessionId, quoteId, sourceId, retryId)
+
 ## [1.3.6] - 2025-09-26
 
 ### Fixed
