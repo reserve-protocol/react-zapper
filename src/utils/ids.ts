@@ -20,7 +20,7 @@ export const generateQuoteId = ({
   slippage: number
 }): string => {
   return uuidv5(
-    `${chainId}-${tokenIn}-${tokenOut}-${amountIn}-${slippage}`,
+    `${chainId}-${tokenIn}-${tokenOut}-${amountIn}-${slippage}`.toLowerCase(),
     uuidv5.URL
   )
 }
