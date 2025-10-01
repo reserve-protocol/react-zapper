@@ -99,6 +99,7 @@ const useZapSwapQuery = ({
       if (sessionId) url.searchParams.append('sessionId', sessionId)
       if (quoteId) url.searchParams.append('quoteId', quoteId)
       if (retryId) url.searchParams.append('retryId', retryId)
+      url.searchParams.append('sourceId', generateSourceId('zap'))
 
       return url.toString()
     },
@@ -147,6 +148,7 @@ const useZapSwapQuery = ({
       if (sessionId) url.searchParams.append('sessionId', sessionId)
       if (quoteId) url.searchParams.append('quoteId', quoteId)
       if (retryId) url.searchParams.append('retryId', retryId)
+      url.searchParams.append('sourceId', generateSourceId('odos'))
 
       return url.toString()
     },
