@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { formatEther, parseUnits } from 'viem'
@@ -6,7 +7,11 @@ import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import { chainIdAtom, indexDTFAtom, walletAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
-import { formatCurrency, useTrackQuoteErrorUX } from '../../../utils'
+import {
+  formatCurrency,
+  resetTempRegistrations,
+  useTrackQuoteErrorUX,
+} from '../../../utils'
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
@@ -23,10 +28,9 @@ import {
   zapperDebugAtom,
   zapRefetchAtom,
 } from '../atom'
+import { Debug } from '../debug/debug'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Debug } from '../debug/debug'
 
 const Buy = () => {
   const account = useAtomValue(walletAtom)
@@ -99,6 +103,7 @@ const Buy = () => {
     setCurrentTab(newTab)
     setInputToken(tokens[0])
     setInputAmount('')
+    resetTempRegistrations()
   }
 
   useEffect(() => {

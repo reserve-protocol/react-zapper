@@ -238,6 +238,7 @@ export const Zapper: React.FC<ZapperProps> = ({
           connectWallet={connectWallet}
           defaultSource={defaultSource}
           debug={debug}
+          mode={mode}
         />
         <ZapperContent mode={mode} />
       </QueryClientProvider>
