@@ -24,6 +24,23 @@ export const mixpanelTrack = (
   }
 }
 
+export const mixpanelRegister = (key: string, value?: string) => {
+  try {
+    mixpanel.register({
+      [key]: value,
+    })
+  } catch (error) {
+    console.warn('Mixpanel registration failed:', error)
+  }
+}
+
+export const resetTempRegistrations = () => {
+  mixpanelRegister('quoteId', undefined)
+  mixpanelRegister('retryId', undefined)
+  mixpanelRegister('source', undefined)
+  mixpanelRegister('sourceId', undefined)
+}
+
 export const trackIndexDTFQuoteError = ({
   account,
   tokenIn,

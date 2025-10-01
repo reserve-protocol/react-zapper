@@ -22,6 +22,7 @@ import {
 } from '../state/atoms'
 import { Token } from '../types'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
+import SessionTracker from './updaters/session-tracker'
 import { zapperDebugAtom } from './zap-mint/atom'
 
 type IndexDTFBrand = {
@@ -37,6 +38,7 @@ interface UpdatersProps {
   connectWallet?: () => void
   defaultSource?: QuoteSource
   debug?: boolean
+  mode?: 'modal' | 'inline'
 }
 
 const IndexDTFMetadataUpdater: React.FC<{
@@ -214,6 +216,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   connectWallet,
   defaultSource,
   debug,
+  mode = 'modal',
 }) => {
   return (
     <>
@@ -227,6 +230,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <TokenBalancesUpdater dtfAddress={dtfAddress} />
       <QuoteSourceUpdater defaultSource={defaultSource} />
       <DebugUpdater debug={debug} />
+      <SessionTracker mode={mode} />
     </>
   )
 }
