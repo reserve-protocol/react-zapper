@@ -1,17 +1,17 @@
-import { useAtom, useAtomValue } from 'jotai'
-import { useEffect, useRef, useCallback } from 'react'
 import { openZapMintModalAtom } from '@/components/zap-mint/atom'
 import { walletAtom } from '@/state/atoms'
 import { sessionIdAtom } from '@/state/tracking-atoms'
 import { generateSessionId } from '@/utils/ids'
 import { mixpanelRegister } from '@/utils/tracking'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect, useRef } from 'react'
 
 interface SessionTrackerProps {
   mode: 'modal' | 'inline'
 }
 
 const SessionTracker: React.FC<SessionTrackerProps> = ({ mode }) => {
-  const [sessionId, setSessionId] = useAtom(sessionIdAtom)
+  const setSessionId = useSetAtom(sessionIdAtom)
   const wallet = useAtomValue(walletAtom)
   const isModalOpen = useAtomValue(openZapMintModalAtom)
   const prevWalletRef = useRef<string | undefined>()
@@ -24,21 +24,19 @@ const SessionTracker: React.FC<SessionTrackerProps> = ({ mode }) => {
     mixpanelRegister('sessionId', newSessionId)
   }, [setSessionId])
 
-  // Handle component mount (inline mode) or modal open (modal mode)
   useEffect(() => {
     if (mode === 'inline' && !hasInitializedRef.current) {
       // Inline mode: generate session on mount
       createNewSession()
       hasInitializedRef.current = true
-    } else if (mode === 'modal' && isModalOpen && !sessionId) {
+    } else if (mode === 'modal' && isModalOpen) {
       // Modal mode: generate session when modal opens
       createNewSession()
     }
-  }, [mode, isModalOpen, sessionId, createNewSession])
+  }, [mode, isModalOpen, createNewSession])
 
   // Handle wallet address changes
   useEffect(() => {
-    // Only generate new session if wallet actually changed (not on initial mount)
     if (
       prevWalletRef.current !== undefined &&
       prevWalletRef.current !== wallet
