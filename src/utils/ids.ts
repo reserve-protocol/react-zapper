@@ -6,8 +6,23 @@ export const generateSessionId = (): string => {
   return uuidv4()
 }
 
-export const generateQuoteId = (url: string): string => {
-  return uuidv5(url, uuidv5.URL)
+export const generateQuoteId = ({
+  chainId,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  slippage,
+}: {
+  chainId: number
+  tokenIn: string
+  tokenOut: string
+  amountIn: string
+  slippage: number
+}): string => {
+  return uuidv5(
+    `${chainId}-${tokenIn}-${tokenOut}-${amountIn}-${slippage}`,
+    uuidv5.URL
+  )
 }
 
 export const generateSourceId = (source: Source): string => {
