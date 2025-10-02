@@ -161,33 +161,6 @@ export const trackIndexDTFQuote = ({
   })
 }
 
-export const useTrackIndexDTF = (
-  event: string,
-  page: string,
-  subpage?: string
-) => {
-  const indexDTF = useAtomValue(indexDTFAtom)
-
-  const track = (ctaLabel: string) => {
-    if (!indexDTF) return
-    mixpanelTrack(event, {
-      page,
-      subpage,
-      cta: ctaLabel,
-      ca: indexDTF.id,
-      ticker: indexDTF.token.symbol,
-      chain: indexDTF.chainId,
-    })
-  }
-
-  return { track }
-}
-
-export const useTrackIndexDTFClick = (page: string, subpage?: string) => {
-  const { track } = useTrackIndexDTF('tap', page, subpage)
-  return { trackClick: track }
-}
-
 export const useTrackIndexDTFZap = (
   event: string,
   page: string,
