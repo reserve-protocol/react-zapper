@@ -1,8 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Address, erc20Abi, Hex } from 'viem'
 import { mainnet } from 'viem/chains'
-import { useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
+import {
+  useEstimateGas,
+  useSendTransaction,
+  useWaitForTransactionReceipt,
+} from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { ZapResult } from '../../types/api'
@@ -25,6 +30,7 @@ import {
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
+  zapRefetchAtom,
 } from './atom'
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
@@ -100,6 +106,7 @@ const SubmitZapButton = ({
   const [inputAmountCached, setInputAmountCached] = useAtom(
     zapMintInputCachedAtom
   )
+  const refetchQuote = useAtomValue(zapRefetchAtom)
 
   const {
     write: approve,
@@ -140,6 +147,40 @@ const SubmitZapButton = ({
     isError: isErrorSend,
   } = useSendTransaction()
 
+  const gasMultiplier = useMemo(
+    () => (chainId === mainnet.id ? 2n : 3n),
+    [chainId]
+  )
+
+  const { error: simulationError, failureReason: simulationFailureReason } =
+    useEstimateGas({
+      to: tx?.to as Address,
+      data: tx?.data as Hex,
+      value: BigInt(tx?.value || 0),
+      gas: BigInt(gas ?? 0) * gasMultiplier || undefined,
+      chainId,
+      query: {
+        enabled: readyToSubmit && !!tx,
+        refetchIntervalInBackground: true,
+        refetchOnWindowFocus: true,
+        refetchInterval: 2_000,
+      },
+    })
+
+  const simulationFailed = useMemo(
+    () => Boolean(simulationError || simulationFailureReason),
+    [simulationError, simulationFailureReason]
+  )
+
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    if (simulationFailed) {
+      queryClient.setQueriesData({ queryKey: ['zapDeploy'] }, () => undefined)
+      queryClient.invalidateQueries({ queryKey: ['zapDeploy'] })
+      refetchQuote.fn?.()
+    }
+  }, [simulationFailed, refetchQuote, queryClient])
+
   const {
     data: receipt,
     isMining: validatingTx,
@@ -166,12 +207,10 @@ const SubmitZapButton = ({
 
   const execute = useCallback(() => {
     if (!tx || !readyToSubmit) return
-    const multiplier = chainId === mainnet.id ? 2n : 3n
-
     setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Hex,
-      gas: BigInt(gas ?? 0) * multiplier || undefined,
+      gas: BigInt(gas ?? 0) * gasMultiplier || undefined,
       to: tx.to as Address,
       value: BigInt(tx.value),
       chainId,
@@ -179,11 +218,12 @@ const SubmitZapButton = ({
   }, [
     tx,
     readyToSubmit,
-    inputAmount,
-    gas,
-    chainId,
     setInputAmountCached,
+    inputAmount,
     sendTransaction,
+    gas,
+    gasMultiplier,
+    chainId,
   ])
 
   const error =
@@ -237,6 +277,7 @@ const SubmitZapButton = ({
       />
       <TransactionButton
         disabled={
+          simulationFailed ||
           (highPriceImpact && !warningAccepted) ||
           (highDustValue && !dustWarningAccepted) ||
           (approvalNeeded
@@ -257,7 +298,9 @@ const SubmitZapButton = ({
         }}
         className="rounded-xl"
       >
-        {readyToSubmit
+        {simulationFailed
+          ? 'Simulation failed - Refetching quote'
+          : readyToSubmit
           ? `${addStepTwoLabel ? 'Step 2. ' : ''}${buttonLabel}`
           : `${addStepOneLabel ? 'Step 1. ' : ''}Approve use of ${inputSymbol}`}
       </TransactionButton>
