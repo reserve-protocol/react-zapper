@@ -1,3 +1,11 @@
+## [1.4.0] - 2025-10-06
+
+### Added
+
+- Quote invalidation based on simulation
+- Copy trace id button
+- Time event tracking
+
 ## [1.3.8] - 2025-10-02
 
 ### Added
