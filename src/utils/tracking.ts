@@ -11,6 +11,7 @@ import {
 // Initialize Mixpanel with the hardcoded token
 mixpanel.init(MIXPANEL_TOKEN, {
   track_pageview: true,
+  // debug: true,
 })
 
 export const mixpanelTrack = (
@@ -19,6 +20,14 @@ export const mixpanelTrack = (
 ) => {
   try {
     mixpanel.track(event, data)
+  } catch (error) {
+    console.warn('Mixpanel tracking failed:', error)
+  }
+}
+
+export const mixpanelTimeEvent = (event: string) => {
+  try {
+    mixpanel.time_event(event)
   } catch (error) {
     console.warn('Mixpanel tracking failed:', error)
   }
@@ -110,6 +119,38 @@ export const trackIndexDTFQuoteRequested = ({
     tokenIn,
     tokenOut,
     source,
+  })
+}
+
+export const SUBMIT_BUTTON_READY_EVENT = 'index-dtf-zap-ready'
+export const trackSubmitButtonReady = ({
+  account,
+  tokenIn,
+  tokenOut,
+  dtfTicker,
+  chainId,
+  type,
+  endpoint,
+}: {
+  dtfTicker: string
+  chainId: number
+  type: string
+  endpoint: string
+  account?: string
+  tokenIn?: string
+  tokenOut?: string
+  source?: 'zap' | 'odos'
+}) => {
+  mixpanelTrack(SUBMIT_BUTTON_READY_EVENT, {
+    event: SUBMIT_BUTTON_READY_EVENT,
+    wa: account,
+    ca: tokenIn,
+    ticker: dtfTicker,
+    chainId,
+    type,
+    endpoint,
+    tokenIn,
+    tokenOut,
   })
 }
 

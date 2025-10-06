@@ -26,10 +26,13 @@ import {
 } from '../utils/ids'
 import {
   mixpanelRegister,
+  mixpanelTimeEvent,
   mixpanelTrack,
+  SUBMIT_BUTTON_READY_EVENT,
   trackIndexDTFQuote,
   trackIndexDTFQuoteError,
   trackIndexDTFQuoteRequested,
+  trackSubmitButtonReady,
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
 
@@ -414,6 +417,8 @@ const useZapSwapQuery = ({
         throw new Error('Invalid tokenIn, tokenOut')
       }
 
+      mixpanelTimeEvent(SUBMIT_BUTTON_READY_EVENT)
+
       const newQuoteId = generateQuoteId({
         chainId,
         tokenIn,
@@ -466,6 +471,16 @@ const useZapSwapQuery = ({
       setSourceId(newSourceId)
       mixpanelRegister('sourceId', newSourceId)
       mixpanelRegister('source', result.source)
+
+      trackSubmitButtonReady({
+        account,
+        tokenIn,
+        tokenOut,
+        dtfTicker,
+        chainId,
+        type,
+        endpoint: (result.source === 'zap' ? zapEndpoint : odosEndpoint) ?? '',
+      })
 
       return result
     },
