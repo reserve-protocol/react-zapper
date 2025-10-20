@@ -1,3 +1,10 @@
+## [1.4.0] - 2025-10-20
+
+### Added
+
+- Report error button
+- Insufficient gas balance check
+
 ## [1.4.0] - 2025-10-06
 
 ### Added

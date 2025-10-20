@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
-import { balancesAtom, chainIdAtom } from '../../state/atoms'
+import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
 import { Token, TokenBalance } from '../../types'
 import { reducedZappableTokens } from '../../utils/constants'
 
@@ -38,6 +38,26 @@ export const tokensAtom = atom<(Token & { balance?: string })[]>((get) => {
     ...token,
     balance: balances[token.address]?.balance,
   }))
+})
+
+export const tokenInAtom = atom<Token | undefined>((get) => {
+  const indexDTF = get(indexDTFAtom)
+  const indexDTFToken = indexDTF?.token as unknown as Token
+  const currentTab = get(zapperCurrentTabAtom)
+  const selectedToken = get(selectedTokenAtom)
+  const defaultToken = get(defaultSelectedTokenAtom)
+  return currentTab === 'buy' ? selectedToken || defaultToken : indexDTFToken
+})
+
+export const tokenOutAtom = atom<Token | undefined>((get) => {
+  const indexDTF = get(indexDTFAtom)
+  const indexDTFToken = indexDTF?.token
+    ? { ...indexDTF.token, address: indexDTF.id }
+    : undefined
+  const currentTab = get(zapperCurrentTabAtom)
+  const selectedToken = get(selectedTokenAtom)
+  const defaultToken = get(defaultSelectedTokenAtom)
+  return currentTab === 'buy' ? indexDTFToken : selectedToken || defaultToken
 })
 
 export const slippageAtom = atomWithReset<string>('100')

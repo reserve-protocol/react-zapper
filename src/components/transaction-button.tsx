@@ -3,7 +3,7 @@ import { CHAIN_TAGS } from '@/utils/chains'
 import { useAtomValue } from 'jotai'
 import { Loader } from 'lucide-react'
 import React from 'react'
-import { useAccount, useSwitchChain } from 'wagmi'
+import { useAccount, useBalance, useSwitchChain } from 'wagmi'
 import { cn } from '../utils/cn'
 import { Button } from './ui/button'
 
@@ -13,6 +13,7 @@ interface TransactionButtonProps {
   loading?: boolean
   onClick?: () => void
   className?: string
+  gas?: bigint
   variant?:
     | 'default'
     | 'destructive'
@@ -32,6 +33,7 @@ export function TransactionButton({
   loading = false,
   onClick,
   className,
+  gas,
   variant = 'default',
   size = 'lg',
 }: TransactionButtonProps) {
@@ -40,6 +42,16 @@ export function TransactionButton({
   const walletChainId = account.chain?.id
   const isConnected = account.isConnected
   const isWrongChain = walletChainId && walletChainId !== chainId
+
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId,
+  })
+
+  const hasInsufficientGas = React.useMemo(() => {
+    if (!balance) return false
+    return gas ? balance.value < gas : balance.value === 0n
+  }, [balance, gas])
 
   if (!isConnected) {
     return <ConnectWalletButton />
@@ -52,7 +64,7 @@ export function TransactionButton({
   return (
     <Button
       onClick={onClick}
-      disabled={disabled || loading}
+      disabled={disabled || loading || hasInsufficientGas}
       variant={variant}
       size={size}
       className={cn(
@@ -62,7 +74,7 @@ export function TransactionButton({
       )}
     >
       {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-      {children}
+      {hasInsufficientGas ? 'Insufficient gas balance' : children}
     </Button>
   )
 }
