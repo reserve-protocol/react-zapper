@@ -286,7 +286,7 @@ const SubmitZapButton = ({
             : !readyToSubmit || loadingTx || validatingTx)
         }
         loading={approving || loadingTx || validatingTx || confirmingApproval}
-        // gas={readyToSubmit ? (gas ? BigInt(gas) : undefined) : approvalGas}
+        gas={readyToSubmit ? (gas ? BigInt(gas) * gasMultiplier : undefined) : undefined}
         onClick={() => {
           setOngoingTx(true)
           if (readyToSubmit) {
