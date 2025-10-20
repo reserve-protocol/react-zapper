@@ -63,6 +63,23 @@ export type Debug = {
   }[]
 }
 
+export type ReportPayload = {
+  sessionId: string
+  quoteId: string
+  retryId: string
+  error: string
+  tokenIn: {
+    address: string
+    symbol: string
+  }
+  tokenOut: {
+    address: string
+    symbol: string
+  }
+  amount: string
+  value: string
+}
+
 export type ZapResponse = {
   status: 'success' | 'error'
   result?: ZapResult
@@ -107,6 +124,8 @@ const zapper = {
 
   zapDeployUngoverned: (url: string, chainId: number) =>
     `${getBaseZapApiUrl(url, chainId)}/deploy-ungoverned?chainId=${chainId}`,
+
+  report: (url: string) => `${url}zapper/report`,
 }
 
 export default zapper

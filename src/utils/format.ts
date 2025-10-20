@@ -26,6 +26,23 @@ export function formatTokenAmount(value: number) {
       })
 }
 
+export function formatToSignificantDigits(
+  value: number,
+  digits = 4,
+  options: Intl.NumberFormatOptions = {}
+): string {
+  return value >= 1
+    ? Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        ...options,
+      }).format(value)
+    : Intl.NumberFormat('en-US', {
+        maximumSignificantDigits: digits,
+        ...options,
+      }).format(value)
+}
+
 export function formatSignedPercentage(value: number) {
   return (
     (Math.sign(value) > 0 ? '+' : '') +

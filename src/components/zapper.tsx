@@ -1,10 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Config, WagmiProvider } from 'wagmi'
 import { hashFn, structuralSharing } from 'wagmi/query'
-import { indexDTFAtom } from '../state/atoms'
 import { ZapperProps } from '../types'
 import { useTrackIndexDTFZapClick } from '../utils/tracking'
 import { Button } from './ui/button'
@@ -16,6 +15,8 @@ import {
   openZapMintModalAtom,
   selectedTokenAtom,
   showZapSettingsAtom,
+  tokenInAtom,
+  tokenOutAtom,
   zapFetchingAtom,
   zapMintInputAtom,
   zapOngoingTxAtom,
@@ -39,18 +40,15 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   const [currentTab, setCurrentTab] = useAtom(zapperCurrentTabAtom)
   const [showSettings, setShowSettings] = useAtom(showZapSettingsAtom)
   const defaultToken = useAtomValue(defaultSelectedTokenAtom)
-  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom)
-  const indexDTF = useAtomValue(indexDTFAtom)
+  const setSelectedToken = useSetAtom(selectedTokenAtom)
   const zapRefetch = useAtomValue(zapRefetchAtom)
   const zapFetching = useAtomValue(zapFetchingAtom)
   const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
   const input = useAtomValue(zapMintInputAtom)
   const invalidInput = isNaN(Number(input)) || Number(input) === 0
 
-  const tokenIn =
-    currentTab === 'buy' ? selectedToken || defaultToken : indexDTF?.token
-  const tokenOut =
-    currentTab === 'sell' ? indexDTF?.token : selectedToken || defaultToken
+  const tokenIn = useAtomValue(tokenInAtom)
+  const tokenOut = useAtomValue(tokenOutAtom)
 
   const { trackClick } = useTrackIndexDTFZapClick('overview')
 
