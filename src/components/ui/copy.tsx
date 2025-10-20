@@ -12,6 +12,7 @@ interface CopyProps {
   value: string
   size?: number
   side?: 'top' | 'right' | 'bottom' | 'left'
+  outline?: boolean
   className?: string
 }
 
@@ -19,6 +20,7 @@ const Copy: React.FC<CopyProps> = ({
   value,
   size = 12,
   side = 'top',
+  outline = false,
   className,
 }) => {
   const copyText = 'Copy to clipboard'
@@ -39,7 +41,14 @@ const Copy: React.FC<CopyProps> = ({
   return (
     <TooltipProvider>
       <Tooltip open={isOpen ? true : undefined} delayDuration={0}>
-        <TooltipTrigger onClick={handleCopy}>
+        <TooltipTrigger
+          onClick={handleCopy}
+          className={
+            outline
+              ? 'flex items-center p-2 rounded-full border border-border'
+              : ''
+          }
+        >
           <CopyIcon size={size} className={className} />
         </TooltipTrigger>
         <TooltipContent side={side} className="max-w-xs">

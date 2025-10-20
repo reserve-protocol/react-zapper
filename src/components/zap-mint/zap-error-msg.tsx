@@ -1,8 +1,17 @@
-import TransactionError from '../transaction-error'
+import { quoteIdAtom, retryIdAtom, sessionIdAtom } from '@/state/tracking-atoms'
 import { useAtomValue } from 'jotai'
-import { zapperCurrentTabAtom, zapSwapEndpointAtom } from './atom'
-import Copy from '../ui/copy'
+import { ReactNode, useMemo } from 'react'
 import { indexDTFAtom } from '../../state/atoms'
+import TransactionError from '../transaction-error'
+import { Button } from '../ui/button'
+import Copy from '../ui/copy'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip'
+import { zapperCurrentTabAtom, zapSwapEndpointAtom } from './atom'
 
 const SWAP_ERROR_MSG =
   'Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit.'
@@ -15,12 +24,38 @@ const ERROR_MAP = {
     'Sorry, the market is volatile right now. Please increase slippage in your settings.',
 }
 
-const CopySwapButton = () => {
+const CopySwapButton = ({
+  errorMsg,
+  errorMsgDisplayed,
+}: {
+  errorMsg?: string
+  errorMsgDisplayed?: string
+}) => {
   const endpoint = useAtomValue(zapSwapEndpointAtom)
+  const sessionId = useAtomValue(sessionIdAtom)
+  const quoteId = useAtomValue(quoteIdAtom)
+  const retryId = useAtomValue(retryIdAtom)
+
+  const copyText = useMemo(() => {
+    return `
+    Session ID: ${sessionId}\n
+    Quote ID: ${quoteId}\n
+    Retry ID: ${retryId}\n
+    Endpoint: ${endpoint}\n
+    Original error: ${errorMsg}\n
+    Displayed error: ${errorMsgDisplayed}
+  `
+  }, [endpoint, errorMsg, errorMsgDisplayed, sessionId, quoteId, retryId])
+
   return (
-    <div className="flex items-center gap-1 text-xs mx-auto">
-      <div>Copy swap params to share with engineering team</div>
-      <Copy value={endpoint} />
+    <div className="flex items-center gap-1.5 text-xs mx-auto">
+      <Copy value={copyText} size={14} outline />
+      <Button
+        className="rounded-full h-8 px-3"
+        onClick={() => console.log('report')}
+      >
+        Report
+      </Button>
     </div>
   )
 }
@@ -44,23 +79,55 @@ const GoToManualRedeem = () => {
   )
 }
 
+const ErrorMessage = ({
+  error,
+  displayedError,
+  errorTooltip = displayedError,
+}: {
+  error?: string
+  displayedError?: string
+  errorTooltip?: ReactNode
+}) => {
+  if (!error || !displayedError) return null
+
+  return (
+    <div className="p-1 py-2 sm:p-4 sm:py-2">
+      <div className="grid grid-cols-[1fr,auto] gap-0 items-start justify-start font-light">
+        <div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="text-red-500 text-xs text-start truncate w-[180px] sm:w-[280px] cursor-help">
+                  {displayedError}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs break-words">
+                {errorTooltip}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="text-muted-foreground text-xs text-start">
+            Please report this to help us improve
+          </div>
+        </div>
+        <div>
+          <CopySwapButton errorMsg={error} errorMsgDisplayed={displayedError} />
+        </div>
+      </div>
+      <GoToManualRedeem />
+    </div>
+  )
+}
+
 const ZapErrorMsg = ({ error }: { error?: string }) => {
   if (!error) return null
 
-  const errorMsg =
+  const errorMsgDisplayed =
     Object.entries(ERROR_MAP).find(([key]) =>
       error.toLowerCase().includes(key.toLowerCase())
     )?.[1] || error
 
-  return (
-    <>
-      <div className="flex flex-col gap-2 items-center justify-center">
-        <div className="text-red-500 text-sm text-center mt-2">{errorMsg}</div>
-        <CopySwapButton />
-      </div>
-      <GoToManualRedeem />
-    </>
-  )
+  return <ErrorMessage error={error} displayedError={errorMsgDisplayed} />
 }
 
 export const ZapTxErrorMsg = ({ error }: { error?: Error | null }) => {
@@ -70,14 +137,17 @@ export const ZapTxErrorMsg = ({ error }: { error?: Error | null }) => {
   const newError = new Error(errorMsg)
 
   return (
-    <>
-      <TransactionError
-        error={newError}
-        className="text-center"
-        withName={false}
-      />
-      {error && <CopySwapButton />}
-    </>
+    <ErrorMessage
+      error={errorMsg}
+      displayedError={errorMsg}
+      errorTooltip={
+        <TransactionError
+          error={newError}
+          className="text-center"
+          withName={false}
+        />
+      }
+    />
   )
 }
 

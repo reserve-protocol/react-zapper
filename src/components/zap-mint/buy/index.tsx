@@ -178,7 +178,9 @@ const Buy = () => {
         zapperErrorMessage={zapperErrorMessage}
         onSuccess={onSuccess}
       />
-      <CopyTraceId enabled={!!data?.result} />
+      <CopyTraceId
+        enabled={!!data?.result && !zapperErrorMessage && !showTxButton}
+      />
       {debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
     </div>
   )
