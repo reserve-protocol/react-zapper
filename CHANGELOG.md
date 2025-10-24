@@ -1,3 +1,9 @@
+## [1.4.3] - 2025-10-24
+
+### Changed
+
+- Adjust report button style
+
 ## [1.4.2] - 2025-10-24
 
 ### Changed
