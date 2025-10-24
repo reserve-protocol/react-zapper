@@ -180,8 +180,8 @@ const ErrorMessage = ({
 
   return (
     <div className="p-1 py-2 sm:p-4 sm:py-2">
-      <div className="grid grid-cols-[1fr,auto] gap-0 items-start justify-start font-light">
-        <div>
+      <div className="flex items-center gap-0 justify-start font-light">
+        <div className="flex flex-col items-start flex-1">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
