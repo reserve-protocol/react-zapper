@@ -1,4 +1,11 @@
-## [1.4.0] - 2025-10-20
+## [1.4.2] - 2025-10-24
+
+### Changed
+
+- Removed button to copy traceId
+- Adjust error styles
+
+## [1.4.1] - 2025-10-20
 
 ### Added
 

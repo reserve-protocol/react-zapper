@@ -31,7 +31,6 @@ import {
 import { Debug } from '../debug/debug'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
-import CopyTraceId from '@/components/copy-trace-id'
 
 const Buy = () => {
   const account = useAtomValue(walletAtom)
@@ -177,9 +176,6 @@ const Buy = () => {
         insufficientBalance={insufficientBalance}
         zapperErrorMessage={zapperErrorMessage}
         onSuccess={onSuccess}
-      />
-      <CopyTraceId
-        enabled={!!data?.result && !zapperErrorMessage && !showTxButton}
       />
       {debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
     </div>

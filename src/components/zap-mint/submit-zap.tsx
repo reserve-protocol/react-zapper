@@ -35,7 +35,6 @@ import {
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
-import CopyTraceId from '../copy-trace-id'
 
 const LoadingButton = ({
   fetchingZapper,
@@ -286,7 +285,13 @@ const SubmitZapButton = ({
             : !readyToSubmit || loadingTx || validatingTx)
         }
         loading={approving || loadingTx || validatingTx || confirmingApproval}
-        gas={readyToSubmit ? (gas ? BigInt(gas) * gasMultiplier : undefined) : undefined}
+        gas={
+          readyToSubmit
+            ? gas
+              ? BigInt(gas) * gasMultiplier
+              : undefined
+            : undefined
+        }
         onClick={() => {
           setOngoingTx(true)
           if (readyToSubmit) {
@@ -305,7 +310,6 @@ const SubmitZapButton = ({
           ? `${addStepTwoLabel ? 'Step 2. ' : ''}${buttonLabel}`
           : `${addStepOneLabel ? 'Step 1. ' : ''}Approve use of ${inputSymbol}`}
       </TransactionButton>
-      <CopyTraceId enabled={!error} />
       <ZapTxErrorMsg error={error} />
     </div>
   )

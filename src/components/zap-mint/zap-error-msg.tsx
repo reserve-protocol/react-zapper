@@ -11,7 +11,6 @@ import {
   indexDTFAtom,
   indexDTFPriceAtom,
 } from '../../state/atoms'
-import TransactionError from '../transaction-error'
 import { Button } from '../ui/button'
 import Copy from '../ui/copy'
 import {
@@ -187,7 +186,12 @@ const ErrorMessage = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="text-red-500 text-xs text-start truncate w-[180px] sm:w-[280px] cursor-help">
-                  {displayedError}
+                  <span className="block sm:hidden">
+                    {displayedError.substring(0, 32)}...
+                  </span>
+                  <span className="hidden sm:block">
+                    {displayedError.substring(0, 50)}...
+                  </span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs break-words">
@@ -223,19 +227,12 @@ export const ZapTxErrorMsg = ({ error }: { error?: Error | null }) => {
   if (!error) return null
 
   const errorMsg = error?.message
-  const newError = new Error(errorMsg)
 
   return (
     <ErrorMessage
       error={errorMsg}
       displayedError={errorMsg}
-      errorTooltip={
-        <TransactionError
-          error={newError}
-          className="text-center"
-          withName={false}
-        />
-      }
+      errorTooltip={errorMsg}
     />
   )
 }
