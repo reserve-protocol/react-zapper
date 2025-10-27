@@ -31,8 +31,7 @@ import ZapHealthcheck from './zap-mint/zap-healthcheck'
 import ZapSettings from './zap-mint/zap-settings'
 
 interface ZapperContentProps {
-  mode: 'modal' | 'inline'
-  onClose?: () => void
+  mode: 'modal' | 'inline' | 'simple'
 }
 
 const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
@@ -143,6 +142,68 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
           </div>
         </div>
       </Tabs>
+    )
+  }
+
+  // Simple mode: render input UI + modal dialog
+  if (mode === 'simple') {
+    return (
+      <>
+        <div className="flex flex-col">
+          {currentTab === 'buy' ? <Buy mode="simple" /> : <Sell mode="simple" />}
+        </div>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogContent
+            showClose={false}
+            className="p-2 rounded-t-2xl sm:rounded-3xl border-none"
+          >
+            <DialogTitle className="flex justify-between gap-2 sm:p-0">
+              {showSettings ? (
+                <Button
+                  variant="outline"
+                  className="h-[34px] px-2 rounded-xl"
+                  onClick={() => setShowSettings(false)}
+                >
+                  <ArrowLeft size={16} />
+                </Button>
+              ) : (
+                <div className="flex justify-between gap-1">
+                  <Button
+                    variant="outline"
+                    className="h-[34px] px-2 rounded-xl"
+                    onClick={handleSettingsClick}
+                  >
+                    <Settings size={16} />
+                  </Button>
+                  <RefreshQuote
+                    small
+                    onClick={handleRefreshClick}
+                    loading={zapFetching}
+                    disabled={zapFetching || zapOngoingTx || invalidInput}
+                  />
+                </div>
+              )}
+              <Button
+                variant="outline"
+                className="h-[34px] px-2 rounded-xl"
+                onClick={handleClose}
+              >
+                <X size={16} />
+              </Button>
+            </DialogTitle>
+
+            {showSettings && <ZapSettings />}
+
+            <div className={showSettings ? 'hidden' : 'opacity-100'}>
+              <div className="flex flex-col gap-2">
+                <LowLiquidityWarning />
+                <ZapHealthcheck />
+                {currentTab === 'buy' ? <Buy /> : <Sell />}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
     )
   }
 

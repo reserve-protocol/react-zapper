@@ -38,7 +38,7 @@ interface UpdatersProps {
   connectWallet?: () => void
   defaultSource?: QuoteSource
   debug?: boolean
-  mode?: 'modal' | 'inline'
+  mode?: 'modal' | 'inline' | 'simple'
 }
 
 const IndexDTFMetadataUpdater: React.FC<{

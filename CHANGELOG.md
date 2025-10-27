@@ -1,3 +1,18 @@
+## [1.5.0] - 2025-10-27
+
+### Added
+
+- New `simple` mode for minimal zapper interface
+  - No modal wrapper, tabs, or settings
+  - No warning messages or transaction details
+  - Clean interface for straightforward zapping
+- Documentation for missing props in README (`debug`, `defaultSource`)
+
+### Changed
+
+- Updated TypeScript interfaces to support new simple mode
+- Enhanced demo application to showcase all three modes (modal, inline, simple)
+
 ## [1.4.3] - 2025-10-24
 
 ### Changed

@@ -49,6 +49,7 @@ function App() {
   const [debug, setDebug] = useState(false)
   const [quoteSource, setQuoteSource] = useState<QuoteSource>('best')
   const [apiUrl, setApiUrl] = useState(API_URLS[0].value)
+  const [mode, setMode] = useState<'modal' | 'inline' | 'simple'>('inline')
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -75,19 +76,29 @@ function App() {
           <ConnectButton />
         </div>
 
-        {/* DTF Selector */}
-        {availableDTFs.length > 0 && (
-          <Card className="mb-6 bg-secondary/30 border-border-secondary">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure the DTF token and API endpoint for the zapper
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        {/* Main Content Grid */}
+        {!selectedDTF ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <p className="text-lg text-muted-foreground">
+                No DTFs available on this network
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left: Configuration */}
+            <Card className="bg-secondary/30 border-border-secondary h-fit">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  Configuration
+                </CardTitle>
+                <CardDescription>
+                  Configure the DTF token and API endpoint for the zapper
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Chain</label>
                 <Select
@@ -202,69 +213,80 @@ function App() {
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Display Mode
+                </label>
+                <Select
+                  value={mode}
+                  onValueChange={(value) =>
+                    setMode(value as 'modal' | 'inline' | 'simple')
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="modal">Modal</SelectItem>
+                    <SelectItem value="inline">Inline</SelectItem>
+                    <SelectItem value="simple">Simple</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Modal: Opens in a dialog | Inline: Embedded with controls | Simple: Minimal interface
+                </p>
+              </div>
             </CardContent>
           </Card>
-        )}
 
-        {!selectedDTF ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <p className="text-lg text-muted-foreground">
-                No DTFs available on this network
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Modal Mode */}
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-success rounded-full" />
-                  Modal Mode
-                </CardTitle>
-                <CardDescription>
-                  Opens the zapper in a modal dialog
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ZapperWrapper
-                  wagmiConfig={wagmiConfig}
-                  chain={selectedChain.id as AvailableChain}
-                  dtfAddress={selectedDTF.address}
-                  mode="modal"
-                  apiUrl={apiUrl || undefined}
-                  defaultSource={quoteSource}
-                />
-                <Button onClick={open} className="w-full rounded-xl" size="lg">
-                  Open Zapper Modal
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Inline Mode */}
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full" />
-                  Inline Mode
-                </CardTitle>
-                <CardDescription>Embedded zapper component</CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
+          {/* Right: Zapper Component */}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${
+                  mode === 'modal' ? 'bg-success' :
+                  mode === 'inline' ? 'bg-primary' :
+                  'bg-warning'
+                }`} />
+                Zapper Component ({mode.charAt(0).toUpperCase() + mode.slice(1)} Mode)
+              </CardTitle>
+              <CardDescription>
+                {mode === 'modal' ? 'Opens the zapper in a modal dialog' :
+                 mode === 'inline' ? 'Embedded zapper component with full controls' :
+                 'Minimal zapper interface without extra UI elements'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className={mode === 'modal' ? '' : 'p-0'}>
+              {mode === 'modal' ? (
+                <>
+                  <ZapperWrapper
+                    wagmiConfig={wagmiConfig}
+                    chain={selectedChain.id as AvailableChain}
+                    dtfAddress={selectedDTF.address}
+                    mode="modal"
+                    apiUrl={apiUrl || undefined}
+                    defaultSource={quoteSource}
+                    debug={debug}
+                  />
+                  <Button onClick={open} className="w-full rounded-xl" size="lg">
+                    Open Zapper Modal
+                  </Button>
+                </>
+              ) : (
                 <div className="p-4 border-t border-muted">
                   <ZapperWrapper
                     wagmiConfig={wagmiConfig}
                     chain={selectedChain.id as AvailableChain}
                     dtfAddress={selectedDTF.address}
-                    mode="inline"
+                    mode={mode}
                     apiUrl={apiUrl || undefined}
                     debug={debug}
                     defaultSource={quoteSource}
                   />
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </CardContent>
+          </Card>
           </div>
         )}
       </div>

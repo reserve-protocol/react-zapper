@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
@@ -20,6 +20,7 @@ import {
   forceMintAtom,
   indexDTFBalanceAtom,
   openZapMintModalAtom,
+  openingFromSimpleModeAtom,
   selectedTokenAtom,
   selectedTokenOrDefaultAtom,
   slippageAtom,
@@ -35,11 +36,17 @@ import { Debug } from '../debug/debug'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
-const Sell = () => {
+interface SellProps {
+  mode?: 'modal' | 'inline' | 'simple'
+}
+
+const Sell = ({ mode = 'modal' }: SellProps) => {
   const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
+  const [openingFromSimple, setOpeningFromSimple] = useAtom(openingFromSimpleModeAtom)
+  const isFirstMount = useRef(true)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const indexDTFBalance = useAtomValue(indexDTFBalanceAtom)
   const indxDTFParsedBalance = formatEther(indexDTFBalance)
@@ -117,8 +124,21 @@ const Sell = () => {
 
   useEffect(() => {
     setOngoingTx(false)
-    setInputAmount('')
-  }, [setOngoingTx, setInputAmount])
+
+    // Skip resetting input on first mount if we're coming from simple mode
+    if (isFirstMount.current && openingFromSimple) {
+      isFirstMount.current = false
+      setOpeningFromSimple(false)
+      return
+    }
+
+    // For non-simple mode, reset input on mount
+    if (isFirstMount.current && mode !== 'simple') {
+      setInputAmount('')
+    }
+
+    isFirstMount.current = false
+  }, [setOngoingTx, setInputAmount, openingFromSimple, setOpeningFromSimple, mode])
 
   const onSuccess = useCallback(() => {
     setInputAmount('')
@@ -159,7 +179,7 @@ const Sell = () => {
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
-      {!!data?.result && <ZapDetails data={data.result} source={data.source} />}
+      {mode !== 'simple' && !!data?.result && <ZapDetails data={data.result} source={data.source} />}
       <SubmitZap
         data={data?.result}
         source={data?.source}
@@ -174,10 +194,11 @@ const Sell = () => {
         showTxButton={showTxButton}
         fetchingZapper={isLoading}
         insufficientBalance={insufficientBalance}
-        zapperErrorMessage={zapperErrorMessage}
+        zapperErrorMessage={mode === 'simple' ? '' : zapperErrorMessage}
         onSuccess={onSuccess}
+        mode={mode}
       />
-      {debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
+      {mode !== 'simple' && debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
     </div>
   )
 }

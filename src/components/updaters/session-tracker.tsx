@@ -7,10 +7,10 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useRef } from 'react'
 
 interface SessionTrackerProps {
-  mode: 'modal' | 'inline'
+  mode?: 'modal' | 'inline' | 'simple'
 }
 
-const SessionTracker: React.FC<SessionTrackerProps> = ({ mode }) => {
+const SessionTracker: React.FC<SessionTrackerProps> = ({ mode = 'modal' }) => {
   const setSessionId = useSetAtom(sessionIdAtom)
   const wallet = useAtomValue(walletAtom)
   const isModalOpen = useAtomValue(openZapMintModalAtom)
@@ -25,8 +25,8 @@ const SessionTracker: React.FC<SessionTrackerProps> = ({ mode }) => {
   }, [setSessionId])
 
   useEffect(() => {
-    if (mode === 'inline' && !hasInitializedRef.current) {
-      // Inline mode: generate session on mount
+    if ((mode === 'inline' || mode === 'simple') && !hasInitializedRef.current) {
+      // Inline/Simple mode: generate session on mount
       createNewSession()
       hasInitializedRef.current = true
     } else if (mode === 'modal' && isModalOpen) {

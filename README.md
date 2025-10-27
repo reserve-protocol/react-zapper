@@ -105,19 +105,50 @@ function ZapperPage() {
 }
 ```
 
+### 4. Simple Mode Usage
+
+The simple mode provides a minimal interface without tabs, settings, or detailed warnings:
+
+```tsx
+import { Zapper } from '@reserve-protocol/react-zapper'
+import '@reserve-protocol/react-zapper/styles.css'
+import { wagmiConfig } from './wagmi-config'
+
+function SimpleZapper() {
+  return (
+    <Zapper
+      wagmiConfig={wagmiConfig}
+      chain={1}
+      dtfAddress="0x123..."
+      mode="simple"
+    />
+  )
+}
+```
+
+Simple mode features:
+- No modal wrapper (similar to inline)
+- No Buy/Sell tabs header
+- No settings or refresh buttons
+- No warning messages
+- No transaction details
+- Clean, minimal interface for straightforward zapping
+
 ## Props
 
 ### ZapperProps
 
-| Property        | Type                  | Required | Description                                   |
-| --------------- | --------------------- | -------- | --------------------------------------------- |
-| `wagmiConfig`   | `WagmiConfig`         | ✅       | Wagmi v2 configuration for the app            |
-| `chain`         | `number`              | ✅       | Chain ID where the DTF is deployed            |
-| `dtfAddress`    | `Address`             | ✅       | DTF contract address                          |
-| `mode`          | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
-| `apiUrl`        | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
-| `connectWallet` | `() => void`          | ❌       | Function to trigger wallet connection         |
-| `className`     | `string`              | ❌       | Additional CSS classes                        |
+| Property         | Type                            | Required | Description                                    |
+| ---------------- | ------------------------------- | -------- | ---------------------------------------------- |
+| `wagmiConfig`    | `WagmiConfig`                   | ✅       | Wagmi v2 configuration for the app             |
+| `chain`          | `number`                        | ✅       | Chain ID where the DTF is deployed             |
+| `dtfAddress`     | `Address`                       | ✅       | DTF contract address                           |
+| `mode`           | `'modal' \| 'inline' \| 'simple'` | ❌    | Display mode (defaults to 'modal')             |
+| `apiUrl`         | `string`                        | ❌       | Custom API endpoint (defaults to Reserve API)  |
+| `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
+| `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
+| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source ('best', 'zap', or 'odos')|
+| `className`      | `string`                        | ❌       | Additional CSS classes                         |
 
 ### useZapperModal Hook
 

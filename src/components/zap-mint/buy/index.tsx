@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { formatEther, parseUnits } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
@@ -16,6 +16,7 @@ import Swap from '../../ui/swap'
 import {
   forceMintAtom,
   openZapMintModalAtom,
+  openingFromSimpleModeAtom,
   selectedTokenAtom,
   selectedTokenBalanceAtom,
   selectedTokenOrDefaultAtom,
@@ -32,11 +33,17 @@ import { Debug } from '../debug/debug'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
-const Buy = () => {
+interface BuyProps {
+  mode?: 'modal' | 'inline' | 'simple'
+}
+
+const Buy = ({ mode = 'modal' }: BuyProps) => {
   const account = useAtomValue(walletAtom)
   const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
+  const [openingFromSimple, setOpeningFromSimple] = useAtom(openingFromSimpleModeAtom)
+  const isFirstMount = useRef(true)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const selectedTokenBalance = useAtomValue(selectedTokenBalanceAtom)
   const tokens = useAtomValue(tokensAtom)
@@ -116,8 +123,21 @@ const Buy = () => {
 
   useEffect(() => {
     setOngoingTx(false)
-    setInputAmount('')
-  }, [setOngoingTx, setInputAmount])
+
+    // Skip resetting input on first mount if we're coming from simple mode
+    if (isFirstMount.current && openingFromSimple) {
+      isFirstMount.current = false
+      setOpeningFromSimple(false)
+      return
+    }
+
+    // For non-simple mode, reset input on mount
+    if (isFirstMount.current && mode !== 'simple') {
+      setInputAmount('')
+    }
+
+    isFirstMount.current = false
+  }, [setOngoingTx, setInputAmount, openingFromSimple, setOpeningFromSimple, mode])
 
   const onSuccess = useCallback(() => {
     setInputAmount('')
@@ -161,7 +181,7 @@ const Buy = () => {
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
-      {!!data?.result && <ZapDetails data={data.result} source={data.source} />}
+      {mode !== 'simple' && !!data?.result && <ZapDetails data={data.result} source={data.source} />}
       <SubmitZap
         data={data?.result}
         source={data?.source}
@@ -174,10 +194,11 @@ const Buy = () => {
         showTxButton={showTxButton}
         fetchingZapper={isLoading}
         insufficientBalance={insufficientBalance}
-        zapperErrorMessage={zapperErrorMessage}
+        zapperErrorMessage={mode === 'simple' ? '' : zapperErrorMessage}
         onSuccess={onSuccess}
+        mode={mode}
       />
-      {debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
+      {mode !== 'simple' && debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
     </div>
   )
 }
