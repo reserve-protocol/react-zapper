@@ -23,6 +23,8 @@ import TransactionButton, {
 } from '../transaction-button'
 import { Button } from '../ui/button'
 import {
+  openZapMintModalAtom,
+  openingFromSimpleModeAtom,
   zapDustWarningCheckboxAtom,
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
@@ -36,16 +38,45 @@ import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
 
+const GetStartedButton = ({
+  fetchingZapper,
+  showTxButton,
+}: {
+  fetchingZapper: boolean
+  showTxButton: boolean
+}) => {
+  const setOpenModal = useSetAtom(openZapMintModalAtom)
+  const setOpeningFromSimple = useSetAtom(openingFromSimpleModeAtom)
+
+  const handleClick = () => {
+    setOpeningFromSimple(true)
+    setOpenModal(true)
+  }
+
+  return (
+    <Button
+      size="lg"
+      className="w-full rounded-xl"
+      disabled={fetchingZapper || !showTxButton}
+      onClick={handleClick}
+    >
+      {fetchingZapper ? 'Loading...' : 'Get started'}
+    </Button>
+  )
+}
+
 const LoadingButton = ({
   fetchingZapper,
   insufficientBalance,
   zapperErrorMessage,
   buttonLabel,
+  mode,
 }: {
   fetchingZapper: boolean
   insufficientBalance: boolean
   zapperErrorMessage: string
   buttonLabel: string
+  mode?: 'modal' | 'inline' | 'simple'
 }) => {
   return (
     <>
@@ -56,7 +87,7 @@ const LoadingButton = ({
           ? 'Insufficient balance'
           : buttonLabel}
       </Button>
-      <ZapErrorMsg error={zapperErrorMessage} />
+      {mode !== 'simple' && <ZapErrorMsg error={zapperErrorMessage} />}
     </>
   )
 }
@@ -82,6 +113,7 @@ const SubmitZapButton = ({
   inputAmount,
   outputAmount,
   onSuccess,
+  mode = 'modal',
 }: {
   data: ZapResult
   source?: 'zap' | 'odos'
@@ -92,6 +124,7 @@ const SubmitZapButton = ({
   inputAmount: string
   outputAmount: string
   onSuccess?: () => void
+  mode?: 'modal' | 'inline' | 'simple'
 }) => {
   const warningAccepted = useAtomValue(zapPriceImpactWarningCheckboxAtom)
   const dustWarningAccepted = useAtomValue(zapDustWarningCheckboxAtom)
@@ -270,16 +303,20 @@ const SubmitZapButton = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <ZapPriceImpactWarningCheckbox priceImpact={truePriceImpact} />
-      <ZapDustWarningCheckbox
-        dustValue={dustValue ?? undefined}
-        amountOutValue={amountOutValue ?? undefined}
-      />
+      {mode !== 'simple' && (
+        <>
+          <ZapPriceImpactWarningCheckbox priceImpact={truePriceImpact} />
+          <ZapDustWarningCheckbox
+            dustValue={dustValue ?? undefined}
+            amountOutValue={amountOutValue ?? undefined}
+          />
+        </>
+      )}
       <TransactionButton
         disabled={
           simulationFailed ||
-          (highPriceImpact && !warningAccepted) ||
-          (highDustValue && !dustWarningAccepted) ||
+          (mode !== 'simple' && highPriceImpact && !warningAccepted) ||
+          (mode !== 'simple' && highDustValue && !dustWarningAccepted) ||
           (approvalNeeded
             ? !approvalReady || confirmingApproval || approving
             : !readyToSubmit || loadingTx || validatingTx)
@@ -310,7 +347,7 @@ const SubmitZapButton = ({
           ? `${addStepTwoLabel ? 'Step 2. ' : ''}${buttonLabel}`
           : `${addStepOneLabel ? 'Step 1. ' : ''}Approve use of ${inputSymbol}`}
       </TransactionButton>
-      <ZapTxErrorMsg error={error} />
+      {mode !== 'simple' && <ZapTxErrorMsg error={error} />}
     </div>
   )
 }
@@ -329,6 +366,7 @@ const SubmitZap = ({
   insufficientBalance,
   zapperErrorMessage,
   onSuccess,
+  mode = 'modal',
 }: {
   data?: ZapResult
   source?: 'zap' | 'odos'
@@ -343,8 +381,19 @@ const SubmitZap = ({
   insufficientBalance: boolean
   zapperErrorMessage: string
   onSuccess?: () => void
+  mode?: 'modal' | 'inline' | 'simple'
 }) => {
   const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
+
+  // Simple mode: show Get Started button instead of transaction button
+  if (mode === 'simple' && !zapOngoingTx) {
+    return (
+      <GetStartedButton
+        fetchingZapper={fetchingZapper}
+        showTxButton={showTxButton}
+      />
+    )
+  }
 
   return (showTxButton || zapOngoingTx) && data ? (
     <SubmitZapButton
@@ -357,6 +406,7 @@ const SubmitZap = ({
       inputAmount={inputAmount}
       outputAmount={outputAmount}
       onSuccess={onSuccess}
+      mode={mode}
     />
   ) : (
     <TransactionButtonContainer>
@@ -365,6 +415,7 @@ const SubmitZap = ({
         insufficientBalance={insufficientBalance}
         zapperErrorMessage={zapperErrorMessage}
         buttonLabel={buttonLabel}
+        mode={mode}
       />
     </TransactionButtonContainer>
   )

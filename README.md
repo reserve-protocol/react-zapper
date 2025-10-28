@@ -8,7 +8,7 @@ A React component library for integrating DTF (Decentralized Token Folio) zap fu
 
 - 🔄 **Zap Minting**: Convert any supported token directly into DTF tokens
 - 🔄 **Zap Redeeming**: Convert DTF tokens back to any supported token
-- 🎨 **Flexible UI**: Modal or inline display modes
+- 🎨 **Flexible UI**: Three display modes - modal popup, inline embedded, and simple launcher
 - 🎯 **Modern Stack**: Built with Wagmi v2, Viem, RainbowKit v2, and TanStack Query v5
 - ⚡ **Optimized**: Real-time price updates and slippage protection
 - 🛡️ **Type Safe**: Full TypeScript support
@@ -105,19 +105,52 @@ function ZapperPage() {
 }
 ```
 
+### 4. Simple Mode Usage
+
+The simple mode provides a streamlined launcher interface that pre-loads quotes before opening the full modal:
+
+```tsx
+import { Zapper } from '@reserve-protocol/react-zapper'
+import '@reserve-protocol/react-zapper/styles.css'
+import { wagmiConfig } from './wagmi-config'
+
+function SimpleZapper() {
+  return (
+    <Zapper
+      wagmiConfig={wagmiConfig}
+      chain={1}
+      dtfAddress="0x123..."
+      mode="simple"
+    />
+  )
+}
+```
+
+Simple mode features:
+- **Launcher Pattern**: Shows a minimal input interface with "Get started" button
+- **Pre-loading**: Fetches quotes in the background as the user types
+- **Modal Transition**: Clicking "Get started" opens the full modal with:
+  - Input amount preserved
+  - Quote already loaded
+  - All transaction details and controls available
+- **Clean Entry Point**: Perfect for embedding in landing pages or simplified UIs
+- **User-Friendly**: Reduces cognitive load with a two-step process
+
 ## Props
 
 ### ZapperProps
 
-| Property        | Type                  | Required | Description                                   |
-| --------------- | --------------------- | -------- | --------------------------------------------- |
-| `wagmiConfig`   | `WagmiConfig`         | ✅       | Wagmi v2 configuration for the app            |
-| `chain`         | `number`              | ✅       | Chain ID where the DTF is deployed            |
-| `dtfAddress`    | `Address`             | ✅       | DTF contract address                          |
-| `mode`          | `'modal' \| 'inline'` | ❌       | Display mode (defaults to 'modal')            |
-| `apiUrl`        | `string`              | ❌       | Custom API endpoint (defaults to Reserve API) |
-| `connectWallet` | `() => void`          | ❌       | Function to trigger wallet connection         |
-| `className`     | `string`              | ❌       | Additional CSS classes                        |
+| Property         | Type                            | Required | Description                                    |
+| ---------------- | ------------------------------- | -------- | ---------------------------------------------- |
+| `wagmiConfig`    | `WagmiConfig`                   | ✅       | Wagmi v2 configuration for the app             |
+| `chain`          | `number`                        | ✅       | Chain ID where the DTF is deployed             |
+| `dtfAddress`     | `Address`                       | ✅       | DTF contract address                           |
+| `mode`           | `'modal' \| 'inline' \| 'simple'` | ❌    | Display mode: 'modal' (popup), 'inline' (embedded), 'simple' (launcher) |
+| `apiUrl`         | `string`                        | ❌       | Custom API endpoint (defaults to Reserve API)  |
+| `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
+| `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
+| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source ('best', 'zap', or 'odos')|
+| `className`      | `string`                        | ❌       | Additional CSS classes                         |
 
 ### useZapperModal Hook
 

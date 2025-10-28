@@ -24,7 +24,7 @@ interface MinimalWagmiConfig {
 }
 
 export interface ZapperProps {
-  mode?: 'modal' | 'inline'
+  mode?: 'modal' | 'inline' | 'simple'
   chain: AvailableChain
   dtfAddress: Address
   apiUrl?: string

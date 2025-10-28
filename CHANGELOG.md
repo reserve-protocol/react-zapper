@@ -1,3 +1,20 @@
+## [1.5.0] - 2025-10-27
+
+### Added
+
+- New `simple` mode that provides a launcher interface
+  - Shows minimal UI with input field and "Get started" button
+  - Pre-loads quotes in the background as user types
+  - Opens full modal with preserved input and loaded quote on button click
+  - Ideal for embedding in landing pages or simplified UIs
+- Documentation for missing props in README (`debug`, `defaultSource`)
+
+### Changed
+
+- Updated TypeScript interfaces to support new simple mode
+- Enhanced demo application with mode selector for testing all three modes
+- Improved component lifecycle handling to preserve state during mode transitions
+
 ## [1.4.3] - 2025-10-24
 
 ### Changed
