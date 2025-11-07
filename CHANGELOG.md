@@ -1,3 +1,9 @@
+## [1.5.1] - 2025-11-07
+
+### Added
+
+- WBNB as input token on BSC
+
 ## [1.5.0] - 2025-10-27
 
 ### Added

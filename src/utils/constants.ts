@@ -89,6 +89,13 @@ const bscTokens = [
     decimals: 18,
     targetUnit: 'USD',
   },
+  {
+    address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' as Address,
+    symbol: 'WBNB',
+    name: 'Wrapped BNB',
+    decimals: 18,
+    targetUnit: 'BNB',
+  },
 ]
 
 export const reducedZappableTokens: Record<number, Token[]> = {
