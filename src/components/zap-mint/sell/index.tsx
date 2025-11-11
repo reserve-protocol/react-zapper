@@ -45,7 +45,9 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
-  const [openingFromSimple, setOpeningFromSimple] = useAtom(openingFromSimpleModeAtom)
+  const [openingFromSimple, setOpeningFromSimple] = useAtom(
+    openingFromSimpleModeAtom
+  )
   const isFirstMount = useRef(true)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const indexDTFBalance = useAtomValue(indexDTFBalanceAtom)
@@ -79,6 +81,7 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
       forceMint,
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'sell',
+      inputPrice,
     })
 
   const zapperErrorMessage = isFetching
@@ -138,7 +141,13 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
     }
 
     isFirstMount.current = false
-  }, [setOngoingTx, setInputAmount, openingFromSimple, setOpeningFromSimple, mode])
+  }, [
+    setOngoingTx,
+    setInputAmount,
+    openingFromSimple,
+    setOpeningFromSimple,
+    mode,
+  ])
 
   const onSuccess = useCallback(() => {
     setInputAmount('')
@@ -179,7 +188,9 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
-      {mode !== 'simple' && !!data?.result && <ZapDetails data={data.result} source={data.source} />}
+      {mode !== 'simple' && !!data?.result && (
+        <ZapDetails data={data.result} source={data.source} />
+      )}
       <SubmitZap
         data={data?.result}
         source={data?.source}
@@ -198,7 +209,9 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
         onSuccess={onSuccess}
         mode={mode}
       />
-      {mode !== 'simple' && debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
+      {mode !== 'simple' && debug && !!data?.result?.debug && (
+        <Debug data={data.result.debug} />
+      )}
     </div>
   )
 }

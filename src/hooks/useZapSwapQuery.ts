@@ -9,6 +9,7 @@ import {
 import {
   apiUrlAtom,
   chainIdAtom,
+  indexDTFAtom,
   quoteSourceAtom,
   walletAtom,
 } from '../state/atoms'
@@ -35,9 +36,17 @@ import {
   trackSubmitButtonReady,
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
+import { formatCurrency } from '@/utils'
+import { ChainId } from '@/utils/chains'
 
 const DUST_REFRESH_THRESHOLD = 0.025
 const PRICE_IMPACT_THRESHOLD = 2
+const MIN_INPUT_PRICE_FOR_ZAP = 1000
+const DTFS_WITH_MIN_INPUT_PRICE_FOR_ZAP = {
+  [ChainId.BSC]: ['0x2f8a339b5889ffac4c5a956787cda593b3c36867'].map((address) =>
+    address.toLowerCase()
+  ),
+}
 
 const useZapSwapQuery = ({
   tokenIn,
@@ -48,6 +57,7 @@ const useZapSwapQuery = ({
   forceMint,
   dtfTicker,
   type,
+  inputPrice,
 }: {
   tokenIn?: Address
   tokenOut?: Address
@@ -57,6 +67,7 @@ const useZapSwapQuery = ({
   forceMint: boolean
   dtfTicker: string
   type: 'buy' | 'sell'
+  inputPrice: number
 }) => {
   const api = useAtomValue(apiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
@@ -68,6 +79,7 @@ const useZapSwapQuery = ({
   const setQuoteId = useSetAtom(quoteIdAtom)
   const setRetryId = useSetAtom(retryIdAtom)
   const setSourceId = useSetAtom(sourceIdAtom)
+  const dtf = useAtomValue(indexDTFAtom)
 
   const getZapEndpoint = useCallback(
     (quoteId?: string, retryId?: string, includeTracking = false) => {
@@ -182,6 +194,20 @@ const useZapSwapQuery = ({
     let dustAttempt = 0
     let priceImpactAttempt = 0
     let lastData: ZapResponse
+
+    if (
+      inputPrice < MIN_INPUT_PRICE_FOR_ZAP &&
+      DTFS_WITH_MIN_INPUT_PRICE_FOR_ZAP[chainId]?.includes(
+        dtf?.id?.toLowerCase() ?? ''
+      )
+    ) {
+      throw new Error(
+        `Minimum input price for Zap is $${formatCurrency(
+          MIN_INPUT_PRICE_FOR_ZAP,
+          0
+        )}`
+      )
+    }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
