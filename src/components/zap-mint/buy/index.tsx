@@ -42,7 +42,9 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
   const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
-  const [openingFromSimple, setOpeningFromSimple] = useAtom(openingFromSimpleModeAtom)
+  const [openingFromSimple, setOpeningFromSimple] = useAtom(
+    openingFromSimpleModeAtom
+  )
   const isFirstMount = useRef(true)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const selectedTokenBalance = useAtomValue(selectedTokenBalanceAtom)
@@ -78,6 +80,7 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
       forceMint,
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'buy',
+      inputPrice,
     })
 
   const zapperErrorMessage = isFetching
@@ -137,7 +140,13 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
     }
 
     isFirstMount.current = false
-  }, [setOngoingTx, setInputAmount, openingFromSimple, setOpeningFromSimple, mode])
+  }, [
+    setOngoingTx,
+    setInputAmount,
+    openingFromSimple,
+    setOpeningFromSimple,
+    mode,
+  ])
 
   const onSuccess = useCallback(() => {
     setInputAmount('')
@@ -181,7 +190,9 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
-      {mode !== 'simple' && !!data?.result && <ZapDetails data={data.result} source={data.source} />}
+      {mode !== 'simple' && !!data?.result && (
+        <ZapDetails data={data.result} source={data.source} />
+      )}
       <SubmitZap
         data={data?.result}
         source={data?.source}
@@ -198,7 +209,9 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
         onSuccess={onSuccess}
         mode={mode}
       />
-      {mode !== 'simple' && debug && !!data?.result?.debug && <Debug data={data.result.debug} />}
+      {mode !== 'simple' && debug && !!data?.result?.debug && (
+        <Debug data={data.result.debug} />
+      )}
     </div>
   )
 }

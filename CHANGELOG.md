@@ -1,3 +1,9 @@
+## [1.5.2] - 2025-11-11
+
+### Added
+
+- Minimum value to use zapper for a given list of DTFs
+
 ## [1.5.1] - 2025-11-07
 
 ### Added
