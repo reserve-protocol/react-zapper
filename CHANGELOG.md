@@ -1,3 +1,9 @@
+## [1.5.3] - 2025-11-16
+
+### Changed
+
+- Odos was replaced by Velora for BSC
+
 ## [1.5.2] - 2025-11-11
 
 ### Added

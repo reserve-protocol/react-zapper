@@ -1,18 +1,20 @@
-import { SwapDetails } from '../ui/swap'
-import { indexDTFAtom } from '../../state/atoms'
+import { ChainId } from '@/utils/chains'
+import Decimal from 'decimal.js-light'
+import { useAtomValue } from 'jotai'
+import { Zap } from 'lucide-react'
+import { formatUnits } from 'viem'
+import { chainIdAtom, indexDTFAtom } from '../../state/atoms'
+import { ZapResult } from '../../types/api'
 import {
   formatCurrency,
   formatPercentage,
   formatTokenAmount,
 } from '../../utils'
-import { ZapResult } from '../../types/api'
-import Decimal from 'decimal.js-light'
-import { useAtomValue } from 'jotai'
-import { formatUnits } from 'viem'
-import { selectedTokenOrDefaultAtom } from './atom'
-import Help from '../ui/help'
-import { Zap } from 'lucide-react'
 import OdosIcon from '../icons/odos'
+import VeloraIcon from '../icons/velora'
+import Help from '../ui/help'
+import { SwapDetails } from '../ui/swap'
+import { selectedTokenOrDefaultAtom } from './atom'
 
 export const ZapPriceImpact = ({
   data,
@@ -50,6 +52,7 @@ const ZapDetails = ({
   data: ZapResult
   source?: 'zap' | 'odos'
 }) => {
+  const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const dtfAsTokenIn =
@@ -110,6 +113,11 @@ const ZapDetails = ({
               <>
                 <Zap size={14} />
                 <span>Zap</span>
+              </>
+            ) : chainId === ChainId.BSC ? (
+              <>
+                <VeloraIcon size={14} />
+                <span>Velora</span>
               </>
             ) : (
               <>

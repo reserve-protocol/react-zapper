@@ -1,11 +1,16 @@
+import { ChainId } from '@/utils/chains'
 import { broom } from '@lucide/lab'
-import { useAtom } from 'jotai'
-import { Anvil, Icon, Zap, Route } from 'lucide-react'
+import { useAtom, useAtomValue } from 'jotai'
+import { Anvil, Icon, Route, Zap } from 'lucide-react'
+import {
+  chainIdAtom,
+  quoteSourceAtom,
+  type QuoteSource,
+} from '../../state/atoms'
+import OdosIcon from '../icons/odos'
+import VeloraIcon from '../icons/velora'
 import { Checkbox } from '../ui/checkbox'
 import Help from '../ui/help'
-import { SlippageSelector } from '../ui/swap'
-import { forceMintAtom, slippageAtom } from './atom'
-import { quoteSourceAtom, type QuoteSource } from '../../state/atoms'
 import {
   Select,
   SelectContent,
@@ -13,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import OdosIcon from '../icons/odos'
+import { SlippageSelector } from '../ui/swap'
+import { forceMintAtom, slippageAtom } from './atom'
 
 const ZapSettingsRowTitle = ({
   title,
@@ -29,6 +35,7 @@ const ZapSettingsRowTitle = ({
 )
 
 const ZapSettings = () => {
+  const chainId = useAtomValue(chainIdAtom)
   const [slippage, setSlippage] = useAtom(slippageAtom)
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
   const [quoteSource, setQuoteSource] = useAtom(quoteSourceAtom)
@@ -71,10 +78,17 @@ const ZapSettings = () => {
               </div>
             </SelectItem>
             <SelectItem value="odos">
-              <div className="flex items-center gap-2">
-                <OdosIcon size={14} />
-                <span>Odos</span>
-              </div>
+              {chainId === ChainId.BSC ? (
+                <div className="flex items-center gap-2">
+                  <VeloraIcon size={14} />
+                  <span>Velora</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <OdosIcon size={14} />
+                  <span>Odos</span>
+                </div>
+              )}
             </SelectItem>
           </SelectContent>
         </Select>
