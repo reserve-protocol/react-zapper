@@ -80,7 +80,7 @@ const ZapSettings = () => {
             <SelectItem value="odos">
               {chainId === ChainId.BSC ? (
                 <div className="flex items-center gap-2">
-                  <VeloraIcon size={14} />
+                  <VeloraIcon size={16} />
                   <span>Velora</span>
                 </div>
               ) : (

@@ -62,7 +62,7 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
-  const inputPrice = (indexDTFPrice || 0) * Number(inputAmount)
+  const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(indxDTFParsedBalance)
 
   const handleTokenSelect = (token: Token) => {
@@ -81,7 +81,7 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
       forceMint,
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'sell',
-      inputPrice,
+      inputValue,
     })
 
   const zapperErrorMessage = isFetching
@@ -160,7 +160,7 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
     <div className="flex flex-col gap-2 h-full">
       <Swap
         from={{
-          price: `$${formatCurrency(priceFrom ?? inputPrice)}`,
+          price: `$${formatCurrency(priceFrom ?? inputValue)}`,
           address: indexDTF.id,
           symbol: indexDTF.token.symbol,
           balance: `${formatCurrency(Number(indxDTFParsedBalance))}`,

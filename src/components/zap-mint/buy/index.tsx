@@ -59,7 +59,7 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
-  const inputPrice = (selectedTokenPrice || 0) * Number(inputAmount)
+  const inputValue = (selectedTokenPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(selectedTokenBalance?.balance || '0')
 
   const handleTokenSelect = (token: Token) => {
@@ -80,7 +80,7 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
       forceMint,
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'buy',
-      inputPrice,
+      inputValue,
     })
 
   const zapperErrorMessage = isFetching
@@ -159,7 +159,7 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
     <div className="flex flex-col gap-2 h-full">
       <Swap
         from={{
-          price: `$${formatCurrency(priceFrom ?? inputPrice)}`,
+          price: `$${formatCurrency(priceFrom ?? inputValue)}`,
           address: selectedToken.address,
           symbol: selectedToken.symbol,
           balance: `${formatCurrency(

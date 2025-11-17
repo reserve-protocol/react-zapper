@@ -116,7 +116,7 @@ const ZapDetails = ({
               </>
             ) : chainId === ChainId.BSC ? (
               <>
-                <VeloraIcon size={14} />
+                <VeloraIcon size={18} />
                 <span>Velora</span>
               </>
             ) : (

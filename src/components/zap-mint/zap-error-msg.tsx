@@ -57,7 +57,7 @@ const ReportButton = ({ error }: { error?: string }) => {
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
 
   const tokenInPrice = operation === 'buy' ? selectedTokenPrice : indexDTFPrice
-  const inputPrice = (tokenInPrice || 0) * Number(amount)
+  const inputValue = (tokenInPrice || 0) * Number(amount)
 
   const handleReport = async () => {
     if (hasReported || !error || !sessionId || !quoteId || !retryId) return
@@ -79,7 +79,7 @@ const ReportButton = ({ error }: { error?: string }) => {
           symbol: tokenOut?.symbol || '',
         },
         amount: formatToSignificantDigits(Number(amount) || 0),
-        value: formatCurrency(inputPrice || 0, 0),
+        value: formatCurrency(inputValue || 0, 0),
       }
 
       const response = await fetch(zapper.report(apiUrl), {
