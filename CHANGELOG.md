@@ -1,3 +1,13 @@
+## [1.5.3] - 2025-11-16
+
+### Changed
+
+- Odos was replaced by Velora for BSC
+- Refactored minimum input value logic for DTFs:
+  - When input value < $1000 for specific DTFs: tries Odos only first, falls back to Zapper if Odos fails
+  - When input value >= $1000: tries both sources in parallel as before
+  - Removed error throwing when below minimum value for better UX
+
 ## [1.5.2] - 2025-11-11
 
 ### Added

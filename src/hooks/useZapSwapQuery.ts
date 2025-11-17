@@ -36,13 +36,12 @@ import {
   trackSubmitButtonReady,
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
-import { formatCurrency } from '@/utils'
 import { ChainId } from '@/utils/chains'
 
 const DUST_REFRESH_THRESHOLD = 0.025
 const PRICE_IMPACT_THRESHOLD = 2
-const MIN_INPUT_PRICE_FOR_ZAP = 1000
-const DTFS_WITH_MIN_INPUT_PRICE_FOR_ZAP = {
+const MIN_INPUT_VALUE_FOR_ZAP = 1000
+const DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP = {
   [ChainId.BSC]: ['0x2f8a339b5889ffac4c5a956787cda593b3c36867'].map((address) =>
     address.toLowerCase()
   ),
@@ -57,7 +56,7 @@ const useZapSwapQuery = ({
   forceMint,
   dtfTicker,
   type,
-  inputPrice,
+  inputValue,
 }: {
   tokenIn?: Address
   tokenOut?: Address
@@ -67,7 +66,7 @@ const useZapSwapQuery = ({
   forceMint: boolean
   dtfTicker: string
   type: 'buy' | 'sell'
-  inputPrice: number
+  inputValue: number
 }) => {
   const api = useAtomValue(apiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
@@ -194,20 +193,6 @@ const useZapSwapQuery = ({
     let dustAttempt = 0
     let priceImpactAttempt = 0
     let lastData: ZapResponse
-
-    if (
-      inputPrice < MIN_INPUT_PRICE_FOR_ZAP &&
-      DTFS_WITH_MIN_INPUT_PRICE_FOR_ZAP[chainId]?.includes(
-        dtf?.id?.toLowerCase() ?? ''
-      )
-    ) {
-      throw new Error(
-        `Minimum input price for Zap is $${formatCurrency(
-          MIN_INPUT_PRICE_FOR_ZAP,
-          0
-        )}`
-      )
-    }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -436,8 +421,19 @@ const useZapSwapQuery = ({
     return zapQuote
   }
 
+  const shouldSkipZapper =
+    DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP[chainId]?.includes(
+      dtf?.id?.toLowerCase() ?? ''
+    ) && inputValue < MIN_INPUT_VALUE_FOR_ZAP
+
   return useQuery({
-    queryKey: ['zapDeploy', zapEndpoint, odosEndpoint, quoteSource],
+    queryKey: [
+      'zapDeploy',
+      zapEndpoint,
+      odosEndpoint,
+      quoteSource,
+      shouldSkipZapper,
+    ],
     queryFn: async (): Promise<ZapResponse & { source: 'zap' | 'odos' }> => {
       if (!tokenIn || !tokenOut) {
         throw new Error('Invalid tokenIn, tokenOut')
@@ -466,31 +462,42 @@ const useZapSwapQuery = ({
       } else if (quoteSource === 'odos') {
         result = await fetchOdosQuote(newQuoteId, newRetryId)
       } else {
-        // 'best' - fetch both in parallel and select the best
-        const results = await Promise.allSettled([
-          fetchZapQuote(newQuoteId, newRetryId),
-          fetchOdosQuote(newQuoteId, newRetryId),
-        ])
-
-        const zapResult =
-          results[0].status === 'fulfilled' ? results[0].value : undefined
-        const odosResult =
-          results[1].status === 'fulfilled' ? results[1].value : undefined
-
-        const bestQuote = selectBestQuote(zapResult, odosResult)
-
-        if (!bestQuote) {
-          // Both failed, throw the first error
-          if (results[0].status === 'rejected') {
-            throw results[0].reason
+        // 'best' - handle minimum value logic
+        if (shouldSkipZapper) {
+          // Below minimum for specific DTFs - try Odos first, fallback to Zapper if it fails
+          try {
+            result = await fetchOdosQuote(newQuoteId, newRetryId)
+          } catch {
+            // Odos failed, fallback to Zapper
+            result = await fetchZapQuote(newQuoteId, newRetryId)
           }
-          if (results[1].status === 'rejected') {
-            throw results[1].reason
+        } else {
+          // Above minimum or not applicable - try both in parallel
+          const results = await Promise.allSettled([
+            fetchZapQuote(newQuoteId, newRetryId),
+            fetchOdosQuote(newQuoteId, newRetryId),
+          ])
+
+          const zapResult =
+            results[0].status === 'fulfilled' ? results[0].value : undefined
+          const odosResult =
+            results[1].status === 'fulfilled' ? results[1].value : undefined
+
+          const bestQuote = selectBestQuote(zapResult, odosResult)
+
+          if (!bestQuote) {
+            // Both failed, throw the first error
+            if (results[0].status === 'rejected') {
+              throw results[0].reason
+            }
+            if (results[1].status === 'rejected') {
+              throw results[1].reason
+            }
+            throw new Error('No quotes available')
           }
-          throw new Error('No quotes available')
+
+          result = bestQuote
         }
-
-        result = bestQuote
       }
 
       const newSourceId = generateSourceId(result.source)
@@ -511,11 +518,12 @@ const useZapSwapQuery = ({
       return result
     },
     enabled:
+      !disabled &&
       (quoteSource === 'best'
         ? !!zapEndpoint || !!odosEndpoint
         : quoteSource === 'zap'
         ? !!zapEndpoint
-        : !!odosEndpoint) && !disabled,
+        : !!odosEndpoint),
     refetchInterval: 12000,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * Math.pow(2, attempt), 10000),
