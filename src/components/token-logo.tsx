@@ -1,15 +1,13 @@
 import { indexDTFIconsAtom } from '../state/atoms'
 import { cn } from '../utils/cn'
 import { UNIVERSAL_ASSETS } from '../utils/universal'
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import * as React from 'react'
 import defaultLogoSvg from './icons/svgs/defaultLogo.svg'
 import ethSvg from './icons/svgs/eth.svg'
 import usdcSvg from './icons/svgs/usdc.svg'
 import wethSvg from './icons/svgs/weth.svg'
 import bnbSvg from './icons/svgs/bnb.svg'
-
-const routeCacheAtom = atom<Record<string, string>>({})
 
 type Sizes = 'sm' | 'md' | 'lg' | 'xl'
 
@@ -29,7 +27,6 @@ interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
 
 const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
   const indexDTFIcons = useAtomValue(indexDTFIconsAtom)
-  const [routeCache, setRouteCache] = useAtom(routeCacheAtom)
   const {
     symbol,
     size = 'md',
@@ -68,35 +65,14 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
     })
   }
 
-  const cacheUrl = React.useCallback((url: string) => {
-    if (address && chain) {
-      setRouteCache((prev) => ({
-        ...prev,
-        [`${address.toLowerCase()}-${chain}`]: url,
-      }))
-    }
-  }, [address, chain, setRouteCache])
-
   const loadImage = React.useCallback(async () => {
     try {
-      // check cache first
-      if (address && chain) {
-        const cacheKey = `${address.toLowerCase()}-${chain}`
-        if (routeCache[cacheKey]) {
-          setCurrentSrc(routeCache[cacheKey])
-          return
-        }
-      }
-
-      // If we have a direct src, try to use it first
       if (propsSrc) {
         const url = await tryLoadImage(propsSrc)
-        cacheUrl(url)
         setCurrentSrc(url)
         return
       }
 
-      // If we have a symbol, try to load the logo according to convention
       if (symbol) {
         const symbolWithoutVault = symbol.endsWith('-VAULT')
           ? symbol.replace('-VAULT', '')
@@ -104,7 +80,6 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
 
         const imgSrc = getKnownTokenLogo(symbolWithoutVault)
         if (imgSrc) {
-          cacheUrl(imgSrc)
           setCurrentSrc(imgSrc)
           return
         }
@@ -114,7 +89,6 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
         address && chain && indexDTFIcons[chain]?.[address.toLowerCase()]
       if (foundIndexDTFIcon) {
         const imgUrl = await tryLoadImage(foundIndexDTFIcon)
-        cacheUrl(imgUrl)
         setCurrentSrc(imgUrl)
         return
       }
@@ -125,7 +99,6 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
             .toUpperCase()
             .substring(1)}.svg`
           const url = await tryLoadImage(universalUrl)
-          // cacheUrl(url) // don't cache universal logos because of the wrapper... solve later
           setCurrentSrc(url)
           setIsWrapped(true)
           return
@@ -134,12 +107,10 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
         }
       }
 
-      // If we have address and chain, try external APIs
       if (address && chain) {
         try {
           const dexscreenerUrl = `https://dd.dexscreener.com/ds-data/tokens/base/${address?.toLowerCase()}.png?size=lg`
           const url = await tryLoadImage(dexscreenerUrl)
-          cacheUrl(url)
           setCurrentSrc(url)
           return
         } catch {
@@ -149,7 +120,6 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
         try {
           const llamaUrl = `https://token-icons.llamao.fi/icons/tokens/${chain}/${address?.toLowerCase()}?h=${h}&w=${w}`
           const url = await tryLoadImage(llamaUrl)
-          cacheUrl(url)
           setCurrentSrc(url)
           return
         } catch {
@@ -162,7 +132,7 @@ const TokenLogo = React.forwardRef<HTMLImageElement, Props>((props, ref) => {
       console.debug('Failed to load token logo:', error)
       setCurrentSrc(defaultLogoSvg)
     }
-  }, [propsSrc, symbol, address, chain, h, w, indexDTFIcons, routeCache, cacheUrl])
+  }, [propsSrc, symbol, address, chain, h, w, indexDTFIcons])
 
   React.useEffect(() => {
     setCurrentSrc('')

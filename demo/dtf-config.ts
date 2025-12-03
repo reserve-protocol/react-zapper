@@ -29,8 +29,8 @@ export const DTF_BY_CHAIN: Record<number, DTFConfig[]> = {
   ],
   [bsc.id]: [
     {
-      address: '0xb1b317d781eacfeef75557c15708560e791cbd00',
-      symbol: 'TTCT',
+      address: '0x2f8a339b5889ffac4c5a956787cda593b3c36867',
+      symbol: 'CMC20',
     },
   ],
 }

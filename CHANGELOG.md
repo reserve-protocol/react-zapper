@@ -1,3 +1,9 @@
+## [1.5.4] - 2025-12-02
+
+### Fixed
+
+- Fixed TokenLogo caching issue when switching between DTFs
+
 ## [1.5.3] - 2025-11-16
 
 ### Changed
