@@ -4,13 +4,13 @@ import { Address, formatEther } from 'viem'
 
 const INDEX_DTF_SUBGRAPH_URL = {
   [ChainId.Mainnet]:
-    'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-mainnet/api',
+    'https://api.goldsky.com/api/public/project_cmgzim3e100095np2gjnbh6ry/subgraphs/dtf-index-mainnet/prod/gn',
   [ChainId.Base]:
-    'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-base/api',
+    'https://api.goldsky.com/api/public/project_cmgzim3e100095np2gjnbh6ry/subgraphs/dtf-index-base/prod/gn',
   [ChainId.Arbitrum]:
-    'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-arbitrum/api',
+    'https://api.goldsky.com/api/public/project_cmgzim3e100095np2gjnbh6ry/subgraphs/dtf-index-bsc/prod/gn',
   [ChainId.BSC]:
-    'https://subgraph.satsuma-prod.com/327d6f1d3de6/reserve/dtf-index-bsc/api',
+    'https://api.goldsky.com/api/public/project_cmgzim3e100095np2gjnbh6ry/subgraphs/dtf-index-bsc/prod/gn',
 }
 
 type DTFQueryResponse = {
