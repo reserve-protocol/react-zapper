@@ -1,3 +1,15 @@
+## [1.5.6] - 2025-12-15
+
+### Added
+
+- EIP-7825: Transaction Gas Limit Cap implementation
+
+## [1.5.5] - 2025-12-08
+
+### Changed
+
+- Updated subgraphs
+
 ## [1.5.4] - 2025-12-02
 
 ### Fixed
