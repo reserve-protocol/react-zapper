@@ -37,6 +37,10 @@ import {
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
+import { minBigInt } from '@/utils'
+
+// EIP-7825: Transaction Gas Limit Cap
+const FUSAKA_GAS_LIMIT = 2n ** 24n
 
 const GetStartedButton = ({
   fetchingZapper,
@@ -180,17 +184,19 @@ const SubmitZapButton = ({
     isError: isErrorSend,
   } = useSendTransaction()
 
-  const gasMultiplier = useMemo(
-    () => (chainId === mainnet.id ? 2n : 3n),
-    [chainId]
-  )
+  const gasLimit = useMemo(() => {
+    const gasMultiplier = chainId === mainnet.id ? 2n : 3n
+    return (
+      minBigInt(BigInt(gas ?? 0) * gasMultiplier, FUSAKA_GAS_LIMIT) || undefined
+    )
+  }, [gas, chainId])
 
   const { error: simulationError, failureReason: simulationFailureReason } =
     useEstimateGas({
       to: tx?.to as Address,
       data: tx?.data as Hex,
       value: BigInt(tx?.value || 0),
-      gas: BigInt(gas ?? 0) * gasMultiplier || undefined,
+      gas: gasLimit,
       chainId,
       query: {
         enabled: readyToSubmit && !!tx,
@@ -243,7 +249,7 @@ const SubmitZapButton = ({
     setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Hex,
-      gas: BigInt(gas ?? 0) * gasMultiplier || undefined,
+      gas: gasLimit,
       to: tx.to as Address,
       value: BigInt(tx.value),
       chainId,
@@ -254,8 +260,7 @@ const SubmitZapButton = ({
     setInputAmountCached,
     inputAmount,
     sendTransaction,
-    gas,
-    gasMultiplier,
+    gasLimit,
     chainId,
   ])
 
@@ -322,13 +327,7 @@ const SubmitZapButton = ({
             : !readyToSubmit || loadingTx || validatingTx)
         }
         loading={approving || loadingTx || validatingTx || confirmingApproval}
-        gas={
-          readyToSubmit
-            ? gas
-              ? BigInt(gas) * gasMultiplier
-              : undefined
-            : undefined
-        }
+        gas={readyToSubmit ? gasLimit : undefined}
         onClick={() => {
           setOngoingTx(true)
           if (readyToSubmit) {
