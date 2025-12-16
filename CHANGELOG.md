@@ -1,3 +1,9 @@
+## [1.5.8] - 2025-12-16
+
+### Fixed
+
+- Regenerated package-lock.json with npm@latest for CI compatibility
+
 ## [1.5.7] - 2025-12-16
 
 ### Changed
