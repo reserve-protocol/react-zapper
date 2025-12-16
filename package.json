@@ -1,6 +1,6 @@
 {
   "name": "@reserve-protocol/react-zapper",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "type": "module",
   "description": "React component for DTF minting with zap functionality",
   "main": "dist/index.cjs.js",
@@ -39,6 +39,10 @@
   ],
   "author": "Reserve Protocol",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reserve-protocol/react-zapper.git"
+  },
   "peerDependencies": {
     "@tanstack/react-query": "^5.87.4",
     "react": "^18.0.0",

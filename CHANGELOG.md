@@ -1,3 +1,11 @@
+## [1.5.7] - 2025-12-16
+
+### Changed
+
+- Migrated npm publishing from token-based authentication to OIDC Trusted Publishers
+- Updated Node.js version from 20 to 22 in CI workflows
+- Added automatic version tagging workflow on push to main
+
 ## [1.5.6] - 2025-12-15
 
 ### Added
