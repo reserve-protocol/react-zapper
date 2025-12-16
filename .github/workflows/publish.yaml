@@ -22,7 +22,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: Get package version
         id: version
@@ -78,7 +78,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.npm_check.outputs.published == 'false'
-        run: npm ci
+        run: npm install
 
       - name: Build package
         if: steps.npm_check.outputs.published == 'false'
