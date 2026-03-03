@@ -21,7 +21,7 @@ export const walletAtom = atom<Address | undefined>(undefined)
 /**
  * Connect wallet atom - callback to be called to connect a wallet
  */
-export const connectWalletAtom = atom<{ fn: () => void }>({ fn: () => {} })
+export const connectWalletAtom = atom<{ fn: () => void }>({ fn: () => { } })
 
 /**
  * Token balances atom - maps token addresses to their balances
@@ -86,3 +86,10 @@ export const indexDTFIconsAtom = atom<Record<number, Record<string, string>>>(
  */
 export type QuoteSource = 'best' | 'zap' | 'odos'
 export const quoteSourceAtom = atom<QuoteSource>('best')
+
+/**
+ * Enables deep liquidity search on the zapper
+ * This will do a deeper look on available liquidity pools in order to improve price impact
+ * It will make quotes slightly slower
+ */
+export const deepLiquidityAtom = atom(false)

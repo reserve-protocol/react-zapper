@@ -9,6 +9,7 @@ import {
 import {
   apiUrlAtom,
   chainIdAtom,
+  deepLiquidityAtom,
   indexDTFAtom,
   quoteSourceAtom,
   walletAtom,
@@ -74,6 +75,7 @@ const useZapSwapQuery = ({
   const quoteSource = useAtomValue(quoteSourceAtom)
   const setZapSwapEndpoint = useSetAtom(zapSwapEndpointAtom)
   const debug = useAtomValue(zapperDebugAtom)
+  const deepLiquidity = useAtomValue(deepLiquidityAtom)
   const sessionId = useAtomValue(sessionIdAtom)
   const setQuoteId = useSetAtom(quoteIdAtom)
   const setRetryId = useSetAtom(retryIdAtom)
@@ -103,6 +105,7 @@ const useZapSwapQuery = ({
         trade: !forceMint,
         bypassCache: false,
         debug,
+        deepLiquidity,
       })
 
       if (!includeTracking) {
@@ -127,6 +130,7 @@ const useZapSwapQuery = ({
       account,
       forceMint,
       debug,
+      deepLiquidity,
       sessionId,
     ]
   )

@@ -18,6 +18,7 @@ export type ZapPayload = {
   trade?: boolean
   bypassCache?: boolean
   debug?: boolean
+  deepLiquidity?: boolean
 }
 
 export type ZapResult = {
@@ -101,11 +102,12 @@ const zapper = {
     trade = true,
     bypassCache = false,
     debug = false,
+    deepLiquidity = false,
   }: ZapPayload) =>
     `${getBaseZapApiUrl(
       url,
       chainId
-    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}${
+    )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}&deepLiquidity=${deepLiquidity}${
       debug ? '&debug=true' : ''
     }`,
 

@@ -1,9 +1,10 @@
 import { ChainId } from '@/utils/chains'
 import { broom } from '@lucide/lab'
 import { useAtom, useAtomValue } from 'jotai'
-import { Anvil, Icon, Route, Zap } from 'lucide-react'
+import { Anvil, Icon, Route, Search, Zap } from 'lucide-react'
 import {
   chainIdAtom,
+  deepLiquidityAtom,
   quoteSourceAtom,
   type QuoteSource,
 } from '../../state/atoms'
@@ -39,6 +40,7 @@ const ZapSettings = () => {
   const [slippage, setSlippage] = useAtom(slippageAtom)
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
   const [quoteSource, setQuoteSource] = useAtom(quoteSourceAtom)
+  const [deepLiquidity, setDeepLiquidity] = useAtom(deepLiquidityAtom)
 
   const handleSlippageChange = (value: string) => {
     setSlippage(value)
@@ -51,6 +53,11 @@ const ZapSettings = () => {
 
   const handleQuoteSourceChange = (value: QuoteSource) => {
     setQuoteSource(value)
+  }
+
+  const handleDeepLiquidityChange = (value: boolean | 'indeterminate') => {
+    const newValue = value === 'indeterminate' ? false : value
+    setDeepLiquidity(newValue)
   }
 
   return (
@@ -104,6 +111,22 @@ const ZapSettings = () => {
           options={['20', '50', '100', '200']}
           hideTitle
         />
+      </div>
+      <div className="flex flex-col gap-2">
+        <ZapSettingsRowTitle
+          title="Enable Deep liquidity search?"
+          help="Can improve price impact but it will take more time to get quotes."
+        />
+        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
+          <div className="flex items-center gap-1">
+            <Search size={16} className="text-muted-foreground" />
+            <div>Deep liquidity search</div>
+          </div>
+          <Checkbox
+            checked={deepLiquidity}
+            onCheckedChange={handleDeepLiquidityChange}
+          />
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
