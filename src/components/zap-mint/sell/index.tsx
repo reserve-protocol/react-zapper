@@ -23,6 +23,7 @@ import {
   openingFromSimpleModeAtom,
   selectedTokenAtom,
   selectedTokenOrDefaultAtom,
+  sellOnlyAtom,
   slippageAtom,
   tokensAtom,
   zapFetchingAtom,
@@ -60,6 +61,7 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const setZapRefetch = useSetAtom(zapRefetchAtom)
   const setZapFetching = useSetAtom(zapFetchingAtom)
+  const sellOnly = useAtomValue(sellOnlyAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
@@ -185,7 +187,7 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
           tokens,
           onTokenSelect: handleTokenSelect,
         }}
-        onSwap={changeTab}
+        onSwap={sellOnly ? undefined : changeTab}
         loading={isLoading || loadingAfterRefetch}
       />
       {mode !== 'simple' && !!data?.result && (

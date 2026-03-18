@@ -14,6 +14,7 @@ import {
   defaultSelectedTokenAtom,
   openZapMintModalAtom,
   selectedTokenAtom,
+  sellOnlyAtom,
   showZapSettingsAtom,
   tokenInAtom,
   tokenOutAtom,
@@ -37,6 +38,7 @@ interface ZapperContentProps {
 const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
   const [open, setOpen] = useAtom(openZapMintModalAtom)
   const [currentTab, setCurrentTab] = useAtom(zapperCurrentTabAtom)
+  const sellOnly = useAtomValue(sellOnlyAtom)
   const [showSettings, setShowSettings] = useAtom(showZapSettingsAtom)
   const defaultToken = useAtomValue(defaultSelectedTokenAtom)
   const setSelectedToken = useSetAtom(selectedTokenAtom)
@@ -80,6 +82,7 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
 
   const handleTabChange = (value: string) => {
     const newTab = value as 'buy' | 'sell'
+    if (sellOnly && newTab === 'buy') return
     setCurrentTab(newTab)
   }
 
@@ -102,7 +105,13 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode }) => {
           ) : (
             <>
               <TabsList className="h-9 px-0.5">
-                <TabsTrigger value="buy">Buy</TabsTrigger>
+                <TabsTrigger
+                  value="buy"
+                  disabled={sellOnly}
+                  className={sellOnly ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                  Buy
+                </TabsTrigger>
                 <TabsTrigger value="sell">Sell</TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-1">
@@ -272,6 +281,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   connectWallet,
   defaultSource,
   debug,
+  sellOnly,
 }) => {
   const [queryClient] = useState(
     () =>
@@ -298,6 +308,7 @@ export const Zapper: React.FC<ZapperProps> = ({
           defaultSource={defaultSource}
           debug={debug}
           mode={mode}
+          sellOnly={sellOnly}
         />
         <ZapperContent mode={mode} />
       </QueryClientProvider>

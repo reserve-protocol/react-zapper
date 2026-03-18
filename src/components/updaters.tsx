@@ -23,7 +23,11 @@ import {
 import { Token } from '../types'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
-import { zapperDebugAtom } from './zap-mint/atom'
+import {
+  sellOnlyAtom,
+  zapperCurrentTabAtom,
+  zapperDebugAtom,
+} from './zap-mint/atom'
 
 type IndexDTFBrand = {
   dtf?: {
@@ -39,6 +43,7 @@ interface UpdatersProps {
   defaultSource?: QuoteSource
   debug?: boolean
   mode?: 'modal' | 'inline' | 'simple'
+  sellOnly?: boolean
 }
 
 const IndexDTFMetadataUpdater: React.FC<{
@@ -209,6 +214,20 @@ const DebugUpdater = ({ debug }: { debug?: boolean }) => {
   return null
 }
 
+const SellOnlyUpdater = ({ sellOnly }: { sellOnly?: boolean }) => {
+  const setSellOnly = useSetAtom(sellOnlyAtom)
+  const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
+
+  useEffect(() => {
+    setSellOnly(sellOnly ?? false)
+    if (sellOnly) {
+      setCurrentTab('sell')
+    }
+  }, [sellOnly, setSellOnly, setCurrentTab])
+
+  return null
+}
+
 const Updaters: React.FC<UpdatersProps> = ({
   dtfAddress,
   chainId,
@@ -217,6 +236,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   defaultSource,
   debug,
   mode = 'modal',
+  sellOnly,
 }) => {
   return (
     <>
@@ -230,6 +250,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <TokenBalancesUpdater dtfAddress={dtfAddress} />
       <QuoteSourceUpdater defaultSource={defaultSource} />
       <DebugUpdater debug={debug} />
+      <SellOnlyUpdater sellOnly={sellOnly} />
       <SessionTracker mode={mode} />
     </>
   )

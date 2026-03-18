@@ -32,6 +32,7 @@ export interface ZapperProps {
   connectWallet?: () => void
   debug?: boolean
   defaultSource?: QuoteSource
+  sellOnly?: boolean
 }
 
 export interface UseZapperModalReturn {

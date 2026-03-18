@@ -1,14 +1,16 @@
 import {
   openZapMintModalAtom,
+  sellOnlyAtom,
   zapperCurrentTabAtom,
 } from '../components/zap-mint/atom'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useCallback } from 'react'
 import { UseZapperModalReturn } from '../types'
 
 export function useZapperModal(): UseZapperModalReturn {
   const [isOpen, setOpen] = useAtom(openZapMintModalAtom)
   const [currentTab, setZapperTab] = useAtom(zapperCurrentTabAtom)
+  const sellOnly = useAtomValue(sellOnlyAtom)
 
   const open = useCallback(() => setOpen(true), [setOpen])
   const close = useCallback(() => setOpen(false), [setOpen])
@@ -16,9 +18,10 @@ export function useZapperModal(): UseZapperModalReturn {
 
   const setTab = useCallback(
     (tab: 'buy' | 'sell') => {
+      if (sellOnly && tab === 'buy') return
       setZapperTab(tab)
     },
-    [setZapperTab]
+    [setZapperTab, sellOnly]
   )
 
   return {
@@ -27,6 +30,6 @@ export function useZapperModal(): UseZapperModalReturn {
     close,
     toggle,
     setTab,
-    currentTab,
+    currentTab: sellOnly ? 'sell' : currentTab,
   }
 }
