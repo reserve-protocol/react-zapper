@@ -23,7 +23,6 @@ import {
   openingFromSimpleModeAtom,
   selectedTokenAtom,
   selectedTokenOrDefaultAtom,
-  sellOnlyAtom,
   slippageAtom,
   tokensAtom,
   zapFetchingAtom,
@@ -39,9 +38,10 @@ import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
 interface SellProps {
   mode?: 'modal' | 'inline' | 'simple'
+  sellOnly?: boolean
 }
 
-const Sell = ({ mode = 'modal' }: SellProps) => {
+const Sell = ({ mode = 'modal', sellOnly }: SellProps) => {
   const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
@@ -61,7 +61,6 @@ const Sell = ({ mode = 'modal' }: SellProps) => {
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const setZapRefetch = useSetAtom(zapRefetchAtom)
   const setZapFetching = useSetAtom(zapFetchingAtom)
-  const sellOnly = useAtomValue(sellOnlyAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)

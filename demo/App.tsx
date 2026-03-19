@@ -50,6 +50,7 @@ function App() {
   const [quoteSource, setQuoteSource] = useState<QuoteSource>('best')
   const [apiUrl, setApiUrl] = useState(API_URLS[0].value)
   const [mode, setMode] = useState<'modal' | 'inline' | 'simple'>('inline')
+  const [sellOnly, setSellOnly] = useState(false)
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -236,6 +237,31 @@ function App() {
                   Modal: Opens in a dialog | Inline: Embedded with controls | Simple: Minimal interface
                 </p>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Sell Only (Deprecated DTF)
+                </label>
+                <Select
+                  value={sellOnly.toString()}
+                  onValueChange={(value) => setSellOnly(value === 'true')}
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[false, true]
+                      .map((v) => v.toString())
+                      .map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  When enabled, disables Buy tab and only allows selling/redeeming
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -267,6 +293,7 @@ function App() {
                     apiUrl={apiUrl || undefined}
                     defaultSource={quoteSource}
                     debug={debug}
+                    sellOnly={sellOnly}
                   />
                   <Button onClick={open} className="w-full rounded-xl" size="lg">
                     Open Zapper Modal
@@ -282,6 +309,7 @@ function App() {
                     apiUrl={apiUrl || undefined}
                     debug={debug}
                     defaultSource={quoteSource}
+                    sellOnly={sellOnly}
                   />
                 </div>
               )}
