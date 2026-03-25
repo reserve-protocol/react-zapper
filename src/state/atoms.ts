@@ -4,9 +4,15 @@ import { DEFAULT_API_URL, Token, TokenBalance } from '../types'
 import { AvailableChain, ChainId } from '../utils/chains'
 
 /**
- * API URL atom - configurable api url for the zapper
+ * API URL atom - configurable api url for reserve API endpoints
  */
 export const apiUrlAtom = atom<string>(DEFAULT_API_URL)
+
+/**
+ * Zapper API URL atom - configurable api url for zapper service endpoints (api/zapper/*)
+ * Falls back to apiUrlAtom when not explicitly set
+ */
+export const zapperApiUrlAtom = atom<string>(DEFAULT_API_URL)
 
 /**
  * Chain ID atom - configurable chain ID for the zapper

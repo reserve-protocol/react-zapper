@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
-import { apiUrlAtom } from '@/state/atoms'
+import { zapperApiUrlAtom } from '@/state/atoms'
 
 // Available chain IDs type
 type AvailableChain = number
@@ -10,18 +10,24 @@ interface ZapperStatus {
   ok: boolean
 }
 
+interface HealthResponse {
+  ok: boolean
+  chains: ZapperStatus[]
+}
+
 const useZapHealthcheck = (chainId: AvailableChain) => {
-  const api = useAtomValue(apiUrlAtom)
+  const api = useAtomValue(zapperApiUrlAtom)
   const { data } = useQuery({
     queryKey: ['zapper-healthcheck', chainId, api],
     queryFn: async (): Promise<ZapperStatus[]> => {
-      const response = await fetch(`${api}zapper/healthcheck`)
+      const response = await fetch(`${api}health`)
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`)
       }
 
-      return response.json()
+      const json: HealthResponse = await response.json()
+      return json.chains
     },
     staleTime: 120_000,
     refetchInterval: 60_000,

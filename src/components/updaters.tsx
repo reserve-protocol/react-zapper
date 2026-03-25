@@ -19,8 +19,9 @@ import {
   QuoteSource,
   quoteSourceAtom,
   walletAtom,
+  zapperApiUrlAtom,
 } from '../state/atoms'
-import { Token } from '../types'
+import { DEFAULT_API_URL, Token } from '../types'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
 import {
@@ -39,6 +40,7 @@ interface UpdatersProps {
   dtfAddress: string
   chainId: AvailableChain
   apiUrl?: string
+  zapperApiUrl?: string
   connectWallet?: () => void
   defaultSource?: QuoteSource
   debug?: boolean
@@ -124,14 +126,19 @@ const IndexDTFBasketUpdater: React.FC<{
   return null
 }
 
-const ApiUrlUpdater = ({ apiUrl }: { apiUrl?: string }) => {
+const ApiUrlUpdater = ({ apiUrl, zapperApiUrl }: { apiUrl?: string; zapperApiUrl?: string }) => {
   const setApiUrl = useSetAtom(apiUrlAtom)
+  const setZapperApiUrl = useSetAtom(zapperApiUrlAtom)
 
   useEffect(() => {
     if (apiUrl) {
       setApiUrl(apiUrl)
     }
   }, [apiUrl, setApiUrl])
+
+  useEffect(() => {
+    setZapperApiUrl(zapperApiUrl || apiUrl || DEFAULT_API_URL)
+  }, [zapperApiUrl, apiUrl, setZapperApiUrl])
 
   return null
 }
@@ -232,6 +239,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   dtfAddress,
   chainId,
   apiUrl,
+  zapperApiUrl,
   connectWallet,
   defaultSource,
   debug,
@@ -241,7 +249,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   return (
     <>
       <ConnectWalletUpdater connect={connectWallet} />
-      <ApiUrlUpdater apiUrl={apiUrl} />
+      <ApiUrlUpdater apiUrl={apiUrl} zapperApiUrl={zapperApiUrl} />
       <WalletUpdater />
       <ChainIdUpdater chainId={chainId} />
       <IndexDTFMetadataUpdater dtfAddress={dtfAddress} />
