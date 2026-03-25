@@ -28,6 +28,7 @@ export interface ZapperProps {
   chain: AvailableChain
   dtfAddress: Address
   apiUrl?: string
+  zapperApiUrl?: string
   wagmiConfig: MinimalWagmiConfig
   connectWallet?: () => void
   debug?: boolean

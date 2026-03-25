@@ -279,6 +279,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   chain,
   dtfAddress,
   apiUrl,
+  zapperApiUrl,
   connectWallet,
   defaultSource,
   debug,
@@ -305,6 +306,7 @@ export const Zapper: React.FC<ZapperProps> = ({
           dtfAddress={dtfAddress}
           chainId={chain}
           apiUrl={apiUrl}
+          zapperApiUrl={zapperApiUrl}
           connectWallet={connectWallet}
           defaultSource={defaultSource}
           debug={debug}

@@ -7,12 +7,12 @@ import {
   zapSwapEndpointAtom,
 } from '../components/zap-mint/atom'
 import {
-  apiUrlAtom,
   chainIdAtom,
   deepLiquidityAtom,
   indexDTFAtom,
   quoteSourceAtom,
   walletAtom,
+  zapperApiUrlAtom,
 } from '../state/atoms'
 import {
   quoteIdAtom,
@@ -69,7 +69,7 @@ const useZapSwapQuery = ({
   type: 'buy' | 'sell'
   inputValue: number
 }) => {
-  const api = useAtomValue(apiUrlAtom)
+  const api = useAtomValue(zapperApiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)
   const quoteSource = useAtomValue(quoteSourceAtom)
