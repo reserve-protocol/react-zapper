@@ -37,6 +37,21 @@ const API_URLS = [
   },
 ]
 
+const ZAPPER_API_URLS = [
+  {
+    label: 'Default',
+    value: 'https://api.reserve.org/',
+  },
+  {
+    label: 'Staging',
+    value: 'https://zapper-staging.reserve-api.com/',
+  },
+  {
+    label: 'Local',
+    value: 'http://localhost:3005/',
+  },
+]
+
 function App() {
   const wagmiConfig = useConfig()
   const chains = useChains().map((chain) => ({
@@ -49,6 +64,7 @@ function App() {
   const [debug, setDebug] = useState(false)
   const [quoteSource, setQuoteSource] = useState<QuoteSource>('best')
   const [apiUrl, setApiUrl] = useState(API_URLS[0].value)
+  const [zapperApiUrl, setZapperApiUrl] = useState(ZAPPER_API_URLS[0].value)
   const [mode, setMode] = useState<'modal' | 'inline' | 'simple'>('inline')
   const [sellOnly, setSellOnly] = useState(false)
   const { open } = useZapperModal()
@@ -169,7 +185,32 @@ function App() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Select the API endpoint for the zapper
+                  Reserve API endpoint (prices, DTF data, folio manager)
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Zapper API Endpoint
+                </label>
+                <Select
+                  value={zapperApiUrl || 'default'}
+                  onValueChange={(value) =>
+                    setZapperApiUrl(value === 'default' ? '' : value)
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ZAPPER_API_URLS.map((url) => (
+                      <SelectItem key={url.value} value={url.value}>
+                        {url.label} - {url.value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Zapper service endpoint (swap, deploy, healthcheck)
                 </p>
               </div>
               <div>
@@ -291,6 +332,7 @@ function App() {
                     dtfAddress={selectedDTF.address}
                     mode="modal"
                     apiUrl={apiUrl || undefined}
+                    zapperApiUrl={zapperApiUrl || undefined}
                     defaultSource={quoteSource}
                     debug={debug}
                     sellOnly={sellOnly}
@@ -307,6 +349,7 @@ function App() {
                     dtfAddress={selectedDTF.address}
                     mode={mode}
                     apiUrl={apiUrl || undefined}
+                    zapperApiUrl={zapperApiUrl || undefined}
                     debug={debug}
                     defaultSource={quoteSource}
                     sellOnly={sellOnly}
