@@ -7,6 +7,7 @@ import {
   zapSwapEndpointAtom,
 } from '../components/zap-mint/atom'
 import {
+  apiUrlAtom,
   chainIdAtom,
   deepLiquidityAtom,
   indexDTFAtom,
@@ -69,7 +70,8 @@ const useZapSwapQuery = ({
   type: 'buy' | 'sell'
   inputValue: number
 }) => {
-  const api = useAtomValue(zapperApiUrlAtom)
+  const zapperApi = useAtomValue(zapperApiUrlAtom)
+  const reserveApi = useAtomValue(apiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)
   const quoteSource = useAtomValue(quoteSourceAtom)
@@ -95,7 +97,7 @@ const useZapSwapQuery = ({
       }
 
       const baseUrl = zapper.zap({
-        url: api,
+        url: zapperApi,
         chainId,
         tokenIn,
         tokenOut,
@@ -121,7 +123,7 @@ const useZapSwapQuery = ({
       return url.toString()
     },
     [
-      api,
+      zapperApi,
       chainId,
       tokenIn,
       tokenOut,
@@ -148,7 +150,7 @@ const useZapSwapQuery = ({
       }
 
       const baseUrl = zapper.odosZap({
-        url: api,
+        url: reserveApi,
         chainId,
         tokenIn,
         tokenOut,
@@ -170,7 +172,7 @@ const useZapSwapQuery = ({
 
       return url.toString()
     },
-    [api, chainId, tokenIn, tokenOut, amountIn, slippage, account, sessionId]
+    [reserveApi, chainId, tokenIn, tokenOut, amountIn, slippage, account, sessionId]
   )
 
   const zapEndpoint = useDebounce(

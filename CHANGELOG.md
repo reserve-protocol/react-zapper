@@ -1,3 +1,15 @@
+## [1.6.0] - 2026-03-25
+
+### Added
+
+- New `zapperApiUrl` prop for routing zapper service calls (`api/zapper/*`) to a dedicated host
+- Healthcheck now hits the zapper service `/health` endpoint directly via `zapperApiUrl`
+
+### Changed
+
+- Reserve API calls (`current/prices`, `current/dtf`, `folio-manager/*`, `dtf/icons`, `zapper/report`, `odos/swap`, `velora/swap`) remain on `apiUrl`
+- `zapperApiUrl` falls back to `apiUrl` when not provided (fully backwards compatible)
+
 ## [1.5.8] - 2025-12-16
 
 ### Fixed
