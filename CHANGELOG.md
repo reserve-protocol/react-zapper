@@ -1,3 +1,9 @@
+## [1.6.2] - 2026-03-25
+
+### Fixed
+
+- Added USDT and WBNB token logos.
+
 ## [1.6.1] - 2026-03-25
 
 ### Added

@@ -1,13 +1,15 @@
+import { useAtomValue } from 'jotai'
+import * as React from 'react'
 import { indexDTFIconsAtom } from '../state/atoms'
 import { cn } from '../utils/cn'
 import { UNIVERSAL_ASSETS } from '../utils/universal'
-import { useAtomValue } from 'jotai'
-import * as React from 'react'
+import bnbSvg from './icons/svgs/bnb.svg'
 import defaultLogoSvg from './icons/svgs/defaultLogo.svg'
 import ethSvg from './icons/svgs/eth.svg'
 import usdcSvg from './icons/svgs/usdc.svg'
+import usdtSvg from './icons/svgs/usdt.svg'
+import wbnbSvg from './icons/svgs/wbnb.svg'
 import wethSvg from './icons/svgs/weth.svg'
-import bnbSvg from './icons/svgs/bnb.svg'
 
 type Sizes = 'sm' | 'md' | 'lg' | 'xl'
 
@@ -169,6 +171,8 @@ const SVG_LOGOS: Record<string, string> = {
   eth: ethSvg,
   weth: wethSvg,
   bnb: bnbSvg,
+  wbnb: wbnbSvg,
+  usdt: usdtSvg,
 }
 
 export const SVGS = new Set(['usdc', 'eth', 'weth'])
