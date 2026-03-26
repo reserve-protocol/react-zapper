@@ -1,3 +1,13 @@
+## [1.6.1] - 2026-03-25
+
+### Added
+
+- Export `zappableTokens` constant for consumers to access supported zappable tokens per chain
+
+### Fixed
+
+- Added missing `zapperApiUrl` and `sellOnly` props documentation to README
+
 ## [1.6.0] - 2026-03-25
 
 ### Added

@@ -6,6 +6,7 @@ export { Toaster } from './components/ui/sonner'
 export { usePrice } from './hooks/usePrice'
 export { default as useZapHealthcheck } from './hooks/use-zap-healthcheck'
 export * from './utils/tracking'
+export { reducedZappableTokens as zappableTokens } from './utils/constants'
 export type {
   ZapperProps,
   UseZapperModalReturn,
