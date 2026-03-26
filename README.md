@@ -147,6 +147,8 @@ Simple mode features:
 | `dtfAddress`     | `Address`                       | ✅       | DTF contract address                           |
 | `mode`           | `'modal' \| 'inline' \| 'simple'` | ❌    | Display mode: 'modal' (popup), 'inline' (embedded), 'simple' (launcher) |
 | `apiUrl`         | `string`                        | ❌       | Custom API endpoint (defaults to Reserve API)  |
+| `zapperApiUrl`   | `string`                        | ❌       | Custom zapper service endpoint for zapper-specific API calls (falls back to `apiUrl`) |
+| `sellOnly`       | `boolean`                       | ❌       | Only show the sell (redeem) flow               |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source ('best', 'zap', or 'odos')|
@@ -272,6 +274,18 @@ import type {
   Token,
   TokenBalance,
 } from '@reserve-protocol/react-zapper'
+```
+
+### Zappable Tokens
+
+The library exports the list of supported zappable tokens per chain:
+
+```tsx
+import { zappableTokens } from '@reserve-protocol/react-zapper'
+
+// Record<number, Token[]> — keyed by chain ID
+const ethTokens = zappableTokens[1] // Ethereum mainnet tokens
+const baseTokens = zappableTokens[8453] // Base tokens
 ```
 
 ## Development
