@@ -1,15 +1,13 @@
-import { ChainId } from '@/utils/chains'
 import { broom } from '@lucide/lab'
 import { useAtom, useAtomValue } from 'jotai'
-import { Anvil, Icon, Route, Search, Zap } from 'lucide-react'
+import { Anvil, Icon, Route, Search } from 'lucide-react'
 import {
   chainIdAtom,
   deepLiquidityAtom,
   quoteSourceAtom,
   type QuoteSource,
 } from '../../state/atoms'
-import OdosIcon from '../icons/odos'
-import VeloraIcon from '../icons/velora'
+import { getEnabledProviders } from '../../utils/providers'
 import { Checkbox } from '../ui/checkbox'
 import Help from '../ui/help'
 import {
@@ -60,43 +58,34 @@ const ZapSettings = () => {
     setDeepLiquidity(newValue)
   }
 
+  const enabledProviders = getEnabledProviders(chainId)
+
   return (
     <div className="min-h-[306px] border-t border-border -mx-2 px-2 py-4 flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
           title="Quote Source"
-          help="Select which quote provider to use. 'Best' automatically selects the best price, 'Zap' uses Reserve's native routing, 'Odos' uses Odos DEX aggregator."
+          help="Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
         />
         <Select value={quoteSource} onValueChange={handleQuoteSourceChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-transparent rounded-xl border-border h-auto py-3 text-base">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="best">
+            <SelectItem value="best" className="text-base">
               <div className="flex items-center gap-2">
                 <Route size={14} />
                 <span>Best Quote</span>
               </div>
             </SelectItem>
-            <SelectItem value="zap">
-              <div className="flex items-center gap-2">
-                <Zap size={14} />
-                <span>Zap</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="odos">
-              {chainId === ChainId.BSC ? (
+            {enabledProviders.map(({ id, label, Icon }) => (
+              <SelectItem key={id} value={id} className="text-base">
                 <div className="flex items-center gap-2">
-                  <VeloraIcon size={16} />
-                  <span>Velora</span>
+                  <Icon size={14} />
+                  <span>{label}</span>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <OdosIcon size={14} />
-                  <span>Odos</span>
-                </div>
-              )}
-            </SelectItem>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

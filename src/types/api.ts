@@ -1,4 +1,3 @@
-import { ChainId } from '@/utils/chains'
 import { Address } from 'viem'
 
 // Default API URL - can be overridden via config
@@ -111,18 +110,19 @@ const zapper = {
       debug ? '&debug=true' : ''
     }`,
 
-  odosZap: ({
-    url,
-    chainId,
-    tokenIn,
-    tokenOut,
-    amountIn,
-    slippage,
-    signer,
-  }: ZapPayload) => {
-    const source = chainId === ChainId.BSC ? 'velora' : 'odos'
-    return `${url}${source}/swap?chainId=${chainId}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}&slippage=${slippage}&signer=${signer}`
-  },
+  aggregator: (
+    source: string,
+    {
+      url,
+      chainId,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      slippage,
+      signer,
+    }: ZapPayload
+  ) =>
+    `${url}${source}/swap?chainId=${chainId}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}&slippage=${slippage}&signer=${signer}`,
 
   zapDeploy: (url: string, chainId: number) =>
     `${getBaseZapApiUrl(url, chainId)}/deploy?chainId=${chainId}`,

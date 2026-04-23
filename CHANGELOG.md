@@ -1,3 +1,20 @@
+## [1.7.0] - 2026-04-23
+
+### Added
+
+- Enso as a third external quote aggregator alongside Odos and Velora
+- All external aggregators (Odos, Velora, Enso) are now available on every supported chain (Mainnet, Base, Arbitrum, BSC). In `best` mode the zapper queries every enabled provider in parallel (`Promise.allSettled`) and picks the highest `minAmountOut`; failures are soft
+- Per-chain × per-provider enablement matrix (`PROVIDER_ENABLED` in `src/utils/providers.ts`). Flip a boolean to disable a source on a specific chain — it drops out of the dropdown and the `best` pool automatically
+- Provider registry (`PROVIDERS` in `src/utils/providers.ts`). Adding a future aggregator is one icon + one registry entry
+- New exports: `PROVIDERS`, `PROVIDER_ENABLED`, `getEnabledProviders`, `getEnabledAggregators`, `isProviderEnabled`, and types `ProviderId`, `ProviderConfig`, `QuoteSource`
+
+### Changed
+
+- `QuoteSource` type widened from `'best' | 'zap' | 'odos'` to `'best' | 'zap' | 'odos' | 'velora' | 'enso'` (backward compatible — existing values still valid)
+- Unified fetch flow in `useZapSwapQuery`; the hardcoded zap-vs-odos parallel path is replaced by a generic `fetchBestZapQuote` that iterates the enabled providers
+- Quote Source settings dropdown is now registry-driven and shows only the providers enabled for the current chain
+- Demo's `Default Quote Source` selector now exposes every provider (zap, odos, velora, enso) for testing
+
 ## [1.6.2] - 2026-03-25
 
 ### Fixed

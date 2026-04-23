@@ -151,8 +151,30 @@ Simple mode features:
 | `sellOnly`       | `boolean`                       | ❌       | Only show the sell (redeem) flow               |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
-| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source ('best', 'zap', or 'odos')|
+| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
+
+### Quote Providers
+
+The zapper supports four quote providers: the Reserve-native `zap` and three external aggregators — `odos`, `velora`, and `enso`. In `best` mode (the default), every enabled provider is queried in parallel and the one returning the highest `minAmountOut` wins. Individual failures are tolerated as long as at least one provider responds.
+
+Provider availability per chain is controlled by the `PROVIDER_ENABLED` matrix exported from the package:
+
+```ts
+import { PROVIDER_ENABLED } from '@reserve-protocol/react-zapper'
+
+// All four providers are enabled on every supported chain by default.
+// To disable one on a specific chain, set it to false:
+PROVIDER_ENABLED[56 /* BSC */].odos = false
+```
+
+Note: as of v1.7.0 `PROVIDER_ENABLED` is a mutable module-level object — mutate it once at app startup (before the `<Zapper>` component renders a quote). A runtime prop-based configuration may be added in a later release.
+
+Other helpers exported for host apps that want to build custom provider UI:
+- `PROVIDERS` — `Record<ProviderId, ProviderConfig>` with label + icon + endpoint builder
+- `getEnabledProviders(chainId)` — enabled providers for a given chain
+- `getEnabledAggregators(chainId)` — same, excluding the native zap provider
+- `isProviderEnabled(chainId, id)` — boolean check
 
 ### useZapperModal Hook
 

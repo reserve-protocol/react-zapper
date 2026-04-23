@@ -11,6 +11,7 @@ import {
 import useContractWrite from '../../hooks/useContractWrite'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { ZapResult } from '../../types/api'
+import type { ProviderId } from '../../utils/providers'
 import { formatCurrency } from '../../utils/format'
 import {
   useTrackIndexDTFZap,
@@ -120,7 +121,7 @@ const SubmitZapButton = ({
   mode = 'modal',
 }: {
   data: ZapResult
-  source?: 'zap' | 'odos'
+  source?: ProviderId
   chainId: number
   buttonLabel: string
   inputSymbol: string
@@ -368,7 +369,7 @@ const SubmitZap = ({
   mode = 'modal',
 }: {
   data?: ZapResult
-  source?: 'zap' | 'odos'
+  source?: ProviderId
   chainId: number
   buttonLabel: string
   inputSymbol: string

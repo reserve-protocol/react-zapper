@@ -1,6 +1,7 @@
 import { v4 as uuidv4, v5 as uuidv5, v7 as uuidv7 } from 'uuid'
+import type { ProviderId } from './providers'
 
-export type Source = 'zap' | 'odos'
+export type Source = ProviderId
 
 export const generateSessionId = (): string => {
   return uuidv4()

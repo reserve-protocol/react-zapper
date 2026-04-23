@@ -471,7 +471,7 @@ export const SlippageSelector = ({
             <Input
               placeholder="Custom"
               className={cn(
-                'h-9 px-[10px] rounded-lg text-base [&:focus::placeholder]:opacity-0 [&:focus::placeholder]:transition-opacity focus-visible:ring-0 focus-visible:ring-offset-0 ',
+                'h-9 px-[10px] rounded-lg text-base bg-transparent [&:focus::placeholder]:opacity-0 [&:focus::placeholder]:transition-opacity focus-visible:ring-0 focus-visible:ring-offset-0 ',
                 customValue && 'pl-2 pr-6'
               )}
               value={customValue}
