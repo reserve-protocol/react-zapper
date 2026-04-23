@@ -1,17 +1,14 @@
-import { ChainId } from '@/utils/chains'
 import Decimal from 'decimal.js-light'
 import { useAtomValue } from 'jotai'
-import { Zap } from 'lucide-react'
 import { formatUnits } from 'viem'
-import { chainIdAtom, indexDTFAtom } from '../../state/atoms'
+import { indexDTFAtom } from '../../state/atoms'
 import { ZapResult } from '../../types/api'
 import {
   formatCurrency,
   formatPercentage,
   formatTokenAmount,
 } from '../../utils'
-import OdosIcon from '../icons/odos'
-import VeloraIcon from '../icons/velora'
+import { PROVIDERS, type ProviderId } from '../../utils/providers'
 import Help from '../ui/help'
 import { SwapDetails } from '../ui/swap'
 import { selectedTokenOrDefaultAtom } from './atom'
@@ -50,9 +47,8 @@ const ZapDetails = ({
   source,
 }: {
   data: ZapResult
-  source?: 'zap' | 'odos'
+  source?: ProviderId
 }) => {
-  const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const dtfAsTokenIn =
@@ -106,27 +102,20 @@ const ZapDetails = ({
             <Help content="The displayed quote already includes all applicable fees and price impact." />
           </div>
         ),
-        right: source ? (
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Via</span>
-            {source === 'zap' ? (
-              <>
-                <Zap size={14} />
-                <span>Zap</span>
-              </>
-            ) : chainId === ChainId.BSC ? (
-              <>
-                <VeloraIcon size={18} />
-                <span>Velora</span>
-              </>
-            ) : (
-              <>
-                <OdosIcon size={14} />
-                <span>Odos</span>
-              </>
-            )}
-          </div>
-        ) : undefined,
+        right: source
+          ? (() => {
+              const provider = PROVIDERS[source]
+              if (!provider) return undefined
+              const { Icon, label } = provider
+              return (
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Via</span>
+                  <Icon size={14} />
+                  <span>{label}</span>
+                </div>
+              )
+            })()
+          : undefined,
       }}
       details={[
         {

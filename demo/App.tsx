@@ -1,5 +1,10 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { Toaster, useZapperModal } from '@reserve-protocol/react-zapper'
+import {
+  Toaster,
+  useZapperModal,
+  PROVIDERS,
+  type ProviderId,
+} from '@reserve-protocol/react-zapper'
 import React, { useState } from 'react'
 import { useChains, useConfig } from 'wagmi'
 import { Button } from './components/ui/button'
@@ -250,8 +255,13 @@ function App() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="best">Best Quote</SelectItem>
-                    <SelectItem value="zap">Zap Quote</SelectItem>
-                    <SelectItem value="odos">Odos Quote</SelectItem>
+                    {(
+                      ['zap', 'odos', 'velora', 'enso'] as ProviderId[]
+                    ).map((id) => (
+                      <SelectItem key={id} value={id}>
+                        {PROVIDERS[id].label} Quote
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

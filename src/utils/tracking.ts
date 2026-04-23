@@ -1,5 +1,6 @@
 import mixpanel from 'mixpanel-browser/src/loaders/loader-module-core'
 import { MIXPANEL_TOKEN } from './constants'
+import type { ProviderId } from './providers'
 import { chainIdAtom, indexDTFAtom, walletAtom } from '@/state/atoms'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
@@ -70,7 +71,7 @@ export const trackIndexDTFQuoteError = ({
   tokenIn?: string
   tokenOut?: string
   error: number
-  source?: 'zap' | 'odos'
+  source?: ProviderId
 }) => {
   mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
@@ -105,7 +106,7 @@ export const trackIndexDTFQuoteRequested = ({
   account?: string
   tokenIn?: string
   tokenOut?: string
-  source?: 'zap' | 'odos'
+  source?: ProviderId
 }) => {
   mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
@@ -139,7 +140,7 @@ export const trackSubmitButtonReady = ({
   account?: string
   tokenIn?: string
   tokenOut?: string
-  source?: 'zap' | 'odos'
+  source?: ProviderId
 }) => {
   mixpanelTrack(SUBMIT_BUTTON_READY_EVENT, {
     event: SUBMIT_BUTTON_READY_EVENT,
@@ -177,11 +178,11 @@ export const trackIndexDTFQuote = ({
   account?: string
   tokenIn?: string
   tokenOut?: string
-  amountInValue?: string
-  amountOutValue?: string
-  dustValue?: string
-  truePriceImpact?: string
-  source?: 'zap' | 'odos'
+  amountInValue?: number | string | null
+  amountOutValue?: number | string | null
+  dustValue?: number | string | null
+  truePriceImpact?: number | string | null
+  source?: ProviderId
 }) => {
   mixpanelTrack('index-dtf-zap-swap', {
     event: 'index-dtf-zap-swap',
@@ -213,7 +214,7 @@ export const useTrackIndexDTFZap = (
     ctaLabel: string,
     inputSymbol: string,
     outputSymbol: string,
-    source?: 'zap' | 'odos'
+    source?: ProviderId
   ) => {
     if (!indexDTF) return
     mixpanelTrack(event, {
@@ -246,7 +247,7 @@ export const useTrackQuoteErrorUX = ({
   tokenIn: string
   tokenOut: string
   zapError: string
-  source?: 'zap' | 'odos'
+  source?: ProviderId
 }) => {
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)
@@ -293,7 +294,7 @@ export const useTrackIndexDTFZapError = ({
   tokenIn: string
   tokenOut: string
   zapError: string
-  source?: 'zap' | 'odos'
+  source?: ProviderId
 }) => {
   const chainId = useAtomValue(chainIdAtom)
   const account = useAtomValue(walletAtom)

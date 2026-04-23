@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Address } from 'viem'
 import {
   zapperDebugAtom,
@@ -21,29 +21,30 @@ import {
   sessionIdAtom,
   sourceIdAtom,
 } from '../state/tracking-atoms'
-import zapper, { ZapResponse } from '../types/api'
+import {
+  fetchBestZapQuote,
+  type ProviderQuote,
+} from './zap-quote-providers'
 import {
   generateQuoteId,
   generateRetryId,
   generateSourceId,
 } from '../utils/ids'
 import {
+  getEnabledProviders,
+  type ProviderConfig,
+} from '../utils/providers'
+import {
   mixpanelRegister,
   mixpanelTimeEvent,
-  mixpanelTrack,
   SUBMIT_BUTTON_READY_EVENT,
-  trackIndexDTFQuote,
-  trackIndexDTFQuoteError,
-  trackIndexDTFQuoteRequested,
   trackSubmitButtonReady,
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
 import { ChainId } from '@/utils/chains'
 
-const DUST_REFRESH_THRESHOLD = 0.025
-const PRICE_IMPACT_THRESHOLD = 2
 const MIN_INPUT_VALUE_FOR_ZAP = 1000
-const DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP = {
+const DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP: Record<number, string[]> = {
   [ChainId.BSC]: ['0x2f8a339b5889ffac4c5a956787cda593b3c36867'].map((address) =>
     address.toLowerCase()
   ),
@@ -84,46 +85,45 @@ const useZapSwapQuery = ({
   const setSourceId = useSetAtom(sourceIdAtom)
   const dtf = useAtomValue(indexDTFAtom)
 
-  const getZapEndpoint = useCallback(
-    (quoteId?: string, retryId?: string, includeTracking = false) => {
+  const shouldSkipZapper =
+    (DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP[chainId]?.includes(
+      dtf?.id?.toLowerCase() ?? ''
+    ) ?? false) && inputValue < MIN_INPUT_VALUE_FOR_ZAP
+
+  // Providers available on this chain, filtered by the "skip zap" business
+  // rule. The `best` mode will parallel-query all of these.
+  const availableProviders = useMemo<ProviderConfig[]>(() => {
+    const providers = getEnabledProviders(chainId)
+    return shouldSkipZapper ? providers.filter((p) => p.id !== 'zap') : providers
+  }, [chainId, shouldSkipZapper])
+
+  // Cache key for react-query — changes when any swap param changes. We
+  // intentionally don't memoize endpoint strings here; `fetchBestZapQuote`
+  // rebuilds them per fetch using the latest tracking ids.
+  const cacheKey = useDebounce(
+    useMemo(() => {
       if (
         !tokenIn ||
         !tokenOut ||
+        !account ||
         isNaN(Number(amountIn)) ||
-        Number(amountIn) === 0 ||
-        !account
+        Number(amountIn) === 0
       ) {
         return null
       }
-
-      const baseUrl = zapper.zap({
-        url: zapperApi,
+      return [
         chainId,
         tokenIn,
         tokenOut,
         amountIn,
         slippage,
-        signer: account as Address,
-        trade: !forceMint,
-        bypassCache: false,
-        debug,
+        account,
+        forceMint,
         deepLiquidity,
-      })
-
-      if (!includeTracking) {
-        return baseUrl
-      }
-
-      const url = new URL(baseUrl)
-      if (sessionId) url.searchParams.append('sessionId', sessionId)
-      if (quoteId) url.searchParams.append('quoteId', quoteId)
-      if (retryId) url.searchParams.append('retryId', retryId)
-      url.searchParams.append('sourceId', generateSourceId('zap'))
-
-      return url.toString()
-    },
-    [
-      zapperApi,
+        debug,
+        availableProviders.map((p) => p.id).join(','),
+      ].join('|')
+    }, [
       chainId,
       tokenIn,
       tokenOut,
@@ -131,318 +131,18 @@ const useZapSwapQuery = ({
       slippage,
       account,
       forceMint,
-      debug,
       deepLiquidity,
-      sessionId,
-    ]
-  )
-
-  const getOdosEndpoint = useCallback(
-    (quoteId?: string, retryId?: string, includeTracking = false) => {
-      if (
-        !tokenIn ||
-        !tokenOut ||
-        isNaN(Number(amountIn)) ||
-        Number(amountIn) === 0 ||
-        !account
-      ) {
-        return null
-      }
-
-      const baseUrl = zapper.odosZap({
-        url: reserveApi,
-        chainId,
-        tokenIn,
-        tokenOut,
-        amountIn,
-        slippage,
-        signer: account as Address,
-      })
-
-      if (!includeTracking) {
-        return baseUrl
-      }
-
-      // Add tracking parameters only when actually fetching
-      const url = new URL(baseUrl)
-      if (sessionId) url.searchParams.append('sessionId', sessionId)
-      if (quoteId) url.searchParams.append('quoteId', quoteId)
-      if (retryId) url.searchParams.append('retryId', retryId)
-      url.searchParams.append('sourceId', generateSourceId('odos'))
-
-      return url.toString()
-    },
-    [reserveApi, chainId, tokenIn, tokenOut, amountIn, slippage, account, sessionId]
-  )
-
-  const zapEndpoint = useDebounce(
-    useMemo(() => getZapEndpoint(), [getZapEndpoint]),
+      debug,
+      availableProviders,
+    ]),
     500
   )
-
-  const odosEndpoint = useDebounce(
-    useMemo(() => getOdosEndpoint(), [getOdosEndpoint]),
-    500
-  )
-
-  useEffect(() => {
-    setZapSwapEndpoint(zapEndpoint ?? '')
-  }, [zapEndpoint, setZapSwapEndpoint])
-
-  // Fetch Zap quote with dust and price impact retries
-  const fetchZapQuote = async (
-    quoteId: string,
-    retryId: string
-  ): Promise<ZapResponse & { source: 'zap' }> => {
-    const maxDustRetries = 0
-    const maxPriceImpactRetries = 0
-    let dustAttempt = 0
-    let priceImpactAttempt = 0
-    let lastData: ZapResponse
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      // currently no retries for zap
-      // if we need to add retries, we should generate a new retryId for each attempt
-
-      // Get endpoint with tracking parameters
-      const currentEndpoint = getZapEndpoint(quoteId, retryId, true)
-
-      if (!currentEndpoint) throw new Error('No Zap endpoint available')
-
-      trackIndexDTFQuoteRequested({
-        account,
-        tokenIn,
-        tokenOut,
-        dtfTicker,
-        chainId,
-        type,
-        endpoint: currentEndpoint,
-        source: 'zap',
-      })
-
-      const response = await fetch(currentEndpoint)
-      if (!response.ok) {
-        const error = response.status
-        trackIndexDTFQuoteError({
-          account,
-          tokenIn,
-          tokenOut,
-          dtfTicker,
-          chainId,
-          type,
-          endpoint: currentEndpoint,
-          status: 'error',
-          error,
-          source: 'zap',
-        })
-        throw new Error(`Zap Error: ${error}`)
-      }
-      const data = await response.json()
-
-      if (data) {
-        trackIndexDTFQuote({
-          account,
-          tokenIn,
-          tokenOut,
-          dtfTicker,
-          chainId,
-          type,
-          endpoint: currentEndpoint,
-          status: data.status,
-          amountInValue: data.result?.amountInValue,
-          amountOutValue: data.result?.amountOutValue,
-          dustValue: data.result?.dustValue,
-          truePriceImpact: data.result?.truePriceImpact,
-          source: 'zap',
-        })
-      }
-
-      if (data && data.status === 'error') {
-        throw new Error(data.error)
-      }
-
-      lastData = data
-
-      if (data && data.result) {
-        const amountOut = Number(data.result.amountOutValue)
-        const dust = Number(data.result.dustValue)
-        const priceImpact = Number(data.result.truePriceImpact)
-        const isDustRetry =
-          dustAttempt < maxDustRetries &&
-          dust > DUST_REFRESH_THRESHOLD * amountOut
-
-        if (isDustRetry) {
-          dustAttempt++
-          continue
-        }
-
-        const isPriceImpactRetry =
-          priceImpactAttempt < maxPriceImpactRetries &&
-          priceImpact > PRICE_IMPACT_THRESHOLD
-
-        if (isPriceImpactRetry) {
-          priceImpactAttempt++
-          continue
-        }
-      }
-      break
-    }
-
-    return { ...lastData, source: 'zap' }
-  }
-
-  // Fetch Odos quote without dust/price impact retries
-  const fetchOdosQuote = async (
-    quoteId: string,
-    retryId: string
-  ): Promise<ZapResponse & { source: 'odos' }> => {
-    // Get endpoint with tracking parameters
-    const currentEndpoint = getOdosEndpoint(quoteId, retryId, true)
-
-    if (!currentEndpoint) throw new Error('No Odos endpoint available')
-
-    trackIndexDTFQuoteRequested({
-      account,
-      tokenIn,
-      tokenOut,
-      dtfTicker,
-      chainId,
-      type,
-      endpoint: currentEndpoint,
-      source: 'odos',
-    })
-
-    const response = await fetch(currentEndpoint)
-    if (!response.ok) {
-      const error = response.status
-      trackIndexDTFQuoteError({
-        account,
-        tokenIn,
-        tokenOut,
-        dtfTicker,
-        chainId,
-        type,
-        endpoint: currentEndpoint,
-        status: 'error',
-        error,
-        source: 'odos',
-      })
-      throw new Error(`Odos Error: ${error}`)
-    }
-    const data = await response.json()
-
-    if (data) {
-      trackIndexDTFQuote({
-        account,
-        tokenIn,
-        tokenOut,
-        dtfTicker,
-        chainId,
-        type,
-        endpoint: currentEndpoint,
-        status: data.status,
-        amountInValue: data.result?.amountInValue,
-        amountOutValue: data.result?.amountOutValue,
-        dustValue: data.result?.dustValue,
-        truePriceImpact: data.result?.truePriceImpact,
-        source: 'odos',
-      })
-    }
-
-    if (data && data.status === 'error') {
-      throw new Error(data.error)
-    }
-
-    return { ...data, source: 'odos' }
-  }
-
-  // Select best quote based on minAmountOut
-  const selectBestQuote = (
-    zapQuote?: ZapResponse & { source: 'zap' },
-    odosQuote?: ZapResponse & { source: 'odos' }
-  ): (ZapResponse & { source: 'zap' | 'odos' }) | undefined => {
-    if (!zapQuote && !odosQuote) return undefined
-    if (!zapQuote) {
-      mixpanelTrack('Quote Source Winner', {
-        source: 'odos',
-        reason: 'only_odos_available',
-        tokenIn,
-        tokenOut,
-        dtfTicker,
-        chainId,
-        type,
-      })
-      return odosQuote
-    }
-    if (!odosQuote) {
-      mixpanelTrack('Quote Source Winner', {
-        source: 'zap',
-        reason: 'only_zap_available',
-        tokenIn,
-        tokenOut,
-        dtfTicker,
-        chainId,
-        type,
-      })
-      return zapQuote
-    }
-
-    const zapMinAmountOut = zapQuote.result?.minAmountOut
-      ? BigInt(zapQuote.result.minAmountOut)
-      : BigInt(0)
-    const odosMinAmountOut = odosQuote.result?.minAmountOut
-      ? BigInt(odosQuote.result.minAmountOut)
-      : BigInt(0)
-
-    // In case of tie, prefer zap
-    if (odosMinAmountOut > zapMinAmountOut) {
-      mixpanelTrack('Quote Source Winner', {
-        source: 'odos',
-        reason: 'better_output',
-        zapMinAmountOut: zapMinAmountOut.toString(),
-        odosMinAmountOut: odosMinAmountOut.toString(),
-        tokenIn,
-        tokenOut,
-        dtfTicker,
-        chainId,
-        type,
-      })
-      return odosQuote
-    }
-    mixpanelTrack('Quote Source Winner', {
-      source: 'zap',
-      reason:
-        odosMinAmountOut === zapMinAmountOut
-          ? 'tie_prefer_zap'
-          : 'better_output',
-      zapMinAmountOut: zapMinAmountOut.toString(),
-      odosMinAmountOut: odosMinAmountOut.toString(),
-      tokenIn,
-      tokenOut,
-      dtfTicker,
-      chainId,
-      type,
-    })
-    return zapQuote
-  }
-
-  const shouldSkipZapper =
-    DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP[chainId]?.includes(
-      dtf?.id?.toLowerCase() ?? ''
-    ) && inputValue < MIN_INPUT_VALUE_FOR_ZAP
 
   return useQuery({
-    queryKey: [
-      'zapDeploy',
-      zapEndpoint,
-      odosEndpoint,
-      quoteSource,
-      shouldSkipZapper,
-    ],
-    queryFn: async (): Promise<ZapResponse & { source: 'zap' | 'odos' }> => {
-      if (!tokenIn || !tokenOut) {
-        throw new Error('Invalid tokenIn, tokenOut')
+    queryKey: ['zapDeploy', cacheKey, quoteSource],
+    queryFn: async (): Promise<ProviderQuote> => {
+      if (!tokenIn || !tokenOut || !account) {
+        throw new Error('Invalid tokenIn, tokenOut or account')
       }
 
       mixpanelTimeEvent(SUBMIT_BUTTON_READY_EVENT)
@@ -461,55 +161,44 @@ const useZapSwapQuery = ({
       setRetryId(newRetryId)
       mixpanelRegister('retryId', newRetryId)
 
-      // Based on quote source preference, fetch the appropriate quotes
-      let result: ZapResponse & { source: 'zap' | 'odos' }
-      if (quoteSource === 'zap') {
-        result = await fetchZapQuote(newQuoteId, newRetryId)
-      } else if (quoteSource === 'odos') {
-        result = await fetchOdosQuote(newQuoteId, newRetryId)
-      } else {
-        // 'best' - handle minimum value logic
-        if (shouldSkipZapper) {
-          // Below minimum for specific DTFs - try Odos first, fallback to Zapper if it fails
-          try {
-            result = await fetchOdosQuote(newQuoteId, newRetryId)
-          } catch {
-            // Odos failed, fallback to Zapper
-            result = await fetchZapQuote(newQuoteId, newRetryId)
-          }
-        } else {
-          // Above minimum or not applicable - try both in parallel
-          const results = await Promise.allSettled([
-            fetchZapQuote(newQuoteId, newRetryId),
-            fetchOdosQuote(newQuoteId, newRetryId),
-          ])
+      const { selected } = await fetchBestZapQuote({
+        providers: availableProviders,
+        quoteSource,
+        endpointParams: {
+          chainId,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          slippage,
+          signer: account as Address,
+          trade: !forceMint,
+          bypassCache: false,
+          debug,
+          deepLiquidity,
+          apiUrl: reserveApi,
+          zapperApiUrl: zapperApi,
+        },
+        tracking: {
+          sessionId,
+          quoteId: newQuoteId,
+          retryId: newRetryId,
+        },
+        analytics: {
+          account,
+          tokenIn,
+          tokenOut,
+          dtfTicker,
+          chainId,
+          type,
+        },
+      })
 
-          const zapResult =
-            results[0].status === 'fulfilled' ? results[0].value : undefined
-          const odosResult =
-            results[1].status === 'fulfilled' ? results[1].value : undefined
-
-          const bestQuote = selectBestQuote(zapResult, odosResult)
-
-          if (!bestQuote) {
-            // Both failed, throw the first error
-            if (results[0].status === 'rejected') {
-              throw results[0].reason
-            }
-            if (results[1].status === 'rejected') {
-              throw results[1].reason
-            }
-            throw new Error('No quotes available')
-          }
-
-          result = bestQuote
-        }
-      }
-
-      const newSourceId = generateSourceId(result.source)
+      const newSourceId = generateSourceId(selected.source)
       setSourceId(newSourceId)
       mixpanelRegister('sourceId', newSourceId)
-      mixpanelRegister('source', result.source)
+      mixpanelRegister('source', selected.source)
+
+      setZapSwapEndpoint(selected.endpoint)
 
       trackSubmitButtonReady({
         account,
@@ -518,18 +207,12 @@ const useZapSwapQuery = ({
         dtfTicker,
         chainId,
         type,
-        endpoint: (result.source === 'zap' ? zapEndpoint : odosEndpoint) ?? '',
+        endpoint: selected.endpoint,
       })
 
-      return result
+      return selected
     },
-    enabled:
-      !disabled &&
-      (quoteSource === 'best'
-        ? !!zapEndpoint || !!odosEndpoint
-        : quoteSource === 'zap'
-        ? !!zapEndpoint
-        : !!odosEndpoint),
+    enabled: !disabled && !!cacheKey && availableProviders.length > 0,
     refetchInterval: 12000,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * Math.pow(2, attempt), 10000),

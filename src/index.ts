@@ -7,6 +7,18 @@ export { usePrice } from './hooks/usePrice'
 export { default as useZapHealthcheck } from './hooks/use-zap-healthcheck'
 export * from './utils/tracking'
 export { reducedZappableTokens as zappableTokens } from './utils/constants'
+export {
+  PROVIDERS,
+  PROVIDER_ENABLED,
+  getEnabledProviders,
+  getEnabledAggregators,
+  isProviderEnabled,
+} from './utils/providers'
+export type {
+  ProviderId,
+  ProviderConfig,
+} from './utils/providers'
+export type { QuoteSource } from './state/atoms'
 export type {
   ZapperProps,
   UseZapperModalReturn,

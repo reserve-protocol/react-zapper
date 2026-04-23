@@ -2,6 +2,7 @@ import { atom } from 'jotai'
 import { Address } from 'viem'
 import { DEFAULT_API_URL, Token, TokenBalance } from '../types'
 import { AvailableChain, ChainId } from '../utils/chains'
+import type { ProviderId } from '../utils/providers'
 
 /**
  * API URL atom - configurable api url for reserve API endpoints
@@ -86,11 +87,10 @@ export const indexDTFIconsAtom = atom<Record<number, Record<string, string>>>(
 
 /**
  * Quote source preference atom - controls which quote source to use
- * 'best' = automatic selection based on minAmountOut
- * 'zap' = use only Zap quotes
- * 'odos' = use only Odos quotes
+ * 'best' = automatic selection based on minAmountOut across all enabled providers
+ * Otherwise, a specific provider id to force a single source.
  */
-export type QuoteSource = 'best' | 'zap' | 'odos'
+export type QuoteSource = 'best' | ProviderId
 export const quoteSourceAtom = atom<QuoteSource>('best')
 
 /**

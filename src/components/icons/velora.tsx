@@ -3,7 +3,7 @@ const VeloraIcon = ({
   size = 16,
 }: {
   className?: string
-  size?: number
+  size?: number | string
 }) => (
   <svg
     width={size}
