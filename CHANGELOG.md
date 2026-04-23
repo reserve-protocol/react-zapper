@@ -1,3 +1,9 @@
+## [1.7.1] - 2026-04-23
+
+### Fixed
+
+- Fixed `No providers available for quoteSource="zap"` error on CMC20/BSC below the minimum input value. The minimum-input skip rule now only applies to `best` mode; explicit provider selection (Zap, Odos, Velora, Enso) is always honored
+
 ## [1.7.0] - 2026-04-23
 
 ### Added

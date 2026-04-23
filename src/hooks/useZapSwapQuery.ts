@@ -90,12 +90,16 @@ const useZapSwapQuery = ({
       dtf?.id?.toLowerCase() ?? ''
     ) ?? false) && inputValue < MIN_INPUT_VALUE_FOR_ZAP
 
-  // Providers available on this chain, filtered by the "skip zap" business
-  // rule. The `best` mode will parallel-query all of these.
+  // Providers available on this chain. The `shouldSkipZapper` rule only
+  // affects the parallel `best` pool — when the user explicitly picks a
+  // provider, honor that choice regardless of the skip rule.
   const availableProviders = useMemo<ProviderConfig[]>(() => {
     const providers = getEnabledProviders(chainId)
-    return shouldSkipZapper ? providers.filter((p) => p.id !== 'zap') : providers
-  }, [chainId, shouldSkipZapper])
+    if (quoteSource !== 'best') return providers
+    return shouldSkipZapper
+      ? providers.filter((p) => p.id !== 'zap')
+      : providers
+  }, [chainId, shouldSkipZapper, quoteSource])
 
   // Cache key for react-query — changes when any swap param changes. We
   // intentionally don't memoize endpoint strings here; `fetchBestZapQuote`
