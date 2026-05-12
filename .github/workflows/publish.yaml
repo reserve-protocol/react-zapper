@@ -16,10 +16,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enable corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
 
       - name: Get package version
         id: version
@@ -65,7 +69,7 @@ jobs:
       - name: Check if already published
         id: npm_check
         run: |
-          PUBLISHED=$(npm view @reserve-protocol/react-zapper version 2>/dev/null || echo "0.0.0")
+          PUBLISHED=$(pnpm view @reserve-protocol/react-zapper version 2>/dev/null || echo "0.0.0")
           CURRENT="${{ steps.version.outputs.version_number }}"
           if [ "$PUBLISHED" = "$CURRENT" ]; then
             echo "published=true" >> $GITHUB_OUTPUT
@@ -75,12 +79,12 @@ jobs:
 
       - name: Install dependencies
         if: steps.npm_check.outputs.published == 'false'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build package
         if: steps.npm_check.outputs.published == 'false'
-        run: npm run build
+        run: pnpm run build
 
       - name: Publish to npm
         if: steps.npm_check.outputs.published == 'false'
-        run: npm publish
+        run: pnpm publish --no-git-checks
