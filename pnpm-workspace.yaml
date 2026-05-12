@@ -1,0 +1,12 @@
+catalogMode: manual
+blockExoticSubdeps: true
+cleanupUnusedCatalogs: true
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - '@solana/*'
+allowBuilds:
+  bufferutil: true
+  esbuild: true
+  keccak: true
+  sharp: false
+  utf-8-validate: true
