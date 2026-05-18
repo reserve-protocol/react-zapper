@@ -5,12 +5,23 @@ import {
   UseSimulateContractParameters,
   useWriteContract,
 } from 'wagmi'
-import type { Abi } from 'abitype'
-import { ContractFunctionName, encodeFunctionData } from 'viem'
+import { encodeFunctionData, type Abi, type ContractFunctionName } from 'viem'
 
 // Gas multiplier helper function
 const getSafeGasLimit = (gas: bigint, multiplier = 200n) =>
   (gas * multiplier) / 100n
+
+type UseContractWriteResult = {
+  gas: bigint | undefined
+  validationError: Error | null
+  isReady: boolean
+  isLoading: boolean
+  hash: ReturnType<typeof useWriteContract>['data']
+  write: () => void
+  writeContract: () => void
+  isError: boolean
+  error: Error | null
+}
 
 /**
  * Hook for contract write operations with gas estimation and validation
@@ -24,7 +35,7 @@ const useContractWrite = <
     TAbi,
     TFunctionName
   > = {} as UseSimulateContractParameters<TAbi, TFunctionName>
-) => {
+): UseContractWriteResult => {
   const { data, error, isSuccess } = useSimulateContract(
     call as UseSimulateContractParameters
   )
@@ -66,9 +77,8 @@ const useContractWrite = <
     }
   }, [data?.request, writeContract, gas])
 
-  return useMemo(
+  return useMemo<UseContractWriteResult>(
     () => ({
-      ...contractWrite,
       gas,
       validationError: error,
       isReady: !!data?.request && isSuccess,

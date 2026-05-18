@@ -35,9 +35,10 @@ import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
 interface BuyProps {
   mode?: 'modal' | 'inline' | 'simple'
+  disabled?: boolean
 }
 
-const Buy = ({ mode = 'modal' }: BuyProps) => {
+const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const account = useAtomValue(walletAtom)
   const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
@@ -189,6 +190,7 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
         }}
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
+        disabled={disabled}
       />
       {mode !== 'simple' && !!data?.result && (
         <ZapDetails data={data.result} source={data.source} />
@@ -208,6 +210,7 @@ const Buy = ({ mode = 'modal' }: BuyProps) => {
         zapperErrorMessage={mode === 'simple' ? '' : zapperErrorMessage}
         onSuccess={onSuccess}
         mode={mode}
+        disabled={disabled}
       />
       {mode !== 'simple' && debug && !!data?.result?.debug && (
         <Debug data={data.result.debug} />

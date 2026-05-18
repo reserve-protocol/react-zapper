@@ -39,9 +39,10 @@ import ZapDetails, { ZapPriceImpact } from '../zap-details'
 interface SellProps {
   mode?: 'modal' | 'inline' | 'simple'
   sellOnly?: boolean
+  disabled?: boolean
 }
 
-const Sell = ({ mode = 'modal', sellOnly }: SellProps) => {
+const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
@@ -188,6 +189,7 @@ const Sell = ({ mode = 'modal', sellOnly }: SellProps) => {
         }}
         onSwap={sellOnly ? undefined : changeTab}
         loading={isLoading || loadingAfterRefetch}
+        disabled={disabled}
       />
       {mode !== 'simple' && !!data?.result && (
         <ZapDetails data={data.result} source={data.source} />
@@ -209,6 +211,7 @@ const Sell = ({ mode = 'modal', sellOnly }: SellProps) => {
         zapperErrorMessage={mode === 'simple' ? '' : zapperErrorMessage}
         onSuccess={onSuccess}
         mode={mode}
+        disabled={disabled}
       />
       {mode !== 'simple' && debug && !!data?.result?.debug && (
         <Debug data={data.result.debug} />

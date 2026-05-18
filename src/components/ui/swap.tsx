@@ -61,6 +61,7 @@ type SwapProps = {
   to: SwapItem
   onSwap?: () => void
   loading?: boolean
+  disabled?: boolean
 }
 
 const TokenInput = ({
@@ -211,7 +212,10 @@ const MaxButton = ({
   </div>
 )
 
-export const TokenInputBox = ({ from }: Pick<SwapProps, 'from'>) => {
+export const TokenInputBox = ({
+  from,
+  disabled,
+}: Pick<SwapProps, 'from' | 'disabled'>) => {
   return (
     <div
       className={cn(
@@ -222,7 +226,7 @@ export const TokenInputBox = ({ from }: Pick<SwapProps, 'from'>) => {
       <div>
         <h3 className="text-primary">{from?.title || 'You use:'}</h3>
         <div className="flex gap-1">
-          <TokenInput {...from} disabled={from.disabled} />
+          <TokenInput {...from} disabled={disabled || from.disabled} />
           <TokenSelector {...from} />
         </div>
       </div>
@@ -234,7 +238,7 @@ export const TokenInputBox = ({ from }: Pick<SwapProps, 'from'>) => {
           <MaxButton
             balance={from.balance}
             onMax={from.onMax}
-            disabled={from.disabled}
+            disabled={disabled || from.disabled}
           />
         </div>
       </div>

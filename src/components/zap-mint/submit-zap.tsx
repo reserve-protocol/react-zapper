@@ -46,9 +46,11 @@ const FUSAKA_GAS_LIMIT = 2n ** 24n
 const GetStartedButton = ({
   fetchingZapper,
   showTxButton,
+  disabled,
 }: {
   fetchingZapper: boolean
   showTxButton: boolean
+  disabled?: boolean
 }) => {
   const setOpenModal = useSetAtom(openZapMintModalAtom)
   const setOpeningFromSimple = useSetAtom(openingFromSimpleModeAtom)
@@ -62,7 +64,7 @@ const GetStartedButton = ({
     <Button
       size="lg"
       className="w-full rounded-xl"
-      disabled={fetchingZapper || !showTxButton}
+      disabled={disabled || fetchingZapper || !showTxButton}
       onClick={handleClick}
     >
       {fetchingZapper ? 'Loading...' : 'Get started'}
@@ -119,6 +121,7 @@ const SubmitZapButton = ({
   outputAmount,
   onSuccess,
   mode = 'modal',
+  disabled,
 }: {
   data: ZapResult
   source?: ProviderId
@@ -130,6 +133,7 @@ const SubmitZapButton = ({
   outputAmount: string
   onSuccess?: () => void
   mode?: 'modal' | 'inline' | 'simple'
+  disabled?: boolean
 }) => {
   const warningAccepted = useAtomValue(zapPriceImpactWarningCheckboxAtom)
   const dustWarningAccepted = useAtomValue(zapDustWarningCheckboxAtom)
@@ -320,6 +324,7 @@ const SubmitZapButton = ({
       )}
       <TransactionButton
         disabled={
+          disabled ||
           simulationFailed ||
           (mode !== 'simple' && highPriceImpact && !warningAccepted) ||
           (mode !== 'simple' && highDustValue && !dustWarningAccepted) ||
@@ -330,6 +335,7 @@ const SubmitZapButton = ({
         loading={approving || loadingTx || validatingTx || confirmingApproval}
         gas={readyToSubmit ? gasLimit : undefined}
         onClick={() => {
+          if (disabled) return
           setOngoingTx(true)
           if (readyToSubmit) {
             trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
@@ -367,6 +373,7 @@ const SubmitZap = ({
   zapperErrorMessage,
   onSuccess,
   mode = 'modal',
+  disabled,
 }: {
   data?: ZapResult
   source?: ProviderId
@@ -382,6 +389,7 @@ const SubmitZap = ({
   zapperErrorMessage: string
   onSuccess?: () => void
   mode?: 'modal' | 'inline' | 'simple'
+  disabled?: boolean
 }) => {
   const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
 
@@ -391,6 +399,7 @@ const SubmitZap = ({
       <GetStartedButton
         fetchingZapper={fetchingZapper}
         showTxButton={showTxButton}
+        disabled={disabled}
       />
     )
   }
@@ -407,9 +416,10 @@ const SubmitZap = ({
       outputAmount={outputAmount}
       onSuccess={onSuccess}
       mode={mode}
+      disabled={disabled}
     />
   ) : (
-    <TransactionButtonContainer>
+    <TransactionButtonContainer disabled={disabled}>
       <LoadingButton
         fetchingZapper={fetchingZapper}
         insufficientBalance={insufficientBalance}

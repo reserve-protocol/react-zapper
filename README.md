@@ -149,6 +149,7 @@ Simple mode features:
 | `apiUrl`         | `string`                        | ❌       | Custom API endpoint (defaults to Reserve API)  |
 | `zapperApiUrl`   | `string`                        | ❌       | Custom zapper service endpoint for zapper-specific API calls (falls back to `apiUrl`) |
 | `sellOnly`       | `boolean`                       | ❌       | Only show the sell (redeem) flow               |
+| `disabled`       | `boolean`                       | ❌       | Disable primary zap actions, wallet/chain actions, amount inputs, and Max buttons |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |

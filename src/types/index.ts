@@ -34,6 +34,7 @@ export interface ZapperProps {
   debug?: boolean
   defaultSource?: QuoteSource
   sellOnly?: boolean
+  disabled?: boolean
 }
 
 export interface UseZapperModalReturn {

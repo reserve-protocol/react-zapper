@@ -1,3 +1,9 @@
+## [1.7.2] - 2026-05-18
+
+### Added
+
+- Added `disabled` prop to disable primary zap actions, wallet/chain actions, amount inputs, and Max buttons
+
 ## [1.7.1] - 2026-04-23
 
 ### Fixed

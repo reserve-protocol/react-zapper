@@ -54,11 +54,11 @@ export function TransactionButton({
   }, [balance, gas])
 
   if (!isConnected) {
-    return <ConnectWalletButton />
+    return <ConnectWalletButton disabled={disabled || loading} />
   }
 
   if (isWrongChain) {
-    return <SwitchChainButton />
+    return <SwitchChainButton disabled={disabled || loading} />
   }
 
   return (
@@ -79,16 +79,21 @@ export function TransactionButton({
   )
 }
 
-export const ConnectWalletButton = () => {
+export const ConnectWalletButton = ({ disabled }: { disabled?: boolean }) => {
   const { fn: connectWallet } = useAtomValue(connectWalletAtom)
   return (
-    <Button size="lg" onClick={connectWallet} className="w-full rounded-xl">
+    <Button
+      size="lg"
+      onClick={connectWallet}
+      className="w-full rounded-xl"
+      disabled={disabled}
+    >
       Connect Wallet
     </Button>
   )
 }
 
-export const SwitchChainButton = () => {
+export const SwitchChainButton = ({ disabled }: { disabled?: boolean }) => {
   const { switchChain } = useSwitchChain()
   const chainId = useAtomValue(chainIdAtom)
   return (
@@ -96,6 +101,7 @@ export const SwitchChainButton = () => {
       size="lg"
       onClick={() => switchChain({ chainId })}
       className="w-full rounded-xl"
+      disabled={disabled}
     >
       Switch to {CHAIN_TAGS[chainId]}
     </Button>
@@ -104,8 +110,10 @@ export const SwitchChainButton = () => {
 
 export function TransactionButtonContainer({
   children,
+  disabled,
 }: {
   children: React.ReactNode
+  disabled?: boolean
 }) {
   const account = useAccount()
   const chainId = useAtomValue(chainIdAtom)
@@ -114,11 +122,11 @@ export function TransactionButtonContainer({
   const isWrongChain = walletChainId && walletChainId !== chainId
 
   if (!isConnected) {
-    return <ConnectWalletButton />
+    return <ConnectWalletButton disabled={disabled} />
   }
 
   if (isWrongChain) {
-    return <SwitchChainButton />
+    return <SwitchChainButton disabled={disabled} />
   }
 
   return <div className="space-y-2">{children}</div>

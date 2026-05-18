@@ -33,9 +33,14 @@ import ZapSettings from './zap-mint/zap-settings'
 interface ZapperContentProps {
   mode: 'modal' | 'inline' | 'simple'
   sellOnly?: boolean
+  disabled?: boolean
 }
 
-const ZapperContent: React.FC<ZapperContentProps> = ({ mode, sellOnly }) => {
+const ZapperContent: React.FC<ZapperContentProps> = ({
+  mode,
+  sellOnly,
+  disabled,
+}) => {
   const [open, setOpen] = useAtom(openZapMintModalAtom)
   const [currentTab, setCurrentTab] = useAtom(zapperCurrentTabAtom)
   const [showSettings, setShowSettings] = useAtom(showZapSettingsAtom)
@@ -144,10 +149,10 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode, sellOnly }) => {
             <LowLiquidityWarning className="mt-2" />
             <ZapHealthcheck className="mt-2" />
             <TabsContent value="buy">
-              <Buy />
+              <Buy disabled={disabled} />
             </TabsContent>
             <TabsContent value="sell">
-              <Sell sellOnly={sellOnly} />
+              <Sell sellOnly={sellOnly} disabled={disabled} />
             </TabsContent>
           </div>
         </div>
@@ -160,7 +165,11 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode, sellOnly }) => {
     return (
       <>
         <div className="flex flex-col">
-          {effectiveTab === 'buy' ? <Buy mode="simple" /> : <Sell mode="simple" sellOnly={sellOnly} />}
+          {effectiveTab === 'buy' ? (
+            <Buy mode="simple" disabled={disabled} />
+          ) : (
+            <Sell mode="simple" sellOnly={sellOnly} disabled={disabled} />
+          )}
         </div>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogContent
@@ -208,7 +217,11 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode, sellOnly }) => {
               <div className="flex flex-col gap-2">
                 <LowLiquidityWarning />
                 <ZapHealthcheck />
-                {effectiveTab === 'buy' ? <Buy /> : <Sell sellOnly={sellOnly} />}
+                {effectiveTab === 'buy' ? (
+                  <Buy disabled={disabled} />
+                ) : (
+                  <Sell sellOnly={sellOnly} disabled={disabled} />
+                )}
               </div>
             </div>
           </DialogContent>
@@ -265,7 +278,11 @@ const ZapperContent: React.FC<ZapperContentProps> = ({ mode, sellOnly }) => {
           <div className="flex flex-col gap-2">
             <LowLiquidityWarning />
             <ZapHealthcheck />
-            {effectiveTab === 'buy' ? <Buy /> : <Sell sellOnly={sellOnly} />}
+            {effectiveTab === 'buy' ? (
+              <Buy disabled={disabled} />
+            ) : (
+              <Sell sellOnly={sellOnly} disabled={disabled} />
+            )}
           </div>
         </div>
       </DialogContent>
@@ -284,6 +301,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   defaultSource,
   debug,
   sellOnly,
+  disabled,
 }) => {
   const [queryClient] = useState(
     () =>
@@ -313,7 +331,7 @@ export const Zapper: React.FC<ZapperProps> = ({
           mode={mode}
           sellOnly={sellOnly}
         />
-        <ZapperContent mode={mode} sellOnly={sellOnly} />
+        <ZapperContent mode={mode} sellOnly={sellOnly} disabled={disabled} />
       </QueryClientProvider>
     </WagmiProvider>
   )
