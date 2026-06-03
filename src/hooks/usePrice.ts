@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Address, ethAddress, zeroAddress } from 'viem'
+import { Address } from 'viem'
 import { useAtomValue } from 'jotai'
 import { apiUrlAtom } from '@/state/atoms'
 
@@ -17,11 +17,10 @@ export function usePrice(
     queryFn: async () => {
       if (!tokenAddress) return null
 
-      const transformedTokenAddress =
-        tokenAddress === ethAddress ? zeroAddress : tokenAddress
-
+      // The Reserve price API serves native-token prices at the EEE sentinel
+      // address (`ethAddress`), not at the zero address, so query as-is.
       const baseUrl = apiUrl || atomUrl
-      const url = `${baseUrl}current/prices?chainId=${chainId}&tokens=${transformedTokenAddress}`
+      const url = `${baseUrl}current/prices?chainId=${chainId}&tokens=${tokenAddress}`
 
       try {
         const response = await fetch(url)

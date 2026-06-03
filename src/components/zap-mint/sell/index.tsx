@@ -30,6 +30,7 @@ import {
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapperDebugAtom,
+  zapQuoteStateAtom,
   zapRefetchAtom,
 } from '../atom'
 import { Debug } from '../debug/debug'
@@ -62,6 +63,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const setZapRefetch = useSetAtom(zapRefetchAtom)
   const setZapFetching = useSetAtom(zapFetchingAtom)
+  const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
@@ -126,6 +128,46 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   useEffect(() => {
     setZapFetching(fetchingZapper)
   }, [fetchingZapper, setZapFetching])
+
+  useEffect(() => {
+    const succeeded = data?.status === 'success'
+    setZapQuoteState({
+      data: indexDTF
+        ? {
+            input: {
+              token: {
+                address: indexDTF.id,
+                symbol: indexDTF.token.symbol,
+                name: indexDTF.token.name,
+                decimals: indexDTF.token.decimals,
+              },
+              amount: inputAmount,
+              // Prefer the quote's authoritative input value; fall back to the
+              // local price-based estimate before the quote resolves.
+              value: data?.result?.amountInValue ?? inputValue,
+            },
+            quote: succeeded ? data.result : undefined,
+            source: succeeded ? data.source : undefined,
+          }
+        : undefined,
+      loading: fetchingZapper,
+      error: zapperErrorMessage || undefined,
+    })
+  }, [
+    indexDTF,
+    inputAmount,
+    inputValue,
+    data,
+    fetchingZapper,
+    zapperErrorMessage,
+    setZapQuoteState,
+  ])
+
+  useEffect(
+    () => () =>
+      setZapQuoteState({ data: undefined, loading: false, error: undefined }),
+    [setZapQuoteState]
+  )
 
   useEffect(() => {
     setOngoingTx(false)

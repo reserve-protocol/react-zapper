@@ -16,20 +16,12 @@ export interface TokenBalance {
   decimals: number
 }
 
-// Relaxed wagmiConfig type to avoid strict type checking issues
-// between different viem/wagmi versions in host applications
-interface MinimalWagmiConfig {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
-}
-
 export interface ZapperProps {
   mode?: 'modal' | 'inline' | 'simple'
   chain: AvailableChain
   dtfAddress: Address
   apiUrl?: string
   zapperApiUrl?: string
-  wagmiConfig: MinimalWagmiConfig
   connectWallet?: () => void
   debug?: boolean
   defaultSource?: QuoteSource
