@@ -6,7 +6,7 @@ import {
   type ProviderId,
 } from '@reserve-protocol/react-zapper'
 import React, { useState } from 'react'
-import { useChains, useConfig } from 'wagmi'
+import { useChains } from 'wagmi'
 import { Button } from './components/ui/button'
 import {
   Card,
@@ -24,6 +24,7 @@ import {
 } from './components/ui/select'
 import { DTF_BY_CHAIN } from './dtf-config'
 import ZapperWrapper from './components/zapper-wrapper'
+import QuoteStatePanel from './components/quote-state-panel'
 import { AvailableChain } from '../dist/utils/chains'
 import { QuoteSource } from '../dist/types'
 
@@ -58,7 +59,6 @@ const ZAPPER_API_URLS = [
 ]
 
 function App() {
-  const wagmiConfig = useConfig()
   const chains = useChains().map((chain) => ({
     id: chain.id,
     label: chain.name,
@@ -108,6 +108,7 @@ function App() {
             </CardContent>
           </Card>
         ) : (
+          <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left: Configuration */}
             <Card className="bg-secondary/30 border-border-secondary h-fit">
@@ -337,7 +338,6 @@ function App() {
               {mode === 'modal' ? (
                 <>
                   <ZapperWrapper
-                    wagmiConfig={wagmiConfig}
                     chain={selectedChain.id as AvailableChain}
                     dtfAddress={selectedDTF.address}
                     mode="modal"
@@ -354,7 +354,6 @@ function App() {
               ) : (
                 <div className="p-4 border-t border-muted">
                   <ZapperWrapper
-                    wagmiConfig={wagmiConfig}
                     chain={selectedChain.id as AvailableChain}
                     dtfAddress={selectedDTF.address}
                     mode={mode}
@@ -369,6 +368,8 @@ function App() {
             </CardContent>
           </Card>
           </div>
+          <QuoteStatePanel />
+          </>
         )}
       </div>
       <Toaster position="bottom-right" />

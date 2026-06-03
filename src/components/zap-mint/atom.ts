@@ -1,5 +1,6 @@
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
+import type { UseQuoteResult } from '../../hooks/useQuote'
 import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
 import { Token, TokenBalance } from '../../types'
 import { reducedZappableTokens } from '../../utils/constants'
@@ -60,6 +61,16 @@ export const tokenOutAtom = atom<Token | undefined>((get) => {
   const selectedToken = get(selectedTokenAtom)
   const defaultToken = get(defaultSelectedTokenAtom)
   return currentTab === 'buy' ? indexDTFToken : selectedToken || defaultToken
+})
+
+/**
+ * Live quote state lifted from the active Buy/Sell flow so package consumers
+ * can observe it via the public `useQuote` hook and render UI around the Zapper.
+ */
+export const zapQuoteStateAtom = atom<UseQuoteResult>({
+  data: undefined,
+  loading: false,
+  error: undefined,
 })
 
 export const slippageAtom = atomWithReset<string>('100')

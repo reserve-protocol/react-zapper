@@ -27,6 +27,7 @@ import {
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapperDebugAtom,
+  zapQuoteStateAtom,
   zapRefetchAtom,
 } from '../atom'
 import { Debug } from '../debug/debug'
@@ -57,6 +58,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const setZapRefetch = useSetAtom(zapRefetchAtom)
   const setZapFetching = useSetAtom(zapFetchingAtom)
+  const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const setOpen = useSetAtom(openZapMintModalAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
@@ -124,6 +126,39 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   useEffect(() => {
     setZapFetching(fetchingZapper)
   }, [fetchingZapper, setZapFetching])
+
+  useEffect(() => {
+    const succeeded = data?.status === 'success'
+    setZapQuoteState({
+      data: {
+        input: {
+          token: selectedToken,
+          amount: inputAmount,
+          // Prefer the quote's authoritative input value; fall back to the
+          // local price-based estimate before the quote resolves.
+          value: data?.result?.amountInValue ?? inputValue,
+        },
+        quote: succeeded ? data.result : undefined,
+        source: succeeded ? data.source : undefined,
+      },
+      loading: fetchingZapper,
+      error: zapperErrorMessage || undefined,
+    })
+  }, [
+    selectedToken,
+    inputAmount,
+    inputValue,
+    data,
+    fetchingZapper,
+    zapperErrorMessage,
+    setZapQuoteState,
+  ])
+
+  useEffect(
+    () => () =>
+      setZapQuoteState({ data: undefined, loading: false, error: undefined }),
+    [setZapQuoteState]
+  )
 
   useEffect(() => {
     setOngoingTx(false)

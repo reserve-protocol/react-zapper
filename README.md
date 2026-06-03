@@ -17,7 +17,7 @@ A React component library for integrating DTF (Decentralized Token Folio) zap fu
 ## Installation
 
 ```bash
-npm install @reserve-protocol/react-zapper
+pnpm add @reserve-protocol/react-zapper
 ```
 
 ### Peer Dependencies
@@ -25,10 +25,12 @@ npm install @reserve-protocol/react-zapper
 Make sure you have these peer dependencies installed:
 
 ```bash
-npm install react@^18.0.0 @tanstack/react-query@^5.87.4 wagmi@^2.15.14
+pnpm add react@^18.0.0 react-dom@^18.0.0 @tanstack/react-query@^5.87.4 wagmi@^2.19.0 viem@^2.50.0
 ```
 
-Note: `viem` will be installed automatically as a dependency of `wagmi`.
+The Zapper consumes your application's existing `wagmi` and `@tanstack/react-query`
+context — it does **not** create its own. You provide a `WagmiProvider` and a
+`QueryClientProvider` (see [Setup Providers](#setup-providers) below).
 
 ## Quick Start
 
@@ -54,12 +56,40 @@ module.exports = {
 }
 ```
 
+### Setup Providers
+
+The Zapper reads `wagmi` and `@tanstack/react-query` from React context, so wrap
+your app once with your own `WagmiProvider` and `QueryClientProvider`. This is the
+standard wagmi v2 setup — the same providers your app already uses.
+
+```tsx
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { wagmiConfig } from './wagmi-config'
+
+const queryClient = new QueryClient()
+
+function App({ children }: { children: React.ReactNode }) {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        {/* your app + the Zapper */}
+        {children}
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+> **Migrating from v1?** The `wagmiConfig` prop was removed in v2. The Zapper no
+> longer creates its own providers — render it inside your app's existing
+> `WagmiProvider` + `QueryClientProvider` (above) and drop the `wagmiConfig` prop.
+
 ### 2. Basic Modal Usage
 
 ```tsx
 import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/styles.css'
-import { wagmiConfig } from './wagmi-config'
 
 function MyApp() {
   const { open } = useZapperModal()
@@ -67,7 +97,6 @@ function MyApp() {
   return (
     <>
       <Zapper
-        wagmiConfig={wagmiConfig}
         chain={1} // Ethereum mainnet
         dtfAddress="0x123..." // Your DTF contract address
         mode="modal"
@@ -86,20 +115,12 @@ function MyApp() {
 ```tsx
 import { Zapper } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/styles.css'
-import { useConfig } from 'wagmi'
 
 function ZapperPage() {
-  const wagmiConfig = useConfig()
-
   return (
     <div className="max-w-md mx-auto">
       <h1>Zap into My DTF</h1>
-      <Zapper
-        wagmiConfig={wagmiConfig}
-        chain={1}
-        dtfAddress="0x123..."
-        mode="inline"
-      />
+      <Zapper chain={1} dtfAddress="0x123..." mode="inline" />
     </div>
   )
 }
@@ -112,17 +133,9 @@ The simple mode provides a streamlined launcher interface that pre-loads quotes 
 ```tsx
 import { Zapper } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/styles.css'
-import { wagmiConfig } from './wagmi-config'
 
 function SimpleZapper() {
-  return (
-    <Zapper
-      wagmiConfig={wagmiConfig}
-      chain={1}
-      dtfAddress="0x123..."
-      mode="simple"
-    />
-  )
+  return <Zapper chain={1} dtfAddress="0x123..." mode="simple" />
 }
 ```
 
@@ -142,7 +155,6 @@ Simple mode features:
 
 | Property         | Type                            | Required | Description                                    |
 | ---------------- | ------------------------------- | -------- | ---------------------------------------------- |
-| `wagmiConfig`    | `WagmiConfig`                   | ✅       | Wagmi v2 configuration for the app             |
 | `chain`          | `number`                        | ✅       | Chain ID where the DTF is deployed             |
 | `dtfAddress`     | `Address`                       | ✅       | DTF contract address                           |
 | `mode`           | `'modal' \| 'inline' \| 'simple'` | ❌    | Display mode: 'modal' (popup), 'inline' (embedded), 'simple' (launcher) |
@@ -185,6 +197,67 @@ The `useZapperModal` hook provides control over the modal state:
 const { isOpen, open, close } = useZapperModal()
 ```
 
+### useQuote Hook
+
+The `useQuote` hook exposes the live quote state of the currently rendered
+Zapper, so you can build your own UI around it (status banners, custom loaders,
+analytics). It returns `{ data, loading, error }` for the active Buy/Sell flow:
+
+```tsx
+import { Zapper, useQuote } from '@reserve-protocol/react-zapper'
+
+function ZapperWithStatus() {
+  const { data, loading, error } = useQuote()
+
+  return (
+    <div>
+      <Zapper chain={1} dtfAddress="0x123..." mode="inline" />
+
+      {/* `data.input` is available as soon as the user types */}
+      {data && (
+        <span>
+          Spending {data.input.amount} {data.input.token.symbol} ($
+          {data.input.value.toFixed(2)})
+        </span>
+      )}
+
+      {loading && <span>Fetching best quote…</span>}
+      {error && <span>Quote error: {error}</span>}
+
+      {data?.quote && (
+        <span>
+          Estimated output: ${(data.quote.amountOutValue ?? 0).toFixed(2)} (via{' '}
+          {data.source})
+        </span>
+      )}
+    </div>
+  )
+}
+```
+
+The returned `data` (type `QuoteData`, `undefined` when no flow is active):
+
+```ts
+{
+  input: {
+    token: Token   // the token being spent
+    amount: string // human-readable amount the user typed
+    value: number  // USD value of the input
+  }
+  quote: ZapResult | undefined  // winning quote result, once it resolves
+  source: ProviderId | undefined // winning provider id, once it resolves
+}
+```
+
+- `data.input` is populated immediately as the user types (handy when you care
+  about the input value before a quote returns)
+- `quote` / `source` populate once a quote resolves
+- `loading` is `true` while a quote is being fetched or refetched
+- `error` is the quote error message, if any
+
+Call it anywhere within the same app as a rendered `<Zapper />` (it reads the
+package's internal state); no extra providers are required.
+
 ## Advanced Usage
 
 ### With Custom Error Handling
@@ -192,17 +265,11 @@ const { isOpen, open, close } = useZapperModal()
 ```tsx
 import { Zapper, Toaster } from '@reserve-protocol/react-zapper'
 import { toast } from 'sonner'
-import { wagmiConfig } from './wagmi-config'
 
 function AdvancedZapper() {
   return (
     <>
-      <Zapper
-        wagmiConfig={wagmiConfig}
-        chain={1}
-        dtfAddress="0x123..."
-        mode="modal"
-      />
+      <Zapper chain={1} dtfAddress="0x123..." mode="modal" />
       <Toaster />
     </>
   )
@@ -230,7 +297,6 @@ function ZapperWithCustomWallet() {
 
   return (
     <Zapper
-      wagmiConfig={wagmiConfig}
       chain={1}
       dtfAddress="0x123..."
       mode="modal"
@@ -315,20 +381,20 @@ const baseTokens = zappableTokens[8453] // Base tokens
 
 ### Prerequisites
 
-- Node.js 16+
-- npm or yarn
+- Node.js 22+
+- pnpm (this repo uses pnpm with supply-chain protections; do not use npm)
 
 ### Setup
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server with demo
-npm run dev
+pnpm dev
 
 # Build the package
-npm run build
+pnpm build
 ```
 
 ### Demo Application
@@ -336,7 +402,7 @@ npm run build
 The package includes a demo application that showcases both modal and inline modes:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Visit `http://localhost:5173` to see the demo.

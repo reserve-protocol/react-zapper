@@ -1,9 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
-import { Config, WagmiProvider } from 'wagmi'
-import { hashFn, structuralSharing } from 'wagmi/query'
+import React, { useEffect } from 'react'
 import { ZapperProps } from '../types'
 import { useTrackIndexDTFZapClick } from '../utils/tracking'
 import { Button } from './ui/button'
@@ -291,7 +288,6 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
 }
 
 export const Zapper: React.FC<ZapperProps> = ({
-  wagmiConfig,
   mode = 'modal',
   chain,
   dtfAddress,
@@ -303,37 +299,21 @@ export const Zapper: React.FC<ZapperProps> = ({
   sellOnly,
   disabled,
 }) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-            refetchOnWindowFocus: false,
-            queryKeyHashFn: hashFn,
-            structuralSharing,
-          },
-        },
-      })
-  )
-
   return (
-    <WagmiProvider config={wagmiConfig as Config}>
-      <QueryClientProvider client={queryClient}>
-        <Updaters
-          dtfAddress={dtfAddress}
-          chainId={chain}
-          apiUrl={apiUrl}
-          zapperApiUrl={zapperApiUrl}
-          connectWallet={connectWallet}
-          defaultSource={defaultSource}
-          debug={debug}
-          mode={mode}
-          sellOnly={sellOnly}
-        />
-        <ZapperContent mode={mode} sellOnly={sellOnly} disabled={disabled} />
-      </QueryClientProvider>
-    </WagmiProvider>
+    <>
+      <Updaters
+        dtfAddress={dtfAddress}
+        chainId={chain}
+        apiUrl={apiUrl}
+        zapperApiUrl={zapperApiUrl}
+        connectWallet={connectWallet}
+        defaultSource={defaultSource}
+        debug={debug}
+        mode={mode}
+        sellOnly={sellOnly}
+      />
+      <ZapperContent mode={mode} sellOnly={sellOnly} disabled={disabled} />
+    </>
   )
 }
 

@@ -1,3 +1,35 @@
+## [2.0.0] - 2026-06-02
+
+### Breaking Changes
+
+- Removed the `wagmiConfig` prop. The Zapper no longer creates its own `WagmiProvider` and `QueryClient`/`QueryClientProvider`; it now consumes the host application's `wagmi` and `@tanstack/react-query` context via hooks. Wrap your app in your own `WagmiProvider` + `QueryClientProvider` and drop the `wagmiConfig` prop:
+
+  ```tsx
+  // Before (v1)
+  <Zapper wagmiConfig={wagmiConfig} chain={1} dtfAddress="0x..." />
+
+  // After (v2) — render inside your existing providers
+  <WagmiProvider config={wagmiConfig}>
+    <QueryClientProvider client={queryClient}>
+      <Zapper chain={1} dtfAddress="0x..." />
+    </QueryClientProvider>
+  </WagmiProvider>
+  ```
+
+### Added
+
+- `useQuote()` hook exposing the Zapper's live quote state as `{ data, loading, error }`, so consumers can build their own UI around the Zapper (status banners, custom loaders, analytics). `data` is `{ input: { token, amount, value }, quote, source }` — `input` (including its USD `value`) is available as soon as the user types, while `quote`/`source` populate once a quote resolves. Also exports the `QuoteData`, `QuoteInput`, `UseQuoteResult`, and `ZapResult` types.
+
+### Changed
+
+- `react` and `react-dom` are now `peerDependencies` (previously bundled in `dependencies`), preventing duplicate-React issues in host apps. Removed the unused `@tanstack/query-core` dependency.
+- Bumped peer floors to `wagmi ^2.19.0` and `viem ^2.50.0`; the package is now built and tested against `wagmi 2.19.5` + `viem 2.50.4`.
+- Raised the pnpm `minimumReleaseAge` supply-chain guard from 24h to 7 days.
+
+### Fixed
+
+- `usePrice` now returns native-token prices (ETH, BNB, Base ETH). It was rewriting the native sentinel address (`0xEeee…EEeE`) to the zero address before calling the Reserve price API, which has no price at the zero address — zeroing out every native-token price on all chains.
+
 ## [1.7.2] - 2026-05-18
 
 ### Added
