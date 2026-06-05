@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect } from 'react'
+import useMediaQuery from '../hooks/useMediaQuery'
 import { ZapperProps } from '../types'
 import { useTrackIndexDTFZapClick } from '../utils/tracking'
 import { Button } from './ui/button'
@@ -11,12 +12,14 @@ import {
   defaultSelectedTokenAtom,
   openZapMintModalAtom,
   selectedTokenAtom,
+  showContactInfoAtom,
   showZapSettingsAtom,
   tokenInAtom,
   tokenOutAtom,
   zapFetchingAtom,
   zapMintInputAtom,
   zapOngoingTxAtom,
+  zapTxReceiptAtom,
   zapperCurrentTabAtom,
   zapRefetchAtom,
 } from './zap-mint/atom'
@@ -24,6 +27,7 @@ import Buy from './zap-mint/buy'
 import LowLiquidityWarning from './zap-mint/low-liquidity-warning'
 import RefreshQuote from './zap-mint/refresh-quote'
 import Sell from './zap-mint/sell'
+import SubscribeUpdates from './zap-mint/subscribe-updates'
 import ZapHealthcheck from './zap-mint/zap-healthcheck'
 import ZapSettings from './zap-mint/zap-settings'
 
@@ -52,11 +56,42 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
   const tokenIn = useAtomValue(tokenInAtom)
   const tokenOut = useAtomValue(tokenOutAtom)
 
+  const showContactInfo = useAtomValue(showContactInfoAtom)
+  const [txReceipt, setTxReceipt] = useAtom(zapTxReceiptAtom)
+  // Below 900px the side sheet would overflow the viewport, so fall back to the
+  // stacked mobile card (rendered inside the modal by ZapSuccess).
+  const isWideScreen = useMediaQuery('(min-width: 900px)')
+  // Contact sheet peeks out from behind the modal after a successful mint (buy).
+  // Inline mode never uses the sheet — it renders the stacked card via ZapSuccess.
+  const showContactSheet =
+    !!txReceipt &&
+    currentTab === 'buy' &&
+    showContactInfo &&
+    isWideScreen &&
+    mode !== 'inline'
+
   const { trackClick } = useTrackIndexDTFZapClick('overview')
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
+    if (!newOpen) setTxReceipt(undefined)
   }
+
+  const contactSheet = showContactSheet ? (
+    <div
+      key="contact-sheet"
+      className="absolute top-0 left-full -z-10 -ml-8 flex h-full w-[400px] flex-col overflow-y-auto rounded-r-2xl bg-secondary text-secondary-foreground pl-10 pr-2 pt-6 pb-2 shadow-lg animate-slide-in-right"
+    >
+      <SubscribeUpdates />
+    </div>
+  ) : null
+
+  // When the sheet opens, shift the centered modal left by half the sheet's
+  // visible width (~184px) so the modal+sheet pair stays centered, animated in
+  // sync with the slide (both 500ms ease-out).
+  const dialogContentClass = `p-0 bg-transparent border-none shadow-none overflow-visible transition-[margin] duration-500 ease-out ${
+    showContactSheet ? 'ml-[-184px]' : 'ml-0'
+  }`
 
   const handleClose = () => {
     handleOpenChange(false)
@@ -146,10 +181,10 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
             <LowLiquidityWarning className="mt-2" />
             <ZapHealthcheck className="mt-2" />
             <TabsContent value="buy">
-              <Buy disabled={disabled} />
+              <Buy mode="inline" disabled={disabled} />
             </TabsContent>
             <TabsContent value="sell">
-              <Sell sellOnly={sellOnly} disabled={disabled} />
+              <Sell mode="inline" sellOnly={sellOnly} disabled={disabled} />
             </TabsContent>
           </div>
         </div>
@@ -169,58 +204,61 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
           )}
         </div>
         <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogContent
-            showClose={false}
-            className="p-2 rounded-t-2xl sm:rounded-3xl border-none"
-          >
-            <DialogTitle className="flex justify-between gap-2 sm:p-0">
-              {showSettings ? (
-                <Button
-                  variant="outline"
-                  className="h-[34px] px-2 rounded-xl"
-                  onClick={() => setShowSettings(false)}
-                >
-                  <ArrowLeft size={16} />
-                </Button>
-              ) : (
-                <div className="flex justify-between gap-1">
+          <DialogContent showClose={false} className={dialogContentClass}>
+            <div
+              key="zap-modal-box"
+              className="relative z-10 flex w-full flex-col gap-2 rounded-t-2xl sm:rounded-3xl bg-background p-2 shadow-lg"
+            >
+              <DialogTitle className="flex justify-between gap-2 sm:p-0">
+                {showSettings ? (
                   <Button
                     variant="outline"
                     className="h-[34px] px-2 rounded-xl"
-                    onClick={handleSettingsClick}
+                    onClick={() => setShowSettings(false)}
                   >
-                    <Settings size={16} />
+                    <ArrowLeft size={16} />
                   </Button>
-                  <RefreshQuote
-                    small
-                    onClick={handleRefreshClick}
-                    loading={zapFetching}
-                    disabled={zapFetching || zapOngoingTx || invalidInput}
-                  />
-                </div>
-              )}
-              <Button
-                variant="outline"
-                className="h-[34px] px-2 rounded-xl"
-                onClick={handleClose}
-              >
-                <X size={16} />
-              </Button>
-            </DialogTitle>
-
-            {showSettings && <ZapSettings />}
-
-            <div className={showSettings ? 'hidden' : 'opacity-100'}>
-              <div className="flex flex-col gap-2">
-                <LowLiquidityWarning />
-                <ZapHealthcheck />
-                {effectiveTab === 'buy' ? (
-                  <Buy disabled={disabled} />
                 ) : (
-                  <Sell sellOnly={sellOnly} disabled={disabled} />
+                  <div className="flex justify-between gap-1">
+                    <Button
+                      variant="outline"
+                      className="h-[34px] px-2 rounded-xl"
+                      onClick={handleSettingsClick}
+                    >
+                      <Settings size={16} />
+                    </Button>
+                    <RefreshQuote
+                      small
+                      onClick={handleRefreshClick}
+                      loading={zapFetching}
+                      disabled={zapFetching || zapOngoingTx || invalidInput}
+                    />
+                  </div>
                 )}
+                <Button
+                  variant="outline"
+                  className="h-[34px] px-2 rounded-xl"
+                  onClick={handleClose}
+                >
+                  <X size={16} />
+                </Button>
+              </DialogTitle>
+
+              {showSettings && <ZapSettings />}
+
+              <div className={showSettings ? 'hidden' : 'opacity-100'}>
+                <div className="flex flex-col gap-2">
+                  <LowLiquidityWarning />
+                  <ZapHealthcheck />
+                  {effectiveTab === 'buy' ? (
+                    <Buy disabled={disabled} />
+                  ) : (
+                    <Sell sellOnly={sellOnly} disabled={disabled} />
+                  )}
+                </div>
               </div>
             </div>
+            {contactSheet}
           </DialogContent>
         </Dialog>
       </>
@@ -230,58 +268,61 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
   // Modal mode content
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
-        showClose={false}
-        className="p-2 rounded-t-2xl sm:rounded-3xl border-none"
-      >
-        <DialogTitle className="flex justify-between gap-2 sm:p-0">
-          {showSettings ? (
-            <Button
-              variant="outline"
-              className="h-[34px] px-2 rounded-xl"
-              onClick={() => setShowSettings(false)}
-            >
-              <ArrowLeft size={16} />
-            </Button>
-          ) : (
-            <div className="flex justify-between gap-1">
+      <DialogContent showClose={false} className={dialogContentClass}>
+        <div
+          key="zap-modal-box"
+          className="relative z-10 flex w-full flex-col gap-2 rounded-t-2xl sm:rounded-2xl bg-background p-2 shadow-lg"
+        >
+          <DialogTitle className="flex justify-between gap-2 sm:p-0">
+            {showSettings ? (
               <Button
                 variant="outline"
                 className="h-[34px] px-2 rounded-xl"
-                onClick={handleSettingsClick}
+                onClick={() => setShowSettings(false)}
               >
-                <Settings size={16} />
+                <ArrowLeft size={16} />
               </Button>
-              <RefreshQuote
-                small
-                onClick={handleRefreshClick}
-                loading={zapFetching}
-                disabled={zapFetching || zapOngoingTx || invalidInput}
-              />
-            </div>
-          )}
-          <Button
-            variant="outline"
-            className="h-[34px] px-2 rounded-xl"
-            onClick={handleClose}
-          >
-            <X size={16} />
-          </Button>
-        </DialogTitle>
-
-        {showSettings && <ZapSettings />}
-
-        <div className={showSettings ? 'hidden' : 'opacity-100'}>
-          <div className="flex flex-col gap-2">
-            <LowLiquidityWarning />
-            <ZapHealthcheck />
-            {effectiveTab === 'buy' ? (
-              <Buy disabled={disabled} />
             ) : (
-              <Sell sellOnly={sellOnly} disabled={disabled} />
+              <div className="flex justify-between gap-1">
+                <Button
+                  variant="outline"
+                  className="h-[34px] px-2 rounded-xl"
+                  onClick={handleSettingsClick}
+                >
+                  <Settings size={16} />
+                </Button>
+                <RefreshQuote
+                  small
+                  onClick={handleRefreshClick}
+                  loading={zapFetching}
+                  disabled={zapFetching || zapOngoingTx || invalidInput}
+                />
+              </div>
             )}
+            <Button
+              variant="outline"
+              className="h-[34px] px-2 rounded-xl"
+              onClick={handleClose}
+            >
+              <X size={16} />
+            </Button>
+          </DialogTitle>
+
+          {showSettings && <ZapSettings />}
+
+          <div className={showSettings ? 'hidden' : 'opacity-100'}>
+            <div className="flex flex-col gap-2">
+              <LowLiquidityWarning />
+              <ZapHealthcheck />
+              {effectiveTab === 'buy' ? (
+                <Buy disabled={disabled} />
+              ) : (
+                <Sell sellOnly={sellOnly} disabled={disabled} />
+              )}
+            </div>
           </div>
         </div>
+        {contactSheet}
       </DialogContent>
     </Dialog>
   )
@@ -298,6 +339,7 @@ export const Zapper: React.FC<ZapperProps> = ({
   debug,
   sellOnly,
   disabled,
+  showContactInfo,
 }) => {
   return (
     <>
@@ -311,6 +353,7 @@ export const Zapper: React.FC<ZapperProps> = ({
         debug={debug}
         mode={mode}
         sellOnly={sellOnly}
+        showContactInfo={showContactInfo}
       />
       <ZapperContent mode={mode} sellOnly={sellOnly} disabled={disabled} />
     </>

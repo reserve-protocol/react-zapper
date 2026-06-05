@@ -109,3 +109,7 @@ export const PRICE_IMPACT_THRESHOLD = 3
 
 // Hardcoded Mixpanel token for analytics
 export const MIXPANEL_TOKEN = 'e65e717c4fda5362acaa778bf27d9801'
+
+// Worker endpoint that stores user contact details for DTF updates
+export const UPDATES_STORAGE_URL =
+  'https://contentful-storage.reserve-337.workers.dev/'

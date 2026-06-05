@@ -12,6 +12,17 @@ export function explorerUrl(chainId: AvailableChain, addr: string) {
   return `${url}/address/${addr}`
 }
 
+export function transactionUrl(chainId: AvailableChain, hash: string) {
+  const url = {
+    [mainnet.id]: mainnet,
+    [base.id]: base,
+    [bsc.id]: bsc,
+    [arbitrum.id]: arbitrum,
+  }[chainId].blockExplorers.default.url
+
+  return `${url}/tx/${hash}`
+}
+
 export function dexscreenerUrl(chainId: AvailableChain, addr: string) {
   const chain = {
     [mainnet.id]: 'ethereum',

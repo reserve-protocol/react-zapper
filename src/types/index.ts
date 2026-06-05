@@ -27,6 +27,8 @@ export interface ZapperProps {
   defaultSource?: QuoteSource
   sellOnly?: boolean
   disabled?: boolean
+  /** Show the "Stay informed" contact-capture panel after a successful mint. Defaults to true. */
+  showContactInfo?: boolean
 }
 
 export interface UseZapperModalReturn {

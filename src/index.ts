@@ -2,7 +2,6 @@ import './styles/index.css'
 
 export { Zapper, ZapperContent, Updaters } from './components/zapper'
 export { useZapperModal } from './hooks/use-zapper-modal'
-export { Toaster } from './components/ui/sonner'
 export { usePrice } from './hooks/usePrice'
 export { useQuote } from './hooks/useQuote'
 export type { UseQuoteResult, QuoteData, QuoteInput } from './hooks/useQuote'

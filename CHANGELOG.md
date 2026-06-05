@@ -1,3 +1,15 @@
+## [2.1.0] - 2026-06-04
+
+### Added
+
+- Post-transaction success view: on a confirmed zap the Zapper keeps the flow in place and shows what actually happened. The boxes switch to "You used" / "You received", the received amount is read from the transaction logs (the exact output token credited to the wallet) with the realized price impact, the quote details are hidden, and an inline success bar (`✓ Successful Purchase` / `Successful Sale`) links to the block explorer. Reopening the Zapper starts fresh.
+- After a mint, a "Stay informed" contact-capture panel where users can leave a Telegram, X, or email contact to receive updates about the DTF. On wider screens (≥900px) in modal/simple mode it slides out from behind the modal (secondary background) and the modal+panel pair recenters; inline mode and narrow screens render it as a stacked card. Toggle with the new `showContactInfo` prop (defaults to `true`). Submissions POST to Reserve's storage worker and fail silently for the user.
+- Mixpanel events for the contact feature (`tap` event, `subpage: 'contact'`): `zap_contact_submit`, `zap_contact_subscribed`, `zap_contact_error`, each carrying `ca`, `ticker`, `chain`, and the chosen `platform`.
+
+### Removed
+
+- **Breaking:** removed the `Toaster` export and the `sonner` / `next-themes` dependencies. The package no longer renders toasts; success and errors are shown inline. Remove any `import { Toaster } from '@reserve-protocol/react-zapper'` and its usage — you no longer need to mount a toaster or install `sonner`.
+
 ## [2.0.0] - 2026-06-02
 
 ### Breaking Changes

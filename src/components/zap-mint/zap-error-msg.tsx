@@ -4,7 +4,6 @@ import zapper, { ReportPayload } from '@/types/api'
 import { formatCurrency, formatToSignificantDigits } from '@/utils'
 import { useAtomValue } from 'jotai'
 import { ReactNode, useMemo, useState } from 'react'
-import { toast } from 'sonner'
 import {
   apiUrlAtom,
   chainIdAtom,
@@ -42,6 +41,7 @@ const ERROR_MAP = {
 const ReportButton = ({ error }: { error?: string }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [hasReported, setHasReported] = useState(false)
+  const [reportFailed, setReportFailed] = useState(false)
 
   const chainId = useAtomValue(chainIdAtom)
   const apiUrl = useAtomValue(apiUrlAtom)
@@ -63,6 +63,7 @@ const ReportButton = ({ error }: { error?: string }) => {
     if (hasReported || !error || !sessionId || !quoteId || !retryId) return
 
     setIsLoading(true)
+    setReportFailed(false)
 
     try {
       const payload: ReportPayload = {
@@ -92,28 +93,34 @@ const ReportButton = ({ error }: { error?: string }) => {
 
       if (response.ok) {
         setHasReported(true)
-        toast.success(
-          'Report sent successfully. Thank you for helping us improve!'
-        )
       } else {
-        toast.error('Failed to send report. Please try again.')
+        setReportFailed(true)
       }
     } catch (err) {
       console.error('Error sending report:', err)
-      toast.error('Failed to send report. Please try again.')
+      setReportFailed(true)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <Button
-      className="rounded-full h-8 px-3"
-      onClick={handleReport}
-      disabled={isLoading || hasReported || !sessionId || !quoteId || !retryId}
-    >
-      {isLoading ? 'Sending...' : hasReported ? 'Reported' : 'Report'}
-    </Button>
+    <div className="flex flex-col items-end gap-0.5">
+      <Button
+        className="rounded-full h-8 px-3"
+        onClick={handleReport}
+        disabled={
+          isLoading || hasReported || !sessionId || !quoteId || !retryId
+        }
+      >
+        {isLoading ? 'Sending...' : hasReported ? 'Reported' : 'Report'}
+      </Button>
+      {reportFailed && (
+        <span className="text-red-500 text-[10px]">
+          Failed to send. Try again.
+        </span>
+      )}
+    </div>
   )
 }
 

@@ -39,7 +39,7 @@ context — it does **not** create its own. You provide a `WagmiProvider` and a
 Import the components you need and the CSS file for styling:
 
 ```tsx
-import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
+import { Zapper, useZapperModal } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/styles.css'
 ```
 
@@ -88,7 +88,7 @@ function App({ children }: { children: React.ReactNode }) {
 ### 2. Basic Modal Usage
 
 ```tsx
-import { Zapper, useZapperModal, Toaster } from '@reserve-protocol/react-zapper'
+import { Zapper, useZapperModal } from '@reserve-protocol/react-zapper'
 import '@reserve-protocol/react-zapper/styles.css'
 
 function MyApp() {
@@ -103,8 +103,6 @@ function MyApp() {
       />
 
       <button onClick={open}>Open Zapper</button>
-
-      <Toaster position="bottom-right" />
     </>
   )
 }
@@ -162,6 +160,7 @@ Simple mode features:
 | `zapperApiUrl`   | `string`                        | ❌       | Custom zapper service endpoint for zapper-specific API calls (falls back to `apiUrl`) |
 | `sellOnly`       | `boolean`                       | ❌       | Only show the sell (redeem) flow               |
 | `disabled`       | `boolean`                       | ❌       | Disable primary zap actions, wallet/chain actions, amount inputs, and Max buttons |
+| `showContactInfo`| `boolean`                       | ❌       | Show the "Stay informed" contact-capture panel after a successful mint (defaults to `true`) |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |
@@ -260,21 +259,22 @@ package's internal state); no extra providers are required.
 
 ## Advanced Usage
 
-### With Custom Error Handling
+### Transaction Feedback
 
-```tsx
-import { Zapper, Toaster } from '@reserve-protocol/react-zapper'
-import { toast } from 'sonner'
+The Zapper renders all transaction feedback inline — no toaster setup required
+(there is no `Toaster` export and `sonner` is no longer a dependency).
 
-function AdvancedZapper() {
-  return (
-    <>
-      <Zapper chain={1} dtfAddress="0x123..." mode="modal" />
-      <Toaster />
-    </>
-  )
-}
-```
+On a successful transaction the flow stays in place and switches to a success
+view: the boxes read "You used" / "You received", the received amount is taken
+from the transaction logs (the exact output token credited to the wallet) with
+the realized price impact, and an inline success bar links to the block explorer.
+Errors are rendered inline as well. The state resets when the Zapper is
+closed/reopened.
+
+After a mint, a "Stay informed" panel lets users leave a contact (Telegram, X, or
+email) for DTF updates. Hide it with `showContactInfo={false}`. Submissions fail
+silently for the user and emit Mixpanel events (`zap_contact_submit`,
+`zap_contact_subscribed`, `zap_contact_error`).
 
 ### With Custom API Endpoint
 
