@@ -1,5 +1,6 @@
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
+import type { TransactionReceipt } from 'viem'
 import type { UseQuoteResult } from '../../hooks/useQuote'
 import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
 import { Token, TokenBalance } from '../../types'
@@ -15,8 +16,9 @@ export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)
 export const showContactInfoAtom = atom<boolean>(true)
-// True after a successful mint; drives the contact sheet behind the modal.
-export const zapMintSuccessAtom = atom<boolean>(false)
+// Receipt of the last successful zap; drives the success view (actual received
+// amount from logs, "You received" labels) and the contact sheet.
+export const zapTxReceiptAtom = atom<TransactionReceipt | undefined>(undefined)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)
 export const defaultSelectedTokenAtom = atom<Token>((get) => {

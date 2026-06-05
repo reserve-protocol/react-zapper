@@ -16,11 +16,13 @@ import { selectedTokenOrDefaultAtom } from './atom'
 export const ZapPriceImpact = ({
   data,
   isDetail = false,
+  priceImpact: priceImpactOverride,
 }: {
   data?: ZapResult
   isDetail?: boolean
+  priceImpact?: number
 }) => {
-  const priceImpact = data?.truePriceImpact || 0
+  const priceImpact = priceImpactOverride ?? data?.truePriceImpact ?? 0
   const priceImpactColor =
     priceImpact > 10
       ? 'text-red-500'

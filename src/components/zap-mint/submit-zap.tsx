@@ -28,8 +28,8 @@ import {
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
   zapMintInputCachedAtom,
-  zapMintSuccessAtom,
   zapOngoingTxAtom,
+  zapTxReceiptAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
   zapRefetchAtom,
@@ -144,7 +144,7 @@ const SubmitZapButton = ({
 
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
-  const setMintSuccess = useSetAtom(zapMintSuccessAtom)
+  const setTxReceipt = useSetAtom(zapTxReceiptAtom)
   const setInputAmountCached = useSetAtom(zapMintInputCachedAtom)
   const refetchQuote = useAtomValue(zapRefetchAtom)
 
@@ -270,18 +270,17 @@ const SubmitZapButton = ({
     if (receipt?.status === 'success' && !successHandledRef.current) {
       successHandledRef.current = true
       track('zap_success_notification', inputSymbol, outputSymbol, source)
-      if (currentTab === 'buy') setMintSuccess(true)
+      setTxReceipt(receipt)
       onSuccess?.()
     }
   }, [
-    receipt?.status,
+    receipt,
     inputSymbol,
     outputSymbol,
     source,
     track,
     onSuccess,
-    currentTab,
-    setMintSuccess,
+    setTxReceipt,
   ])
 
   useEffect(() => {
@@ -354,7 +353,7 @@ const SubmitZapButton = ({
         onClick={() => {
           if (disabled) return
           setOngoingTx(true)
-          setMintSuccess(false)
+          setTxReceipt(undefined)
           if (readyToSubmit) {
             trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
             execute()

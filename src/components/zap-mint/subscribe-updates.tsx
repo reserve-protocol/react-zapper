@@ -8,11 +8,18 @@ import {
   PackageOpen,
   ScrollText,
 } from 'lucide-react'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
-import { indexDTFAtom, walletAtom } from '../../state/atoms'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { formatEther } from 'viem'
+import {
+  chainIdAtom,
+  indexDTFAtom,
+  indexDTFPriceAtom,
+  walletAtom,
+} from '../../state/atoms'
 import { cn } from '../../utils/cn'
 import { UPDATES_STORAGE_URL } from '../../utils/constants'
-import DiscordColorIcon from '../icons/DiscordColorIcon'
+import { formatCurrency } from '../../utils/format'
+import { getReceivedAmount } from '../../utils/receipt'
 import TelegramIcon from '../icons/TelegramIcon'
 import XIcon from '../icons/XIcon'
 import { Button } from '../ui/button'
@@ -23,10 +30,10 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Input } from '../ui/input'
-import { zapQuoteStateAtom } from './atom'
+import { zapQuoteStateAtom, zapTxReceiptAtom } from './atom'
 
 type SocialMediaOption = {
-  key: string
+  key: 'telegram' | 'twitter' | 'email'
   name: string
   placeholder: string
   icon: ReactNode
@@ -44,12 +51,6 @@ const SOCIAL_MEDIA_OPTIONS: SocialMediaOption[] = [
     name: 'x.com',
     placeholder: 'x.com username',
     icon: <XIcon height={16} width={16} />,
-  },
-  {
-    key: 'discord',
-    name: 'Discord',
-    placeholder: 'Discord username',
-    icon: <DiscordColorIcon />,
   },
   {
     key: 'email',
@@ -99,7 +100,10 @@ const Dropdown = ({
 
 const SubscribeUpdates = ({ className }: { className?: string }) => {
   const account = useAtomValue(walletAtom)
+  const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
+  const dtfPrice = useAtomValue(indexDTFPriceAtom)
+  const txReceipt = useAtomValue(zapTxReceiptAtom)
   const quote = useAtomValue(zapQuoteStateAtom)
 
   const [value, setValue] = useState('')
@@ -109,9 +113,22 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
     SOCIAL_MEDIA_OPTIONS[0]
   )
 
-  const usdValue = quote.data?.input.value ?? 0
-  const inSymbol = quote.data?.input.token.symbol ?? ''
-  const outSymbol = indexDTF?.token.symbol ?? ''
+  const dtfSymbol = indexDTF?.token.symbol ?? ''
+  const txHash = txReceipt?.transactionHash ?? ''
+
+  // USD value of the DTF actually received (from the tx logs), falling back to
+  // the quoted output value if the transfer can't be read.
+  const receivedRaw = useMemo(
+    () =>
+      txReceipt && indexDTF && account
+        ? getReceivedAmount(txReceipt.logs, indexDTF.id, account)
+        : 0n,
+    [txReceipt, indexDTF, account]
+  )
+  const outputValue =
+    receivedRaw > 0n
+      ? Number(formatEther(receivedRaw)) * (dtfPrice || 0)
+      : quote.data?.quote?.amountOutValue ?? 0
 
   useEffect(() => {
     if (copied) {
@@ -121,7 +138,7 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
   }, [copied])
 
   const handleSubmit = useCallback(
-    async (key: string) => {
+    async (key: SocialMediaOption['key']) => {
       if (!value) return
       setSubmitted(true)
       try {
@@ -130,8 +147,13 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             address: account,
-            amount: `$${usdValue} in ${inSymbol} used to mint ${outSymbol}`,
-            [key]: value,
+            value: `$${formatCurrency(outputValue)}`,
+            dtf: dtfSymbol,
+            chainId,
+            txHash,
+            telegram: key === 'telegram' ? value : '',
+            twitter: key === 'twitter' ? value : '',
+            email: key === 'email' ? value : '',
           }),
         })
       } catch (error) {
@@ -139,7 +161,7 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
         console.error('Error submitting data:', error)
       }
     },
-    [value, account, usdValue, inSymbol, outSymbol]
+    [value, account, outputValue, dtfSymbol, chainId, txHash]
   )
 
   return (
@@ -149,7 +171,7 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
         <div className="flex-1" />
         <div className="flex flex-col gap-1">
           <p className="text-[20px] font-medium leading-[27px] text-primary">
-            Stay informed about {outSymbol}
+            Stay informed about {dtfSymbol}
           </p>
           <p className="text-base text-secondary-foreground font-light">
             Get relevant updates about changes that might affet this DTF.

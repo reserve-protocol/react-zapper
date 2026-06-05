@@ -18,8 +18,8 @@ import {
   tokenOutAtom,
   zapFetchingAtom,
   zapMintInputAtom,
-  zapMintSuccessAtom,
   zapOngoingTxAtom,
+  zapTxReceiptAtom,
   zapperCurrentTabAtom,
   zapRefetchAtom,
 } from './zap-mint/atom'
@@ -57,20 +57,24 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
   const tokenOut = useAtomValue(tokenOutAtom)
 
   const showContactInfo = useAtomValue(showContactInfoAtom)
-  const [mintSuccess, setMintSuccess] = useAtom(zapMintSuccessAtom)
+  const [txReceipt, setTxReceipt] = useAtom(zapTxReceiptAtom)
   // Below 900px the side sheet would overflow the viewport, so fall back to the
   // stacked mobile card (rendered inside the modal by ZapSuccess).
   const isWideScreen = useMediaQuery('(min-width: 900px)')
-  // Contact sheet peeks out from behind the modal on wider screens after a mint.
+  // Contact sheet peeks out from behind the modal after a successful mint (buy).
   // Inline mode never uses the sheet — it renders the stacked card via ZapSuccess.
   const showContactSheet =
-    mintSuccess && showContactInfo && isWideScreen && mode !== 'inline'
+    !!txReceipt &&
+    currentTab === 'buy' &&
+    showContactInfo &&
+    isWideScreen &&
+    mode !== 'inline'
 
   const { trackClick } = useTrackIndexDTFZapClick('overview')
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
-    if (!newOpen) setMintSuccess(false)
+    if (!newOpen) setTxReceipt(undefined)
   }
 
   const contactSheet = showContactSheet ? (
