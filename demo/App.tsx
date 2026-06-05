@@ -1,6 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import {
-  Toaster,
   useZapperModal,
   PROVIDERS,
   type ProviderId,
@@ -72,6 +71,7 @@ function App() {
   const [zapperApiUrl, setZapperApiUrl] = useState(ZAPPER_API_URLS[0].value)
   const [mode, setMode] = useState<'modal' | 'inline' | 'simple'>('inline')
   const [sellOnly, setSellOnly] = useState(false)
+  const [showContactInfo, setShowContactInfo] = useState(true)
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -314,6 +314,33 @@ function App() {
                   When enabled, disables Buy tab and only allows selling/redeeming
                 </p>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Show Contact Info
+                </label>
+                <Select
+                  value={showContactInfo.toString()}
+                  onValueChange={(value) =>
+                    setShowContactInfo(value === 'true')
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[true, false]
+                      .map((v) => v.toString())
+                      .map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Shows the "Stay informed" contact panel after a successful mint
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -346,6 +373,7 @@ function App() {
                     defaultSource={quoteSource}
                     debug={debug}
                     sellOnly={sellOnly}
+                    showContactInfo={showContactInfo}
                   />
                   <Button onClick={open} className="w-full rounded-xl" size="lg">
                     Open Zapper Modal
@@ -362,6 +390,7 @@ function App() {
                     debug={debug}
                     defaultSource={quoteSource}
                     sellOnly={sellOnly}
+                    showContactInfo={showContactInfo}
                   />
                 </div>
               )}
@@ -372,7 +401,6 @@ function App() {
           </>
         )}
       </div>
-      <Toaster position="bottom-right" />
     </div>
   )
 }

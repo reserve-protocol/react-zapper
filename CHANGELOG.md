@@ -1,3 +1,18 @@
+## [2.1.0] - 2026-06-04
+
+### Added
+
+- After a mint, the Zapper now shows a "Stay informed about this DTF" section where users can leave a contact (Telegram, X, Discord, or email) to receive relevant updates about the DTF. In modal/simple modes on wider screens it slides out as a panel from the right of the modal (secondary background); inline mode and mobile render it as a stacked card.
+- `showContactInfo` prop (defaults to `true`) to show/hide the contact-capture panel.
+
+### Changed
+
+- On a successful transaction the Zapper now keeps the flow state in place and renders an inline success bar (`✓ Successful Purchase` / `Successful Sale` with a link to the block explorer) where the call-to-action button used to be, instead of closing the modal / resetting the form and firing a toast. Reopening the Zapper starts fresh with no flash of stale data.
+
+### Removed
+
+- **Breaking:** removed the `Toaster` export and the `sonner` / `next-themes` dependencies. The package no longer renders toasts; success is shown inline (see above) and errors continue to render inline. Remove any `import { Toaster } from '@reserve-protocol/react-zapper'` and its usage — you no longer need to mount a toaster or install `sonner`.
+
 ## [2.0.0] - 2026-06-02
 
 ### Breaking Changes

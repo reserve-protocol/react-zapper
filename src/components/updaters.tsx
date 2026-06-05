@@ -26,6 +26,7 @@ import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
 import {
   sellOnlyAtom,
+  showContactInfoAtom,
   zapperCurrentTabAtom,
   zapperDebugAtom,
 } from './zap-mint/atom'
@@ -46,6 +47,7 @@ interface UpdatersProps {
   debug?: boolean
   mode?: 'modal' | 'inline' | 'simple'
   sellOnly?: boolean
+  showContactInfo?: boolean
 }
 
 const IndexDTFMetadataUpdater: React.FC<{
@@ -235,6 +237,20 @@ const SellOnlyUpdater = ({ sellOnly }: { sellOnly?: boolean }) => {
   return null
 }
 
+const ContactInfoUpdater = ({
+  showContactInfo,
+}: {
+  showContactInfo?: boolean
+}) => {
+  const setShowContactInfo = useSetAtom(showContactInfoAtom)
+
+  useEffect(() => {
+    setShowContactInfo(showContactInfo ?? true)
+  }, [showContactInfo, setShowContactInfo])
+
+  return null
+}
+
 const Updaters: React.FC<UpdatersProps> = ({
   dtfAddress,
   chainId,
@@ -245,6 +261,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   debug,
   mode = 'modal',
   sellOnly,
+  showContactInfo,
 }) => {
   return (
     <>
@@ -259,6 +276,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <QuoteSourceUpdater defaultSource={defaultSource} />
       <DebugUpdater debug={debug} />
       <SellOnlyUpdater sellOnly={sellOnly} />
+      <ContactInfoUpdater showContactInfo={showContactInfo} />
       <SessionTracker mode={mode} />
     </>
   )

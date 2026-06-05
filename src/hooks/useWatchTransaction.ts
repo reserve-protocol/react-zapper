@@ -4,18 +4,11 @@ import { chainIdAtom } from '../state/atoms'
 import { CHAIN_TAGS } from '../utils/chains'
 import { Hex, TransactionReceipt } from 'viem'
 import { useWaitForTransactionReceipt } from 'wagmi'
-import useNotification from './use-notification'
 import { mixpanelTrack } from '@/utils'
 
 interface WatchOptions {
   hash: Hex | undefined
   label: ReactNode
-  successMessage?: {
-    title: string
-    subtitle?: string
-    type?: 'success' | 'error'
-    icon?: ReactNode
-  }
 }
 
 interface WatchResult {
@@ -25,15 +18,10 @@ interface WatchResult {
   error?: string
 }
 
-// Watch tx status, send notifications and track history
-const useWatchTransaction = ({
-  hash,
-  label,
-  successMessage,
-}: WatchOptions): WatchResult => {
-  const notify = useNotification()
+// Watch tx status and track history
+const useWatchTransaction = ({ hash, label }: WatchOptions): WatchResult => {
   const chainId = useAtomValue(chainIdAtom)
-  const notifiedRef = useRef<{ [key: string]: boolean }>({})
+  const trackedRef = useRef<{ [key: string]: boolean }>({})
 
   const {
     data,
@@ -47,18 +35,12 @@ const useWatchTransaction = ({
   useEffect(() => {
     if (!hash) return
 
-    const notificationKey = `${hash}-${status}`
+    const trackKey = `${hash}-${status}`
 
-    if (notifiedRef.current[notificationKey]) return
+    if (trackedRef.current[trackKey]) return
 
     if (status === 'success' && data) {
-      notifiedRef.current[notificationKey] = true
-      notify(
-        successMessage?.title ?? `Transaction confirmed`,
-        successMessage?.subtitle ?? `At block ${Number(data.blockNumber)}`,
-        successMessage?.type ?? 'success',
-        successMessage?.icon
-      )
+      trackedRef.current[trackKey] = true
       mixpanelTrack('transaction', {
         product: label,
         action: 'transaction_succeeded',
@@ -70,8 +52,7 @@ const useWatchTransaction = ({
         },
       })
     } else if (status === 'error') {
-      notifiedRef.current[notificationKey] = true
-      notify(`Transaction reverted`, error?.message ?? 'Unknown error', 'error')
+      trackedRef.current[trackKey] = true
       mixpanelTrack('transaction', {
         product: label,
         action: 'transaction_reverted',
@@ -83,19 +64,7 @@ const useWatchTransaction = ({
         },
       })
     }
-  }, [
-    hash,
-    data,
-    status,
-    error,
-    notify,
-    successMessage?.title,
-    successMessage?.subtitle,
-    successMessage?.type,
-    successMessage?.icon,
-    label,
-    chainId,
-  ])
+  }, [hash, data, status, error, label, chainId])
 
   return {
     data,

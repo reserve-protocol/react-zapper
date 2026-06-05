@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
@@ -19,7 +19,6 @@ import Swap from '../../ui/swap'
 import {
   forceMintAtom,
   indexDTFBalanceAtom,
-  openZapMintModalAtom,
   openingFromSimpleModeAtom,
   selectedTokenAtom,
   selectedTokenOrDefaultAtom,
@@ -65,7 +64,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
-  const setOpen = useSetAtom(openZapMintModalAtom)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(indxDTFParsedBalance)
 
@@ -193,11 +191,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     mode,
   ])
 
-  const onSuccess = useCallback(() => {
-    setInputAmount('')
-    setOpen(false)
-  }, [setInputAmount, setOpen])
-
   if (!indexDTF) return <Skeleton className="h-64" />
 
   return (
@@ -228,10 +221,11 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
           value: formatUnits(BigInt(valueTo || 0), selectedToken.decimals),
           tokens,
           onTokenSelect: handleTokenSelect,
+          disabled: disabled || ongoingTx,
         }}
         onSwap={sellOnly ? undefined : changeTab}
         loading={isLoading || loadingAfterRefetch}
-        disabled={disabled}
+        disabled={disabled || ongoingTx}
       />
       {mode !== 'simple' && !!data?.result && (
         <ZapDetails data={data.result} source={data.source} />
@@ -251,7 +245,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
         fetchingZapper={isLoading}
         insufficientBalance={insufficientBalance}
         zapperErrorMessage={mode === 'simple' ? '' : zapperErrorMessage}
-        onSuccess={onSuccess}
         mode={mode}
         disabled={disabled}
       />

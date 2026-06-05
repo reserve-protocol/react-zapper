@@ -14,6 +14,9 @@ export const indexDTFBalanceAtom = atom<bigint>(0n)
 export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)
+export const showContactInfoAtom = atom<boolean>(true)
+// True after a successful mint; drives the contact sheet behind the modal.
+export const zapMintSuccessAtom = atom<boolean>(false)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)
 export const defaultSelectedTokenAtom = atom<Token>((get) => {

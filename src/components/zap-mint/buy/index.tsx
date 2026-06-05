@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { formatEther, parseUnits } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
@@ -15,7 +15,6 @@ import {
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
-  openZapMintModalAtom,
   openingFromSimpleModeAtom,
   selectedTokenAtom,
   selectedTokenBalanceAtom,
@@ -60,7 +59,6 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
-  const setOpen = useSetAtom(openZapMintModalAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
   const inputValue = (selectedTokenPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(selectedTokenBalance?.balance || '0')
@@ -184,11 +182,6 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
     mode,
   ])
 
-  const onSuccess = useCallback(() => {
-    setInputAmount('')
-    setOpen(false)
-  }, [setInputAmount, setOpen])
-
   if (!indexDTF) return <Skeleton className="h-64" />
 
   return (
@@ -225,7 +218,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
         }}
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
-        disabled={disabled}
+        disabled={disabled || ongoingTx}
       />
       {mode !== 'simple' && !!data?.result && (
         <ZapDetails data={data.result} source={data.source} />
@@ -243,7 +236,6 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
         fetchingZapper={isLoading}
         insufficientBalance={insufficientBalance}
         zapperErrorMessage={mode === 'simple' ? '' : zapperErrorMessage}
-        onSuccess={onSuccess}
         mode={mode}
         disabled={disabled}
       />

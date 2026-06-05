@@ -100,7 +100,10 @@ const TokenSelector = ({
   symbol = '',
   tokens,
   onTokenSelect,
-}: Pick<SwapItem, 'address' | 'symbol' | 'tokens' | 'onTokenSelect'>) => {
+  disabled = false,
+}: Pick<SwapItem, 'address' | 'symbol' | 'tokens' | 'onTokenSelect'> & {
+  disabled?: boolean
+}) => {
   const chainId = useAtomValue(chainIdAtom)
   const brand = useAtomValue(indexDTFBrandAtom)
   const dtf = useAtomValue(indexDTFAtom)
@@ -130,9 +133,10 @@ const TokenSelector = ({
   return (
     <div className="flex flex-col justify-between gap-1 mt-1 items-end min-w-fit -mr-1.5">
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild disabled={disabled}>
           <Button
             variant="ghost"
+            disabled={disabled}
             className="flex items-center rounded-full text-2xl gap-2 h-auto hover:bg-accent px-1.5 justify-between"
             size="lg"
           >
@@ -227,7 +231,7 @@ export const TokenInputBox = ({
         <h3 className="text-primary">{from?.title || 'You use:'}</h3>
         <div className="flex gap-1">
           <TokenInput {...from} disabled={disabled || from.disabled} />
-          <TokenSelector {...from} />
+          <TokenSelector {...from} disabled={disabled || from.disabled} />
         </div>
       </div>
       <div>

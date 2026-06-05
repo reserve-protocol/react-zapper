@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Address, erc20Abi, Hex } from 'viem'
 import { mainnet } from 'viem/chains'
 import {
@@ -12,13 +12,11 @@ import useContractWrite from '../../hooks/useContractWrite'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { ZapResult } from '../../types/api'
 import type { ProviderId } from '../../utils/providers'
-import { formatCurrency } from '../../utils/format'
 import {
   useTrackIndexDTFZap,
   useTrackIndexDTFZapClick,
   useTrackIndexDTFZapError,
 } from '../../utils/tracking'
-import FusionTokenLogo from '../fusion-token-logo'
 import TransactionButton, {
   TransactionButtonContainer,
 } from '../transaction-button'
@@ -30,6 +28,7 @@ import {
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
   zapMintInputCachedAtom,
+  zapMintSuccessAtom,
   zapOngoingTxAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
@@ -37,6 +36,7 @@ import {
 } from './atom'
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
+import ZapSuccess from './zap-success'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
 import { minBigInt } from '@/utils'
 
@@ -118,7 +118,6 @@ const SubmitZapButton = ({
   inputSymbol,
   outputSymbol,
   inputAmount,
-  outputAmount,
   onSuccess,
   mode = 'modal',
   disabled,
@@ -143,11 +142,10 @@ const SubmitZapButton = ({
   const { trackClick } = useTrackIndexDTFZapClick('overview')
   const { track } = useTrackIndexDTFZap('alert', 'overview')
 
-  const setOngoingTx = useSetAtom(zapOngoingTxAtom)
+  const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
-  const [inputAmountCached, setInputAmountCached] = useAtom(
-    zapMintInputCachedAtom
-  )
+  const setMintSuccess = useSetAtom(zapMintSuccessAtom)
+  const setInputAmountCached = useSetAtom(zapMintInputCachedAtom)
   const refetchQuote = useAtomValue(zapRefetchAtom)
 
   const {
@@ -204,7 +202,10 @@ const SubmitZapButton = ({
       gas: gasLimit,
       chainId,
       query: {
-        enabled: readyToSubmit && !!tx,
+        // Stop simulating once a tx is in flight / completed; otherwise the
+        // spent balance makes the simulation fail and forces a quote refetch,
+        // overwriting the frozen success result.
+        enabled: readyToSubmit && !!tx && !ongoingTx,
         refetchIntervalInBackground: true,
         refetchOnWindowFocus: true,
         refetchInterval: 2_000,
@@ -232,21 +233,6 @@ const SubmitZapButton = ({
   } = useWatchTransaction({
     hash: data,
     label: `Swapped ${inputSymbol} for ${outputSymbol}`,
-    successMessage: {
-      title: `Swapped`,
-      subtitle: `${formatCurrency(
-        Number(inputAmountCached)
-      )} ${inputSymbol} for ${formatCurrency(
-        Number(outputAmount)
-      )} ${outputSymbol}`,
-      type: 'success',
-      icon: (
-        <FusionTokenLogo
-          left={{ symbol: inputSymbol, chainId, address: tokenIn }}
-          right={{ symbol: outputSymbol, chainId, address: tokenOut }}
-        />
-      ),
-    },
   })
 
   const execute = useCallback(() => {
@@ -276,14 +262,34 @@ const SubmitZapButton = ({
     sendError ||
     (txError ? Error(txError) : undefined)
 
+  // `track` is recreated every render, so this effect re-runs constantly. Guard
+  // with a ref so success is handled exactly once per tx — otherwise it would
+  // re-set `mintSuccess` after the modal close resets it (reopening the sheet).
+  const successHandledRef = useRef(false)
   useEffect(() => {
-    if (receipt?.status === 'success') {
+    if (receipt?.status === 'success' && !successHandledRef.current) {
+      successHandledRef.current = true
       track('zap_success_notification', inputSymbol, outputSymbol, source)
+      if (currentTab === 'buy') setMintSuccess(true)
       onSuccess?.()
     }
-  }, [receipt?.status, inputSymbol, outputSymbol, source, track, onSuccess])
+  }, [
+    receipt?.status,
+    inputSymbol,
+    outputSymbol,
+    source,
+    track,
+    onSuccess,
+    currentTab,
+    setMintSuccess,
+  ])
 
   useEffect(() => {
+    // Keep the ongoing-tx flag set after a successful swap so the success
+    // screen stays mounted and the quote stays disabled. Otherwise the spent
+    // balance refreshes, the kept input turns "insufficient", and the button
+    // would tear down before the success message can show.
+    if (receipt?.status === 'success') return
     if (
       approvalReceipt ||
       approvalTxError ||
@@ -311,6 +317,17 @@ const SubmitZapButton = ({
     source,
   })
 
+  if (receipt?.status === 'success' && data) {
+    return (
+      <ZapSuccess
+        hash={data}
+        chainId={chainId}
+        isMint={currentTab === 'buy'}
+        mode={mode}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1">
       {mode !== 'simple' && (
@@ -337,6 +354,7 @@ const SubmitZapButton = ({
         onClick={() => {
           if (disabled) return
           setOngoingTx(true)
+          setMintSuccess(false)
           if (readyToSubmit) {
             trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
             execute()
