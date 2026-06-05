@@ -20,6 +20,7 @@ import { cn } from '../../utils/cn'
 import { UPDATES_STORAGE_URL } from '../../utils/constants'
 import { formatCurrency } from '../../utils/format'
 import { getReceivedAmount } from '../../utils/receipt'
+import { useTrackIndexDTFContact } from '../../utils/tracking'
 import TelegramIcon from '../icons/TelegramIcon'
 import XIcon from '../icons/XIcon'
 import { Button } from '../ui/button'
@@ -113,11 +114,12 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
     SOCIAL_MEDIA_OPTIONS[0]
   )
 
+  const { trackContact } = useTrackIndexDTFContact()
+
   const dtfSymbol = indexDTF?.token.symbol ?? ''
   const txHash = txReceipt?.transactionHash ?? ''
 
-  // USD value of the DTF actually received (from the tx logs), falling back to
-  // the quoted output value if the transfer can't be read.
+  // USD value of the DTF received (from logs), falling back to the quoted value.
   const receivedRaw = useMemo(
     () =>
       txReceipt && indexDTF && account
@@ -141,8 +143,9 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
     async (key: SocialMediaOption['key']) => {
       if (!value) return
       setSubmitted(true)
+      trackContact('zap_contact_submit', key)
       try {
-        await fetch(UPDATES_STORAGE_URL, {
+        const res = await fetch(UPDATES_STORAGE_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -156,12 +159,14 @@ const SubscribeUpdates = ({ className }: { className?: string }) => {
             email: key === 'email' ? value : '',
           }),
         })
-      } catch (error) {
-        setSubmitted(false)
-        console.error('Error submitting data:', error)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        trackContact('zap_contact_subscribed', key)
+      } catch {
+        // Fail silently for the user — keep the submitted UI, just record it.
+        trackContact('zap_contact_error', key)
       }
     },
-    [value, account, outputValue, dtfSymbol, chainId, txHash]
+    [value, account, outputValue, dtfSymbol, chainId, txHash, trackContact]
   )
 
   return (

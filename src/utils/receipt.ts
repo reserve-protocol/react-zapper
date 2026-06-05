@@ -1,11 +1,7 @@
 import { erc20Abi, parseEventLogs, type Log } from 'viem'
 
-/**
- * Sum the ERC20 `Transfer` amounts for `token` credited to `account` in a tx
- * receipt — i.e. how much of the output token actually landed in the wallet.
- * Returns 0n when no matching transfer is found (e.g. native-token outputs,
- * which don't emit a Transfer log; callers should fall back to the quote).
- */
+// Sum of ERC20 `Transfer` amounts for `token` credited to `account` in a receipt.
+// Returns 0n when none is found (e.g. native outputs emit no Transfer log).
 export function getReceivedAmount(
   logs: Log[],
   token: string,

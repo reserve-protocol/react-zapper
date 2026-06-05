@@ -238,6 +238,26 @@ export const useTrackIndexDTFZapClick = (page: string, subpage?: string) => {
   return { trackClick: track }
 }
 
+// Tracking for the post-mint "Stay informed" contact-capture feature.
+export const useTrackIndexDTFContact = () => {
+  const indexDTF = useAtomValue(indexDTFAtom)
+
+  const trackContact = (cta: string, platform?: string) => {
+    if (!indexDTF) return
+    mixpanelTrack('tap', {
+      page: 'overview',
+      subpage: 'contact',
+      cta,
+      ca: indexDTF.id,
+      ticker: indexDTF.token.symbol,
+      chain: indexDTF.chainId,
+      platform,
+    })
+  }
+
+  return { trackContact }
+}
+
 export const useTrackQuoteErrorUX = ({
   tokenIn,
   tokenOut,

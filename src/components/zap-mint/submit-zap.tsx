@@ -202,9 +202,8 @@ const SubmitZapButton = ({
       gas: gasLimit,
       chainId,
       query: {
-        // Stop simulating once a tx is in flight / completed; otherwise the
-        // spent balance makes the simulation fail and forces a quote refetch,
-        // overwriting the frozen success result.
+        // Stop simulating once a tx is in flight/done — a failed simulation
+        // would force a quote refetch and overwrite the frozen result.
         enabled: readyToSubmit && !!tx && !ongoingTx,
         refetchIntervalInBackground: true,
         refetchOnWindowFocus: true,
@@ -262,9 +261,8 @@ const SubmitZapButton = ({
     sendError ||
     (txError ? Error(txError) : undefined)
 
-  // `track` is recreated every render, so this effect re-runs constantly. Guard
-  // with a ref so success is handled exactly once per tx — otherwise it would
-  // re-set `mintSuccess` after the modal close resets it (reopening the sheet).
+  // `track` changes identity each render, so guard with a ref to handle success
+  // exactly once per tx (otherwise it re-sets the receipt after a close reset).
   const successHandledRef = useRef(false)
   useEffect(() => {
     if (receipt?.status === 'success' && !successHandledRef.current) {
@@ -284,10 +282,9 @@ const SubmitZapButton = ({
   ])
 
   useEffect(() => {
-    // Keep the ongoing-tx flag set after a successful swap so the success
-    // screen stays mounted and the quote stays disabled. Otherwise the spent
-    // balance refreshes, the kept input turns "insufficient", and the button
-    // would tear down before the success message can show.
+    // Keep ongoingTx set after a successful swap so the success screen stays
+    // mounted and the quote stays frozen (a balance refresh would otherwise mark
+    // the kept input "insufficient" and tear the button down).
     if (receipt?.status === 'success') return
     if (
       approvalReceipt ||

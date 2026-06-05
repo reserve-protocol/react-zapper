@@ -86,11 +86,9 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
     </div>
   ) : null
 
-  // The dialog is viewport-centered on the modal. When the sheet is open, shift
-  // the whole unit left by half the sheet's visible width (400 - 32 overlap =
-  // 368 → 184) so the modal+sheet pair ends up centered, and animate the shift
-  // in sync with the sheet sliding out (both 500ms ease-out, so the modal
-  // reaches its final position exactly when the sheet finishes opening).
+  // When the sheet opens, shift the centered modal left by half the sheet's
+  // visible width (~184px) so the modal+sheet pair stays centered, animated in
+  // sync with the slide (both 500ms ease-out).
   const dialogContentClass = `p-0 bg-transparent border-none shadow-none overflow-visible transition-[margin] duration-500 ease-out ${
     showContactSheet ? 'ml-[-184px]' : 'ml-0'
   }`

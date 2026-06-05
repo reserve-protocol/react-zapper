@@ -16,8 +16,7 @@ export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)
 export const showContactInfoAtom = atom<boolean>(true)
-// Receipt of the last successful zap; drives the success view (actual received
-// amount from logs, "You received" labels) and the contact sheet.
+// Receipt of the last successful zap; drives the success view and contact sheet.
 export const zapTxReceiptAtom = atom<TransactionReceipt | undefined>(undefined)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)

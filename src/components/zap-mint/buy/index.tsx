@@ -191,9 +191,8 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
     mode,
   ])
 
-  // After a successful tx, show the DTF actually credited to the wallet (parsed
-  // from the receipt logs) instead of the quoted amount, with the realized price
-  // impact based on spot prices.
+  // On success, show the DTF actually received (from the receipt logs) with the
+  // realized price impact instead of the quoted values.
   const isSuccess = !!txReceipt
   const receivedRaw = useMemo(
     () =>

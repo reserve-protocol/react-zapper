@@ -198,10 +198,9 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     mode,
   ])
 
-  // After a successful tx, show the output token actually credited to the wallet
-  // (parsed from the receipt logs) instead of the quoted amount, with the
-  // realized price impact based on spot prices. Native-token outputs emit no
-  // Transfer log, so fall back to the quoted amount in that case.
+  // On success, show the output token actually received (from the receipt logs)
+  // with the realized price impact; native outputs have no Transfer log, so fall
+  // back to the quote.
   const isSuccess = !!txReceipt
   const receivedRaw = useMemo(
     () =>
