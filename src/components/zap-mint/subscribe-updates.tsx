@@ -65,7 +65,7 @@ const Dropdown = ({
         {SOCIAL_MEDIA_OPTIONS.map((option) => (
           <DropdownMenuItem
             key={option.key}
-            className="flex items-center gap-2 text-xs font-medium cursor-pointer"
+            className="flex items-center gap-2 text-sm font-light cursor-pointer"
             onSelect={() => onSelectOption(option)}
           >
             {option.icon}
@@ -126,8 +126,8 @@ const SubscribeUpdates = ({
   )
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <div className="relative flex-1">
+    <div className={cn(className)}>
+      <div className="relative">
         <Dropdown
           selected={selected}
           onSelectOption={(option) => {
@@ -136,7 +136,7 @@ const SubscribeUpdates = ({
           }}
         />
         <Input
-          className="h-[49px] w-full rounded-xl bg-card/80 pl-14 text-sm"
+          className="h-[49px] py-0 w-full rounded-xl bg-card/80 pl-14 pr-28 font-light"
           placeholder={selected.placeholder}
           value={value}
           onChange={(e) => !submitted && setValue(e.target.value)}
@@ -145,14 +145,14 @@ const SubscribeUpdates = ({
             if (e.key === 'Enter') handleSubmit(selected.key)
           }}
         />
+        <Button
+          className="absolute right-1.5 top-1/2 h-9 -translate-y-1/2 rounded-lg"
+          disabled={!value || submitted}
+          onClick={() => handleSubmit(selected.key)}
+        >
+          Subscribe
+        </Button>
       </div>
-      <Button
-        className="h-[49px] rounded-xl"
-        disabled={!value || submitted}
-        onClick={() => handleSubmit(selected.key)}
-      >
-        Get updates
-      </Button>
     </div>
   )
 }

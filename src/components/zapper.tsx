@@ -58,13 +58,8 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
 
   const { trackClick } = useTrackIndexDTFZapClick('overview')
 
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
-    if (!newOpen) setZapSuccess(undefined)
-  }
-
   const handleClose = () => {
-    handleOpenChange(false)
+    setOpen(false)
   }
 
   useEffect(() => {
@@ -228,7 +223,7 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
   )
 
   const dialog = (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         showClose={false}
         className="max-h-[90dvh] overflow-y-auto p-2 rounded-t-2xl sm:rounded-[20px] border-none"

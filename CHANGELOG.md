@@ -1,3 +1,10 @@
+## [2.2.1] - 2026-06-09
+
+### Changed
+
+- The zapper modal now fades in/out on open and dismiss (the previous animation classes were no-ops). The success view stays rendered through the fade-out: the success snapshot is now cleared when the modal opens instead of on close, so dismissing no longer flashes the empty Buy/Sell form mid-animation.
+- The success view's contact CTA is now inset inside the input and renamed from "Get updates" to "Subscribe", giving the input full width.
+
 ## [2.2.0] - 2026-06-09
 
 ### Changed

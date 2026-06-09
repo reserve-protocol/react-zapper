@@ -139,9 +139,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
         </div>
 
         {showContactInfo && (
-          <div
-            className="flex flex-col gap-4 rounded-2xl border border-[#e0d5c7] bg-[#fefbf8] p-4 opacity-0 animate-fade-in [animation-delay:300ms]"
-          >
+          <div className="flex flex-col gap-4 rounded-2xl border border-[#e0d5c7] bg-[#fefbf8] p-4 opacity-0 animate-fade-in [animation-delay:300ms]">
             <div className="flex flex-col gap-1">
               <p className="text-xl font-medium leading-7 text-primary">
                 Stay informed about this DTF
