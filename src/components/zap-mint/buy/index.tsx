@@ -1,23 +1,17 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { formatEther, parseUnits } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
-import {
-  chainIdAtom,
-  indexDTFAtom,
-  indexDTFPriceAtom,
-  walletAtom,
-} from '../../../state/atoms'
+import { chainIdAtom, indexDTFAtom, walletAtom } from '../../../state/atoms'
 import { Token } from '../../../types'
 import {
   formatCurrency,
   resetTempRegistrations,
   useTrackQuoteErrorUX,
 } from '../../../utils'
-import { getReceivedAmount } from '../../../utils/receipt'
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
@@ -34,7 +28,6 @@ import {
   zapperDebugAtom,
   zapQuoteStateAtom,
   zapRefetchAtom,
-  zapTxReceiptAtom,
 } from '../atom'
 import { Debug } from '../debug/debug'
 import SubmitZap from '../submit-zap'
@@ -67,8 +60,6 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
-  const dtfPrice = useAtomValue(indexDTFPriceAtom)
-  const txReceipt = useAtomValue(zapTxReceiptAtom)
   const inputValue = (selectedTokenPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(selectedTokenBalance?.balance || '0')
 
@@ -191,32 +182,12 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
     mode,
   ])
 
-  // On success, show the DTF actually received (from the receipt logs) with the
-  // realized price impact instead of the quoted values.
-  const isSuccess = !!txReceipt
-  const receivedRaw = useMemo(
-    () =>
-      txReceipt && indexDTF && account
-        ? getReceivedAmount(txReceipt.logs, indexDTF.id, account)
-        : 0n,
-    [txReceipt, indexDTF, account]
-  )
-  const receivedAmount = receivedRaw > 0n ? formatEther(receivedRaw) : undefined
-  const receivedValue = receivedAmount
-    ? Number(receivedAmount) * (dtfPrice || 0)
-    : undefined
-  const receivedImpact =
-    receivedValue !== undefined && inputValue > 0
-      ? ((inputValue - receivedValue) / inputValue) * 100
-      : undefined
-
   if (!indexDTF) return <Skeleton className="h-64" />
 
   return (
     <div className="flex flex-col gap-2 h-full">
       <Swap
         from={{
-          title: isSuccess ? 'You used:' : undefined,
           price: `$${formatCurrency(priceFrom ?? inputValue)}`,
           address: selectedToken.address,
           symbol: selectedToken.symbol,
@@ -232,15 +203,9 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
           disabled: !account,
         }}
         to={{
-          title: isSuccess ? 'You received:' : undefined,
           address: indexDTF.id,
           symbol: indexDTF.token.symbol,
-          price: isSuccess ? (
-            <span>
-              ${formatCurrency(receivedValue ?? priceTo ?? 0)}{' '}
-              <ZapPriceImpact priceImpact={receivedImpact} data={data?.result} />
-            </span>
-          ) : priceTo ? (
+          price: priceTo ? (
             <span>
               ${formatCurrency(priceTo)}
               {dustValue > 0.01
@@ -249,16 +214,13 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
               <ZapPriceImpact data={data?.result} />
             </span>
           ) : undefined,
-          value:
-            isSuccess && receivedAmount
-              ? receivedAmount
-              : formatEther(BigInt(valueTo || 0)),
+          value: formatEther(BigInt(valueTo || 0)),
         }}
         onSwap={changeTab}
         loading={isLoading || loadingAfterRefetch}
         disabled={disabled || ongoingTx}
       />
-      {mode !== 'simple' && !isSuccess && !!data?.result && (
+      {mode !== 'simple' && !!data?.result && (
         <ZapDetails data={data.result} source={data.source} />
       )}
       <SubmitZap
