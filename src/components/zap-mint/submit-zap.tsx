@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Address, erc20Abi, Hex } from 'viem'
+import { Address, erc20Abi, formatUnits, Hex } from 'viem'
 import { mainnet } from 'viem/chains'
 import {
   useEstimateGas,
@@ -10,8 +10,10 @@ import {
 } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
+import { walletAtom } from '../../state/atoms'
 import { ZapResult } from '../../types/api'
 import type { ProviderId } from '../../utils/providers'
+import { getReceivedAmount } from '../../utils/receipt'
 import {
   useTrackIndexDTFZap,
   useTrackIndexDTFZapClick,
@@ -24,19 +26,19 @@ import { Button } from '../ui/button'
 import {
   openZapMintModalAtom,
   openingFromSimpleModeAtom,
+  selectedTokenOrDefaultAtom,
   zapDustWarningCheckboxAtom,
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
   zapMintInputCachedAtom,
   zapOngoingTxAtom,
-  zapTxReceiptAtom,
+  zapSuccessAtom,
   zapperCurrentTabAtom,
   zapPriceImpactWarningCheckboxAtom,
   zapRefetchAtom,
 } from './atom'
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
-import ZapSuccess from './zap-success'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
 import { minBigInt } from '@/utils'
 
@@ -106,6 +108,8 @@ const SubmitZapButton = ({
     approvalNeeded,
     approvalAddress,
     amountIn,
+    amountInValue,
+    amountOut,
     tx,
     gas,
     truePriceImpact,
@@ -144,7 +148,9 @@ const SubmitZapButton = ({
 
   const [ongoingTx, setOngoingTx] = useAtom(zapOngoingTxAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
-  const setTxReceipt = useSetAtom(zapTxReceiptAtom)
+  const account = useAtomValue(walletAtom)
+  const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
+  const setZapSuccess = useSetAtom(zapSuccessAtom)
   const setInputAmountCached = useSetAtom(zapMintInputCachedAtom)
   const refetchQuote = useAtomValue(zapRefetchAtom)
 
@@ -262,15 +268,39 @@ const SubmitZapButton = ({
     (txError ? Error(txError) : undefined)
 
   // `track` changes identity each render, so guard with a ref to handle success
-  // exactly once per tx (otherwise it re-sets the receipt after a close reset).
+  // exactly once per tx (otherwise it re-sets the snapshot after a close reset).
   const successHandledRef = useRef(false)
   useEffect(() => {
-    if (receipt?.status === 'success' && !successHandledRef.current) {
-      successHandledRef.current = true
-      track('zap_success_notification', inputSymbol, outputSymbol, source)
-      setTxReceipt(receipt)
-      onSuccess?.()
-    }
+    if (receipt?.status !== 'success' || successHandledRef.current) return
+    successHandledRef.current = true
+    track('zap_success_notification', inputSymbol, outputSymbol, source)
+
+    // Snapshot the actual received amount from the tx logs (output token credited
+    // to the wallet), valued at the quote's implied unit price.
+    const outputDecimals = currentTab === 'buy' ? 18 : selectedToken.decimals
+    const receivedRaw = account
+      ? getReceivedAmount(receipt.logs, tokenOut, account)
+      : 0n
+    const receivedAmount =
+      receivedRaw > 0n
+        ? formatUnits(receivedRaw, outputDecimals)
+        : formatUnits(BigInt(amountOut || 0), outputDecimals)
+    const quotedOut = Number(formatUnits(BigInt(amountOut || 0), outputDecimals))
+    const unitPrice = amountOutValue && quotedOut ? amountOutValue / quotedOut : 0
+
+    setZapSuccess({
+      isMint: currentTab === 'buy',
+      chainId,
+      txHash: receipt.transactionHash,
+      inputSymbol,
+      inputAddress: tokenIn,
+      inputValue: amountInValue ?? 0,
+      outputSymbol,
+      outputAddress: tokenOut,
+      receivedAmount,
+      receivedValue: Number(receivedAmount) * unitPrice,
+    })
+    onSuccess?.()
   }, [
     receipt,
     inputSymbol,
@@ -278,7 +308,16 @@ const SubmitZapButton = ({
     source,
     track,
     onSuccess,
-    setTxReceipt,
+    setZapSuccess,
+    currentTab,
+    selectedToken,
+    account,
+    tokenIn,
+    tokenOut,
+    amountInValue,
+    amountOut,
+    amountOutValue,
+    chainId,
   ])
 
   useEffect(() => {
@@ -313,17 +352,6 @@ const SubmitZapButton = ({
     source,
   })
 
-  if (receipt?.status === 'success' && data) {
-    return (
-      <ZapSuccess
-        hash={data}
-        chainId={chainId}
-        isMint={currentTab === 'buy'}
-        mode={mode}
-      />
-    )
-  }
-
   return (
     <div className="flex flex-col gap-1">
       {mode !== 'simple' && (
@@ -350,7 +378,7 @@ const SubmitZapButton = ({
         onClick={() => {
           if (disabled) return
           setOngoingTx(true)
-          setTxReceipt(undefined)
+          setZapSuccess(undefined)
           if (readyToSubmit) {
             trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
             execute()

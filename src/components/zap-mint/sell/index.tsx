@@ -1,12 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
-import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
-  chainIdAtom,
   indexDTFAtom,
   indexDTFPriceAtom,
   walletAtom,
@@ -17,7 +15,6 @@ import {
   resetTempRegistrations,
   useTrackQuoteErrorUX,
 } from '../../../utils'
-import { getReceivedAmount } from '../../../utils/receipt'
 import Swap from '../../ui/swap'
 import {
   forceMintAtom,
@@ -34,7 +31,6 @@ import {
   zapperDebugAtom,
   zapQuoteStateAtom,
   zapRefetchAtom,
-  zapTxReceiptAtom,
 } from '../atom'
 import { Debug } from '../debug/debug'
 import SubmitZap from '../submit-zap'
@@ -48,10 +44,8 @@ interface SellProps {
 
 const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const account = useAtomValue(walletAtom)
-  const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
-  const txReceipt = useAtomValue(zapTxReceiptAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
   const [openingFromSimple, setOpeningFromSimple] = useAtom(
     openingFromSimpleModeAtom
@@ -70,7 +64,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
-  const outPrice = usePrice(chainId, selectedToken.address)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(indxDTFParsedBalance)
 
@@ -198,36 +191,12 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     mode,
   ])
 
-  // On success, show the output token actually received (from the receipt logs)
-  // with the realized price impact; native outputs have no Transfer log, so fall
-  // back to the quote.
-  const isSuccess = !!txReceipt
-  const receivedRaw = useMemo(
-    () =>
-      txReceipt && account
-        ? getReceivedAmount(txReceipt.logs, selectedToken.address, account)
-        : 0n,
-    [txReceipt, selectedToken.address, account]
-  )
-  const receivedAmount =
-    receivedRaw > 0n
-      ? formatUnits(receivedRaw, selectedToken.decimals)
-      : undefined
-  const receivedValue = receivedAmount
-    ? Number(receivedAmount) * (outPrice || 0)
-    : undefined
-  const receivedImpact =
-    receivedValue !== undefined && inputValue > 0
-      ? ((inputValue - receivedValue) / inputValue) * 100
-      : undefined
-
   if (!indexDTF) return <Skeleton className="h-64" />
 
   return (
     <div className="flex flex-col gap-2 h-full">
       <Swap
         from={{
-          title: isSuccess ? 'You used:' : undefined,
           price: `$${formatCurrency(priceFrom ?? inputValue)}`,
           address: indexDTF.id,
           symbol: indexDTF.token.symbol,
@@ -238,15 +207,9 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
           disabled: !account,
         }}
         to={{
-          title: isSuccess ? 'You received:' : undefined,
           address: selectedToken.address,
           symbol: selectedToken.symbol,
-          price: isSuccess ? (
-            <span>
-              ${formatCurrency(receivedValue ?? priceTo ?? 0)}{' '}
-              <ZapPriceImpact priceImpact={receivedImpact} data={data?.result} />
-            </span>
-          ) : priceTo ? (
+          price: priceTo ? (
             <span>
               ${formatCurrency(priceTo)}
               {dustValue > 0.01
@@ -255,10 +218,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
               <ZapPriceImpact data={data?.result} />
             </span>
           ) : undefined,
-          value:
-            isSuccess && receivedAmount
-              ? receivedAmount
-              : formatUnits(BigInt(valueTo || 0), selectedToken.decimals),
+          value: formatUnits(BigInt(valueTo || 0), selectedToken.decimals),
           tokens,
           onTokenSelect: handleTokenSelect,
           disabled: disabled || ongoingTx,
@@ -267,7 +227,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
         loading={isLoading || loadingAfterRefetch}
         disabled={disabled || ongoingTx}
       />
-      {mode !== 'simple' && !isSuccess && !!data?.result && (
+      {mode !== 'simple' && !!data?.result && (
         <ZapDetails data={data.result} source={data.source} />
       )}
       <SubmitZap

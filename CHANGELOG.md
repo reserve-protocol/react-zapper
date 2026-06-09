@@ -1,3 +1,11 @@
+## [2.2.0] - 2026-06-09
+
+### Changed
+
+- Reworked the post-transaction success state into a single inline view that matches the latest design and now covers redeem as well as mint. The modal switches to a green alert with collapsible details — Received (the exact output token credited to the wallet, read from the tx logs), Used (the USD spent), and Transaction (a link to the block explorer) — with the "Successful Purchase" / "Successful Redemption" alert animating up and the rest fading in. The close button is preserved, and the view adapts to mobile.
+- Removed the slide-out contact side panel and its desktop-only breakpoint; the "Stay informed" section now renders inline below the success alert across all modes, in a bordered card.
+- Simplified the contact input to email or Telegram (email default) with a separate "Get updates" button and a "No thanks" dismissal (disabled once a contact is submitted); removed the post-submit copy button. The storage payload is now `{ address, value, dtf, chainId, txHash, telegram, email }`.
+
 ## [2.1.0] - 2026-06-04
 
 ### Added

@@ -264,17 +264,16 @@ package's internal state); no extra providers are required.
 The Zapper renders all transaction feedback inline — no toaster setup required
 (there is no `Toaster` export and `sonner` is no longer a dependency).
 
-On a successful transaction the flow stays in place and switches to a success
-view: the boxes read "You used" / "You received", the received amount is taken
-from the transaction logs (the exact output token credited to the wallet) with
-the realized price impact, and an inline success bar links to the block explorer.
-Errors are rendered inline as well. The state resets when the Zapper is
-closed/reopened.
+On a successful transaction (mint or redeem) the modal switches to a success view
+with a green alert showing Received (the exact output token credited to the
+wallet, read from the tx logs), Used (USD spent), and Transaction (explorer link).
+Details are collapsible and the close button is preserved. Errors are rendered
+inline as well. The state resets when the Zapper is closed/reopened.
 
-After a mint, a "Stay informed" panel lets users leave a contact (Telegram, X, or
-email) for DTF updates. Hide it with `showContactInfo={false}`. Submissions fail
-silently for the user and emit Mixpanel events (`zap_contact_submit`,
-`zap_contact_subscribed`, `zap_contact_error`).
+The success view also shows a "Stay informed" section where users can leave an
+email or Telegram contact for DTF updates. Hide it with `showContactInfo={false}`.
+Submissions fail silently for the user and emit Mixpanel events
+(`zap_contact_submit`, `zap_contact_subscribed`, `zap_contact_error`).
 
 ### With Custom API Endpoint
 

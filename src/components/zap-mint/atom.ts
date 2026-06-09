@@ -1,6 +1,5 @@
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
-import type { TransactionReceipt } from 'viem'
 import type { UseQuoteResult } from '../../hooks/useQuote'
 import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
 import { Token, TokenBalance } from '../../types'
@@ -16,8 +15,22 @@ export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)
 export const showContactInfoAtom = atom<boolean>(true)
-// Receipt of the last successful zap; drives the success view and contact sheet.
-export const zapTxReceiptAtom = atom<TransactionReceipt | undefined>(undefined)
+
+// Snapshot of the last successful zap; drives the success view. Captured at
+// confirmation so the view survives the Buy/Sell form unmounting.
+export type ZapSuccessData = {
+  isMint: boolean
+  chainId: number
+  txHash: string
+  inputSymbol: string
+  inputAddress: string
+  inputValue: number
+  outputSymbol: string
+  outputAddress: string
+  receivedAmount: string
+  receivedValue: number
+}
+export const zapSuccessAtom = atom<ZapSuccessData | undefined>(undefined)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)
 export const defaultSelectedTokenAtom = atom<Token>((get) => {
