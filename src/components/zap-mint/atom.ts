@@ -5,7 +5,7 @@ import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
 import { Token, TokenBalance } from '../../types'
 import { reducedZappableTokens } from '../../utils/constants'
 
-export const openZapMintModalAtom = atom(false)
+const openZapMintModalBaseAtom = atom(false)
 export const zapperCurrentTabAtom = atom<'buy' | 'sell'>('buy')
 export const showZapSettingsAtom = atom<boolean>(false)
 export const zapMintInputAtom = atomWithReset<string>('')
@@ -31,6 +31,18 @@ export type ZapSuccessData = {
   receivedValue: number
 }
 export const zapSuccessAtom = atom<ZapSuccessData | undefined>(undefined)
+
+// The success snapshot is cleared when the modal opens rather than on close,
+// so the success view stays rendered through the dialog's fade-out animation.
+export const openZapMintModalAtom = atom(
+  (get) => get(openZapMintModalBaseAtom),
+  (get, set, update: boolean | ((prev: boolean) => boolean)) => {
+    const prev = get(openZapMintModalBaseAtom)
+    const next = typeof update === 'function' ? update(prev) : update
+    if (next && !prev) set(zapSuccessAtom, undefined)
+    set(openZapMintModalBaseAtom, next)
+  }
+)
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)
 export const defaultSelectedTokenAtom = atom<Token>((get) => {
