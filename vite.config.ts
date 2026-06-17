@@ -1,16 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { lingui } from '@lingui/vite-plugin'
 import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 import { readFileSync } from 'fs'
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'))
 
+// Lingui macros are compiled away at build time, and the `lingui()` plugin
+// turns `.po` catalog imports into plain message objects — so the published
+// bundle is framework-agnostic JS and consumers need none of this tooling.
+const reactWithMacros = () => react({ babel: { plugins: ['macros'] } })
+
 export default defineConfig(({ mode, command }) => {
-  // Development mode - serve the demo
+  // Development mode - serve the demo (which serves the lib source directly,
+  // so it needs the macro + catalog transforms too).
   if (command === 'serve') {
     return {
-      plugins: [react()],
+      plugins: [reactWithMacros(), lingui()],
       root: 'demo',
       resolve: {
         alias: {
@@ -25,7 +32,7 @@ export default defineConfig(({ mode, command }) => {
   // Build mode for demo
   if (mode === 'demo') {
     return {
-      plugins: [react()],
+      plugins: [reactWithMacros(), lingui()],
       root: 'demo',
       build: {
         outDir: '../dist-demo',
@@ -43,7 +50,8 @@ export default defineConfig(({ mode, command }) => {
   // Library build configuration
   return {
   plugins: [
-    react(),
+    reactWithMacros(),
+    lingui(),
     dts({
       insertTypesEntry: true,
       include: ['src/**/*.ts', 'src/**/*.tsx'],

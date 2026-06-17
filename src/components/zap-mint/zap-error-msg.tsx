@@ -2,6 +2,9 @@ import { usePrice } from '@/hooks/usePrice'
 import { quoteIdAtom, retryIdAtom, sessionIdAtom } from '@/state/tracking-atoms'
 import zapper, { ReportPayload } from '@/types/api'
 import { formatCurrency, formatToSignificantDigits } from '@/utils'
+import type { MessageDescriptor } from '@lingui/core'
+import { msg } from '@lingui/core/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtomValue } from 'jotai'
 import { ReactNode, useMemo, useState } from 'react'
 import {
@@ -27,18 +30,17 @@ import {
   zapSwapEndpointAtom,
 } from './atom'
 
-const SWAP_ERROR_MSG =
-  'Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit.'
-const ERROR_MAP = {
+const SWAP_ERROR_MSG = msg`Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit.`
+const ERROR_MAP: Record<string, MessageDescriptor> = {
   '404': SWAP_ERROR_MSG,
   '500': SWAP_ERROR_MSG,
   '504': SWAP_ERROR_MSG,
   'failed to construct swap': SWAP_ERROR_MSG,
-  INSUFFICIENT_OUT:
-    'Sorry, the market is volatile right now. Please increase slippage in your settings.',
+  INSUFFICIENT_OUT: msg`Sorry, the market is volatile right now. Please increase slippage in your settings.`,
 }
 
 const ReportButton = ({ error }: { error?: string }) => {
+  const { t } = useLingui()
   const [isLoading, setIsLoading] = useState(false)
   const [hasReported, setHasReported] = useState(false)
   const [reportFailed, setReportFailed] = useState(false)
@@ -113,11 +115,11 @@ const ReportButton = ({ error }: { error?: string }) => {
           isLoading || hasReported || !sessionId || !quoteId || !retryId
         }
       >
-        {isLoading ? 'Sending...' : hasReported ? 'Reported' : 'Report'}
+        {isLoading ? t`Sending...` : hasReported ? t`Reported` : t`Report`}
       </Button>
       {reportFailed && (
         <span className="text-red-500 text-[10px]">
-          Failed to send. Try again.
+          <Trans>Failed to send. Try again.</Trans>
         </span>
       )}
     </div>
@@ -165,10 +167,10 @@ const GoToManualRedeem = () => {
   return (
     <div className="mt-2 hidden sm:block p-3 rounded-3xl text-center text-sm">
       <span className="font-semibold block">
-        Having issues minting? (Zaps are in beta)
+        <Trans>Having issues minting? (Zaps are in beta)</Trans>
       </span>
       <span className="text-legend">
-        Wait and try again or consider using manual mode
+        <Trans>Wait and try again or consider using manual mode</Trans>
       </span>
     </div>
   )
@@ -207,7 +209,7 @@ const ErrorMessage = ({
             </Tooltip>
           </TooltipProvider>
           <div className="text-muted-foreground text-xs text-start">
-            Please report this to help us improve
+            <Trans>Please report this to help us improve</Trans>
           </div>
         </div>
         <div>
@@ -220,12 +222,15 @@ const ErrorMessage = ({
 }
 
 const ZapErrorMsg = ({ error }: { error?: string }) => {
+  const { t } = useLingui()
+
   if (!error) return null
 
-  const errorMsgDisplayed =
-    Object.entries(ERROR_MAP).find(([key]) =>
-      error.toLowerCase().includes(key.toLowerCase())
-    )?.[1] || error
+  const descriptor = Object.entries(ERROR_MAP).find(([key]) =>
+    error.toLowerCase().includes(key.toLowerCase())
+  )?.[1]
+
+  const errorMsgDisplayed = descriptor ? t(descriptor) : error
 
   return <ErrorMessage error={error} displayedError={errorMsgDisplayed} />
 }

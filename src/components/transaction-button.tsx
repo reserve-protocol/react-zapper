@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import { chainIdAtom, connectWalletAtom } from '@/state/atoms'
 import { CHAIN_TAGS } from '@/utils/chains'
 import { useAtomValue } from 'jotai'
@@ -74,7 +75,7 @@ export function TransactionButton({
       )}
     >
       {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-      {hasInsufficientGas ? 'Insufficient gas balance' : children}
+      {hasInsufficientGas ? <Trans>Insufficient gas balance</Trans> : children}
     </Button>
   )
 }
@@ -88,7 +89,7 @@ export const ConnectWalletButton = ({ disabled }: { disabled?: boolean }) => {
       className="w-full rounded-xl"
       disabled={disabled}
     >
-      Connect Wallet
+      <Trans>Connect Wallet</Trans>
     </Button>
   )
 }
@@ -96,6 +97,7 @@ export const ConnectWalletButton = ({ disabled }: { disabled?: boolean }) => {
 export const SwitchChainButton = ({ disabled }: { disabled?: boolean }) => {
   const { switchChain } = useSwitchChain()
   const chainId = useAtomValue(chainIdAtom)
+  const chainName = CHAIN_TAGS[chainId]
   return (
     <Button
       size="lg"
@@ -103,7 +105,7 @@ export const SwitchChainButton = ({ disabled }: { disabled?: boolean }) => {
       className="w-full rounded-xl"
       disabled={disabled}
     >
-      Switch to {CHAIN_TAGS[chainId]}
+      <Trans>Switch to {chainName}</Trans>
     </Button>
   )
 }

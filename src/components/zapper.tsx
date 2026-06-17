@@ -1,7 +1,9 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { Trans } from '@lingui/react/macro'
 import { ArrowLeft, Settings, X } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { ZapperProps } from '../types'
+import { ZapperI18nProvider } from '../i18n/provider'
 import { useTrackIndexDTFZapClick } from '../utils/tracking'
 import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog'
@@ -154,9 +156,11 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
                   disabled={sellOnly}
                   className={sellOnly ? 'opacity-50 cursor-not-allowed' : ''}
                 >
-                  Buy
+                  <Trans>Buy</Trans>
                 </TabsTrigger>
-                <TabsTrigger value="sell">Sell</TabsTrigger>
+                <TabsTrigger value="sell">
+                  <Trans>Sell</Trans>
+                </TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-1">
                 <Button
@@ -201,7 +205,9 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
   // Shared dialog body for modal & simple modes.
   const dialogBody = zapSuccess ? (
     <>
-      <DialogTitle className="sr-only">Transaction successful</DialogTitle>
+      <DialogTitle className="sr-only">
+        <Trans>Transaction successful</Trans>
+      </DialogTitle>
       <ZapSuccessView onClose={handleClose} />
     </>
   ) : (
@@ -265,9 +271,10 @@ export const Zapper: React.FC<ZapperProps> = ({
   sellOnly,
   disabled,
   showContactInfo,
+  locale,
 }) => {
   return (
-    <>
+    <ZapperI18nProvider locale={locale}>
       <Updaters
         dtfAddress={dtfAddress}
         chainId={chain}
@@ -281,7 +288,7 @@ export const Zapper: React.FC<ZapperProps> = ({
         showContactInfo={showContactInfo}
       />
       <ZapperContent mode={mode} sellOnly={sellOnly} disabled={disabled} />
-    </>
+    </ZapperI18nProvider>
   )
 }
 

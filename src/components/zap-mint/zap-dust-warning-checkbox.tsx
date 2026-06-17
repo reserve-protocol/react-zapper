@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import { Checkbox } from '../ui/checkbox'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { OctagonAlert } from 'lucide-react'
@@ -46,13 +47,17 @@ const ZapDustWarningCheckbox = ({
       <div className="flex items-end gap-2 justify-between">
         <div className="max-w-sm">
           <div className="font-bold">
-            High dust value: ${formatCurrency(dustValue)} (
-            {formatPercentage(Math.abs(dustPercentage))} of output value)
+            <Trans>
+              High dust value: ${formatCurrency(dustValue)} (
+              {formatPercentage(Math.abs(dustPercentage))} of output value)
+            </Trans>
           </div>
           <div className="text-sm text-legend">
-            This trade results in a large amount of dust, meaning you will
-            receive {formatPercentage(Math.abs(dustPercentage))} of the value in
-            individual assets, with the remaining in {tokenOutSymbol}.
+            <Trans>
+              This trade results in a large amount of dust, meaning you will
+              receive {formatPercentage(Math.abs(dustPercentage))} of the value
+              in individual assets, with the remaining in {tokenOutSymbol}.
+            </Trans>
           </div>
         </div>
         <div className="flex items-center p-[6px] border border-border rounded-lg">

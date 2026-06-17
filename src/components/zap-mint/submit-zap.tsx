@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -69,7 +70,7 @@ const GetStartedButton = ({
       disabled={disabled || fetchingZapper || !showTxButton}
       onClick={handleClick}
     >
-      {fetchingZapper ? 'Loading...' : 'Get started'}
+      {fetchingZapper ? <Trans>Loading...</Trans> : <Trans>Get started</Trans>}
     </Button>
   )
 }
@@ -90,11 +91,13 @@ const LoadingButton = ({
   return (
     <>
       <Button size="lg" className="w-full rounded-xl" disabled>
-        {fetchingZapper
-          ? 'Loading...'
-          : insufficientBalance
-          ? 'Insufficient balance'
-          : buttonLabel}
+        {fetchingZapper ? (
+          <Trans>Loading...</Trans>
+        ) : insufficientBalance ? (
+          <Trans>Insufficient balance</Trans>
+        ) : (
+          buttonLabel
+        )}
       </Button>
       {mode !== 'simple' && <ZapErrorMsg error={zapperErrorMessage} />}
     </>
@@ -138,6 +141,7 @@ const SubmitZapButton = ({
   mode?: 'modal' | 'inline' | 'simple'
   disabled?: boolean
 }) => {
+  const { t } = useLingui()
   const warningAccepted = useAtomValue(zapPriceImpactWarningCheckboxAtom)
   const dustWarningAccepted = useAtomValue(zapDustWarningCheckboxAtom)
   const highPriceImpact = useAtomValue(zapHighPriceImpactAtom)
@@ -390,10 +394,10 @@ const SubmitZapButton = ({
         className="rounded-xl"
       >
         {simulationFailed
-          ? 'Simulation failed - Refetching quote'
+          ? t`Simulation failed - Refetching quote`
           : readyToSubmit
-          ? `${addStepTwoLabel ? 'Step 2. ' : ''}${buttonLabel}`
-          : `${addStepOneLabel ? 'Step 1. ' : ''}Approve use of ${inputSymbol}`}
+          ? `${addStepTwoLabel ? t`Step 2. ` : ''}${buttonLabel}`
+          : `${addStepOneLabel ? t`Step 1. ` : ''}${t`Approve use of ${inputSymbol}`}`}
       </TransactionButton>
       {mode !== 'simple' && <ZapTxErrorMsg error={error} />}
     </div>

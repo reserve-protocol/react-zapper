@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import { Checkbox } from '../ui/checkbox'
 import { useAtom, useSetAtom } from 'jotai'
 import { OctagonAlert } from 'lucide-react'
@@ -30,11 +31,15 @@ const ZapPriceImpactWarningCheckbox = ({
       <div className="flex items-end gap-2 justify-between">
         <div className="max-w-sm">
           <div className="font-bold">
-            High price impact: {formatPercentage(Math.abs(priceImpact))}
+            <Trans>
+              High price impact: {formatPercentage(Math.abs(priceImpact))}
+            </Trans>
           </div>
           <div className="text-sm text-legend">
-            The price impact for this trade is very high. You will get
-            significantly less value than expected.
+            <Trans>
+              The price impact for this trade is very high. You will get
+              significantly less value than expected.
+            </Trans>
           </div>
         </div>
         <div className="flex items-center p-[6px] border border-border rounded-lg">

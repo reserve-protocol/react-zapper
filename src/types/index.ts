@@ -1,5 +1,6 @@
 import { QuoteSource } from '@/state/atoms'
 import { AvailableChain } from '@/utils/chains'
+import { SupportedLocale } from '@/i18n/provider'
 import { Address } from 'viem'
 export interface Token {
   address: Address
@@ -29,6 +30,8 @@ export interface ZapperProps {
   disabled?: boolean
   /** Show the "Stay informed" contact-capture panel after a successful mint. Defaults to true. */
   showContactInfo?: boolean
+  /** UI language. Defaults to 'en'. Falls back to English for any untranslated string. */
+  locale?: SupportedLocale
 }
 
 export interface UseZapperModalReturn {
@@ -42,3 +45,4 @@ export interface UseZapperModalReturn {
 
 export * from './api'
 export type { QuoteSource } from '@/state/atoms'
+export type { SupportedLocale } from '@/i18n/provider'

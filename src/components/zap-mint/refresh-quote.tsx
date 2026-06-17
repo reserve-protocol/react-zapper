@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import { Button } from '../ui/button'
 import { cn } from '../../utils/cn'
 import { Loader, RefreshCw } from 'lucide-react'
@@ -37,7 +38,7 @@ const RefreshQuote = ({
       disabled={disabled}
     >
       <RefreshCw size={16} />
-      {!small && 'Refresh'}
+      {!small && <Trans>Refresh</Trans>}
     </Button>
   )
 }

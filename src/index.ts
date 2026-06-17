@@ -1,6 +1,8 @@
 import './styles/index.css'
 
 export { Zapper, ZapperContent, Updaters } from './components/zapper'
+export { ZapperI18nProvider } from './i18n/provider'
+export type { SupportedLocale } from './i18n/provider'
 export { useZapperModal } from './hooks/use-zapper-modal'
 export { usePrice } from './hooks/usePrice'
 export { useQuote } from './hooks/useQuote'

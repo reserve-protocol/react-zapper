@@ -1,6 +1,6 @@
-// Removed lingui dependency for standalone package
 import { CopyIcon } from 'lucide-react'
 import React, { useState } from 'react'
+import { useLingui } from '@lingui/react/macro'
 import {
   Tooltip,
   TooltipContent,
@@ -23,17 +23,17 @@ const Copy: React.FC<CopyProps> = ({
   outline = false,
   className,
 }) => {
-  const copyText = 'Copy to clipboard'
-  const confirmText = 'Copied to clipboard!'
-  const [displayText, setDisplayText] = useState(copyText)
+  const { t } = useLingui()
+  const [copied, setCopied] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const displayText = copied ? t`Copied to clipboard!` : t`Copy to clipboard`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(value)
-    setDisplayText(confirmText)
+    setCopied(true)
     setIsOpen(true)
     setTimeout(() => {
-      setDisplayText(copyText)
+      setCopied(false)
       setIsOpen(false)
     }, 2000) // Reset after 2 seconds
   }

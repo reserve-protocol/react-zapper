@@ -1,0 +1,383 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-16 14:56-0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: formatCurrency(dustValue)
+#: src/components/zap-mint/buy/index.tsx:214
+#: src/components/zap-mint/sell/index.tsx:218
+msgid " + ${0} in dust "
+msgstr " + ${0} en dust "
+
+#: src/components/zap-mint/submit-zap.tsx:400
+msgid "Approve use of {inputSymbol}"
+msgstr "Aprobar el uso de {inputSymbol}"
+
+#: src/components/ui/swap.tsx:262
+msgid "Assembling different routes"
+msgstr "Armando distintas rutas"
+
+#: src/components/ui/swap.tsx:209
+msgid "Balance"
+msgstr "Balance"
+
+#: src/components/zap-mint/zap-settings.tsx:80
+msgid "Best Quote"
+msgstr "Mejor cotización"
+
+#: src/components/zapper.tsx:159
+msgid "Buy"
+msgstr "Comprar"
+
+#. placeholder {0}: indexDTF.token.symbol
+#: src/components/zap-mint/buy/index.tsx:232
+msgid "Buy {0}"
+msgstr "Comprar {0}"
+
+#: src/components/zap-mint/zap-settings.tsx:109
+msgid "Can improve price impact but it will take more time to get quotes."
+msgstr "Puede mejorar el impacto en el precio, pero tardará más en obtener cotizaciones."
+
+#: src/components/zap-mint/zap-success-view.tsx:41
+msgid "Changes to assets inside this DTF"
+msgstr "Cambios en los activos dentro de este DTF"
+
+#: src/components/zap-mint/zap-settings.tsx:140
+msgid "Collect dust?"
+msgstr "¿Recolectar dust?"
+
+#: src/components/transaction-button.tsx:92
+msgid "Connect Wallet"
+msgstr "Conectar Wallet"
+
+#: src/components/ui/copy.tsx:29
+msgid "Copied to clipboard!"
+msgstr "¡Copiado al portapapeles!"
+
+#: src/components/ui/copy.tsx:29
+msgid "Copy to clipboard"
+msgstr "Copiar al portapapeles"
+
+#: src/components/ui/swap.tsx:493
+msgid "Custom"
+msgstr "Personalizado"
+
+#: src/components/zap-mint/zap-settings.tsx:114
+msgid "Deep liquidity search"
+msgstr "Búsqueda profunda de liquidez"
+
+#: src/components/zap-mint/low-liquidity-warning.tsx:42
+msgid "During periods of high volatility it can take multiple attempts to find a route with good pricing."
+msgstr "Durante períodos de alta volatilidad puede tomar varios intentos encontrar una ruta con buen precio."
+
+#: src/components/zap-mint/zap-settings.tsx:141
+msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
+msgstr "El dust es la cantidad sobrante de tokens que no se puede intercambiar. Si decides recolectar el dust, se enviará de vuelta a tu Wallet. Enviar el dust de vuelta a la Wallet aumentará la comisión de la transacción."
+
+#: src/components/zap-mint/subscribe-updates.tsx:33
+msgid "Email"
+msgstr "Email"
+
+#: src/components/zap-mint/zap-settings.tsx:108
+msgid "Enable Deep liquidity search?"
+msgstr "¿Habilitar la búsqueda profunda de liquidez?"
+
+#: src/components/zap-mint/subscribe-updates.tsx:34
+msgid "Enter your email"
+msgstr "Introduce tu correo electrónico"
+
+#: src/components/ui/swap.tsx:263
+msgid "Evaluating slippage"
+msgstr "Evaluando slippage"
+
+#: src/components/zap-mint/zap-details.tsx:138
+msgid "Exchange Rate"
+msgstr "Tasa de cambio"
+
+#: src/components/zap-mint/zap-error-msg.tsx:122
+msgid "Failed to send. Try again."
+msgstr "Error al enviar. Inténtalo de nuevo."
+
+#: src/components/zap-mint/zap-settings.tsx:124
+msgid "Force DTF mint?"
+msgstr "¿Forzar el Mint del DTF?"
+
+#: src/components/zap-mint/zap-settings.tsx:130
+msgid "Force minting DTF"
+msgstr "Forzando el Mint del DTF"
+
+#: src/components/zap-mint/zap-success-view.tsx:151
+msgid "Get relevant updates about changes that may affect this DTF."
+msgstr "Recibe novedades relevantes sobre cambios que puedan afectar a este DTF."
+
+#: src/components/zap-mint/submit-zap.tsx:73
+msgid "Get started"
+msgstr "Comenzar"
+
+#: src/components/zap-mint/zap-success-view.tsx:43
+msgid "Governance role changes"
+msgstr "Cambios en los roles de gobernanza"
+
+#: src/components/zap-mint/zap-error-msg.tsx:170
+msgid "Having issues minting? (Zaps are in beta)"
+msgstr "¿Tienes problemas con el Mint? (Los Zaps están en beta)"
+
+#: src/components/zap-mint/zap-success-view.tsx:93
+msgid "Hide details"
+msgstr "Ocultar detalles"
+
+#. placeholder {0}: formatCurrency(dustValue)
+#. placeholder {1}: formatPercentage(Math.abs(dustPercentage))
+#: src/components/zap-mint/zap-dust-warning-checkbox.tsx:50
+msgid "High dust value: ${0} ({1} of output value)"
+msgstr "Valor de dust alto: ${0} ({1} del valor de salida)"
+
+#. placeholder {0}: formatPercentage(Math.abs(priceImpact))
+#: src/components/zap-mint/zap-warning-checkbox.tsx:34
+msgid "High price impact: {0}"
+msgstr "Alto impacto en el precio: {0}"
+
+#: src/components/zap-mint/submit-zap.tsx:97
+msgid "Insufficient balance"
+msgstr "Saldo insuficiente"
+
+#: src/components/transaction-button.tsx:78
+msgid "Insufficient gas balance"
+msgstr "Saldo de gas insuficiente"
+
+#: src/components/ui/swap.tsx:265
+msgid "Loading DTF"
+msgstr "Cargando DTF"
+
+#: src/components/zap-mint/submit-zap.tsx:73
+#: src/components/zap-mint/submit-zap.tsx:95
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: src/components/ui/swap.tsx:219
+msgid "Max"
+msgstr "Máx"
+
+#: src/components/ui/swap.tsx:466
+msgid "Max slippage"
+msgstr "Slippage máximo"
+
+#: src/components/zap-mint/zap-settings.tsx:96
+msgid "Max. mint slippage"
+msgstr "Slippage máx. de Mint"
+
+#: src/components/zap-mint/zap-success-view.tsx:42
+msgid "Methodology or mandate updates"
+msgstr "Actualizaciones de metodología o mandato"
+
+#: src/components/zap-mint/zap-details.tsx:174
+msgid "Min Amount Out"
+msgstr "Cantidad mínima a recibir"
+
+#: src/components/zap-mint/zap-success-view.tsx:182
+msgid "No thanks"
+msgstr "No, gracias"
+
+#: src/components/zap-mint/zap-error-msg.tsx:212
+msgid "Please report this to help us improve"
+msgstr "Repórtalo para ayudarnos a mejorar"
+
+#: src/components/zap-mint/zap-healthcheck.tsx:29
+msgid "Please try refreshing, or switch to manual minting."
+msgstr "Intenta actualizar, o cambia al Mint manual."
+
+#: src/components/zap-mint/zap-details.tsx:163
+msgid "Price Impact"
+msgstr "Impacto en el precio"
+
+#: src/components/zap-mint/zap-details.tsx:105
+msgid "Quote includes fees"
+msgstr "La cotización incluye comisiones"
+
+#: src/components/zap-mint/zap-settings.tsx:69
+msgid "Quote Source"
+msgstr "Fuente de la cotización"
+
+#: src/components/zap-mint/zap-success-view.tsx:103
+msgid "Received:"
+msgstr "Recibido:"
+
+#: src/components/ui/swap.tsx:264
+msgid "Reducing potential dust"
+msgstr "Reduciendo posible dust"
+
+#: src/components/zap-mint/refresh-quote.tsx:41
+msgid "Refresh"
+msgstr "Actualizar"
+
+#: src/components/zap-mint/zap-error-msg.tsx:118
+msgid "Report"
+msgstr "Reportar"
+
+#: src/components/zap-mint/zap-error-msg.tsx:118
+msgid "Reported"
+msgstr "Reportado"
+
+#: src/components/ui/swap.tsx:261
+msgid "Searching DEX Liquidity"
+msgstr "Buscando liquidez en DEX"
+
+#: src/components/zap-mint/zap-settings.tsx:70
+msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
+msgstr "Selecciona qué proveedor de cotización usar. 'Best' compara automáticamente todos los proveedores habilitados y elige el de mayor salida. Elegir un proveedor específico fuerza una única fuente."
+
+#: src/components/zapper.tsx:162
+msgid "Sell"
+msgstr "Vender"
+
+#. placeholder {0}: indexDTF.token.symbol
+#: src/components/zap-mint/sell/index.tsx:239
+msgid "Sell {0}"
+msgstr "Vender {0}"
+
+#: src/components/zap-mint/zap-settings.tsx:150
+msgid "Send dust back to wallet"
+msgstr "Enviar el dust de vuelta a la Wallet"
+
+#: src/components/zap-mint/zap-error-msg.tsx:118
+msgid "Sending..."
+msgstr "Enviando..."
+
+#: src/components/zap-mint/zap-success-view.tsx:93
+msgid "Show details"
+msgstr "Mostrar detalles"
+
+#: src/components/zap-mint/submit-zap.tsx:397
+msgid "Simulation failed - Refetching quote"
+msgstr "Falló la simulación - Recargando la cotización"
+
+#: src/components/ui/swap.tsx:463
+msgid "Slippage"
+msgstr "Slippage"
+
+#: src/components/zap-mint/zap-error-msg.tsx:39
+msgid "Sorry, the market is volatile right now. Please increase slippage in your settings."
+msgstr "Lo sentimos, el mercado está volátil en este momento. Aumenta el slippage en tu configuración."
+
+#: src/components/zap-mint/zap-error-msg.tsx:33
+msgid "Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit."
+msgstr "Lo sentimos, nos está costando encontrar una ruta que tenga sentido para ti. Inténtalo de nuevo en un momento."
+
+#: src/components/zap-mint/zap-success-view.tsx:148
+msgid "Stay informed about this DTF"
+msgstr "Mantente informado sobre este DTF"
+
+#: src/components/zap-mint/submit-zap.tsx:400
+msgid "Step 1. "
+msgstr "Paso 1. "
+
+#: src/components/zap-mint/submit-zap.tsx:399
+msgid "Step 2. "
+msgstr "Paso 2. "
+
+#: src/components/zap-mint/subscribe-updates.tsx:158
+msgid "Subscribe"
+msgstr "Suscribirse"
+
+#: src/components/zap-mint/zap-success-view.tsx:86
+msgid "Successful Purchase"
+msgstr "Compra exitosa"
+
+#: src/components/zap-mint/zap-success-view.tsx:86
+msgid "Successful Redemption"
+msgstr "Redención exitosa"
+
+#: src/components/transaction-button.tsx:108
+msgid "Switch to {chainName}"
+msgstr "Cambiar a {chainName}"
+
+#: src/components/zap-mint/subscribe-updates.tsx:39
+msgid "Telegram"
+msgstr "Telegram"
+
+#: src/components/zap-mint/subscribe-updates.tsx:40
+msgid "Telegram username"
+msgstr "Usuario de Telegram"
+
+#: src/components/zap-mint/zap-details.tsx:142
+msgid "The current exchange rate between the tokens."
+msgstr "La tasa de cambio actual entre los tokens."
+
+#: src/components/zap-mint/zap-details.tsx:109
+msgid "The displayed quote already includes all applicable fees and price impact."
+msgstr "La cotización mostrada ya incluye todas las comisiones aplicables y el impacto en el precio."
+
+#: src/components/zap-mint/zap-details.tsx:167
+msgid "The impact your trade has on the market price."
+msgstr "El impacto que tiene tu operación en el precio de mercado."
+
+#: src/components/zap-mint/zap-settings.tsx:97
+msgid "The maximum amount of slippage you are willing to accept when minting. Higher slippage settings will make the transaction more likely to succeed, but may result in fewer tokens minted."
+msgstr "La cantidad máxima de slippage que estás dispuesto a aceptar al hacer Mint. Una configuración de slippage más alta hará que la transacción tenga más probabilidades de completarse, pero puede resultar en menos tokens minteados."
+
+#: src/components/zap-mint/zap-details.tsx:182
+msgid "The minimum amount of tokens you will receive."
+msgstr "La cantidad mínima de tokens que recibirás."
+
+#: src/components/zap-mint/zap-warning-checkbox.tsx:39
+msgid "The price impact for this trade is very high. You will get significantly less value than expected."
+msgstr "El impacto en el precio de esta operación es muy alto. Obtendrás mucho menos valor del esperado."
+
+#: src/components/zap-mint/low-liquidity-warning.tsx:37
+msgid "This DTF contains assets with relatively low DEX liquidity"
+msgstr "Este DTF contiene activos con liquidez relativamente baja en DEX"
+
+#: src/components/zap-mint/zap-settings.tsx:125
+msgid "This is useful if you want to mint the DTF without trading."
+msgstr "Esto es útil si quieres hacer Mint del DTF sin operar."
+
+#. placeholder {0}: formatPercentage(Math.abs(dustPercentage))
+#: src/components/zap-mint/zap-dust-warning-checkbox.tsx:56
+msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
+msgstr "Esta operación genera una gran cantidad de dust, lo que significa que recibirás {0} del valor en activos individuales, y el resto en {tokenOutSymbol}."
+
+#: src/components/ui/swap.tsx:482
+msgid "Toggle {option}"
+msgstr "Alternar {option}"
+
+#: src/components/zapper.tsx:209
+msgid "Transaction successful"
+msgstr "Transacción exitosa"
+
+#: src/components/zap-mint/zap-success-view.tsx:129
+msgid "Transaction:"
+msgstr "Transacción:"
+
+#: src/components/zap-mint/zap-success-view.tsx:116
+msgid "Used:"
+msgstr "Usado:"
+
+#: src/components/zap-mint/zap-details.tsx:125
+msgid "Via"
+msgstr "Vía"
+
+#: src/components/zap-mint/zap-error-msg.tsx:173
+msgid "Wait and try again or consider using manual mode"
+msgstr "Espera e inténtalo de nuevo, o considera usar el modo manual"
+
+#: src/components/ui/swap.tsx:359
+msgid "You receive:"
+msgstr "Recibes:"
+
+#: src/components/ui/swap.tsx:237
+msgid "You use:"
+msgstr "Usas:"
+
+#: src/components/zap-mint/zap-healthcheck.tsx:24
+msgid "Zaps are currently experiencing issues"
+msgstr "Los Zaps están presentando problemas actualmente"

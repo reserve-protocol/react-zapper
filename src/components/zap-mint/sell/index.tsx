@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
@@ -43,6 +44,7 @@ interface SellProps {
 }
 
 const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
+  const { t } = useLingui()
   const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
@@ -213,7 +215,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
             <span>
               ${formatCurrency(priceTo)}
               {dustValue > 0.01
-                ? ` + $${formatCurrency(dustValue)} in dust `
+                ? t` + $${formatCurrency(dustValue)} in dust `
                 : ' '}
               <ZapPriceImpact data={data?.result} />
             </span>
@@ -234,7 +236,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
         data={data?.result}
         source={data?.source}
         chainId={indexDTF.chainId}
-        buttonLabel={`Sell ${indexDTF.token.symbol}`}
+        buttonLabel={t`Sell ${indexDTF.token.symbol}`}
         inputSymbol={indexDTF.token.symbol}
         outputSymbol={selectedToken.symbol}
         inputAmount={formatCurrency(Number(inputAmount))}
