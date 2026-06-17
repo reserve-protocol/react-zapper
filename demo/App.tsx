@@ -3,6 +3,7 @@ import {
   useZapperModal,
   PROVIDERS,
   type ProviderId,
+  type SupportedLocale,
 } from '@reserve-protocol/react-zapper'
 import React, { useState } from 'react'
 import { useChains } from 'wagmi'
@@ -72,6 +73,7 @@ function App() {
   const [mode, setMode] = useState<'modal' | 'inline' | 'simple'>('inline')
   const [sellOnly, setSellOnly] = useState(false)
   const [showContactInfo, setShowContactInfo] = useState(true)
+  const [locale, setLocale] = useState<SupportedLocale>('en')
   const { open } = useZapperModal()
 
   // Update selected DTF when chain changes
@@ -341,6 +343,31 @@ function App() {
                   Shows the "Stay informed" contact panel after a successful mint
                 </p>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Language
+                </label>
+                <Select
+                  value={locale}
+                  onValueChange={(value) =>
+                    setLocale(value as SupportedLocale)
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Español</SelectItem>
+                    <SelectItem value="ko">한국어</SelectItem>
+                    <SelectItem value="zh">中文</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Optional <code>locale</code> prop. Untranslated strings fall
+                  back to English.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -374,6 +401,7 @@ function App() {
                     debug={debug}
                     sellOnly={sellOnly}
                     showContactInfo={showContactInfo}
+                    locale={locale}
                   />
                   <Button onClick={open} className="w-full rounded-xl" size="lg">
                     Open Zapper Modal
@@ -391,6 +419,7 @@ function App() {
                     defaultSource={quoteSource}
                     sellOnly={sellOnly}
                     showContactInfo={showContactInfo}
+                    locale={locale}
                   />
                 </div>
               )}

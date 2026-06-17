@@ -1,3 +1,6 @@
+import type { MessageDescriptor } from '@lingui/core'
+import { msg } from '@lingui/core/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtomValue } from 'jotai'
 import { ChevronDown, ChevronUp, Mail } from 'lucide-react'
 import { ReactNode, useCallback, useState } from 'react'
@@ -19,22 +22,22 @@ import { zapSuccessAtom } from './atom'
 
 type SocialMediaOption = {
   key: 'email' | 'telegram'
-  name: string
-  placeholder: string
+  name: MessageDescriptor
+  placeholder: MessageDescriptor
   icon: ReactNode
 }
 
 const SOCIAL_MEDIA_OPTIONS: SocialMediaOption[] = [
   {
     key: 'email',
-    name: 'Email',
-    placeholder: 'Enter your email',
+    name: msg`Email`,
+    placeholder: msg`Enter your email`,
     icon: <Mail size={14} />,
   },
   {
     key: 'telegram',
-    name: 'Telegram',
-    placeholder: 'Telegram username',
+    name: msg`Telegram`,
+    placeholder: msg`Telegram username`,
     icon: <TelegramIcon width={16} height={16} />,
   },
 ]
@@ -46,6 +49,7 @@ const Dropdown = ({
   selected: SocialMediaOption
   onSelectOption: (option: SocialMediaOption) => void
 }) => {
+  const { t } = useLingui()
   const [open, setOpen] = useState(false)
 
   return (
@@ -69,7 +73,7 @@ const Dropdown = ({
             onSelect={() => onSelectOption(option)}
           >
             {option.icon}
-            {option.name}
+            {t(option.name)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -84,6 +88,7 @@ const SubscribeUpdates = ({
   className?: string
   onSubmitted?: () => void
 }) => {
+  const { t } = useLingui()
   const account = useAtomValue(walletAtom)
   const success = useAtomValue(zapSuccessAtom)
 
@@ -137,7 +142,7 @@ const SubscribeUpdates = ({
         />
         <Input
           className="h-[49px] py-0 w-full rounded-xl bg-card/80 pl-14 pr-28 font-light"
-          placeholder={selected.placeholder}
+          placeholder={t(selected.placeholder)}
           value={value}
           onChange={(e) => !submitted && setValue(e.target.value)}
           disabled={submitted}
@@ -150,7 +155,7 @@ const SubscribeUpdates = ({
           disabled={!value || submitted}
           onClick={() => handleSubmit(selected.key)}
         >
-          Subscribe
+          <Trans>Subscribe</Trans>
         </Button>
       </div>
     </div>

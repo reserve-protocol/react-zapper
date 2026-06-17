@@ -1,3 +1,13 @@
+## [2.3.0] - 2026-06-17
+
+### Added
+
+- Optional localization. A new `locale` prop (`'en' | 'es' | 'ko' | 'zh'`) switches the zapper UI language; it defaults to `'en'` and any untranslated string falls back to English, so existing behavior is unchanged. Localization is fully self-contained — the i18n runtime (Lingui) and all message catalogs are bundled inside the package, so consumers need no extra dependencies and no provider setup. Spanish, Korean, and Chinese catalogs are complete and aligned with Register's terminology; the Korean and Chinese strings were machine-assisted and warrant a native review.
+
+### Note
+
+- The `Zapper` component is unaffected — it wraps its own UI in the new i18n provider automatically. Only consumers that mount the lower-level `ZapperContent` export directly now need to wrap it in the also-exported `ZapperI18nProvider` (it renders translated text and requires the provider in context).
+
 ## [2.2.1] - 2026-06-09
 
 ### Changed

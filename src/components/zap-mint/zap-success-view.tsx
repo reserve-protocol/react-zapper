@@ -1,3 +1,5 @@
+import { msg } from '@lingui/core/macro'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtomValue } from 'jotai'
 import {
   ArrowUpRight,
@@ -36,12 +38,13 @@ const DetailRow = ({
 )
 
 const STAY_INFORMED = [
-  { Icon: PackageOpen, text: 'Changes to assets inside this DTF' },
-  { Icon: ScrollText, text: 'Methodology or mandate updates' },
-  { Icon: Landmark, text: 'Governance role changes' },
+  { Icon: PackageOpen, text: msg`Changes to assets inside this DTF` },
+  { Icon: ScrollText, text: msg`Methodology or mandate updates` },
+  { Icon: Landmark, text: msg`Governance role changes` },
 ]
 
 const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useLingui()
   const success = useAtomValue(zapSuccessAtom)
   const showContactInfo = useAtomValue(showContactInfoAtom)
   const [detailsOpen, setDetailsOpen] = useState(true)
@@ -80,14 +83,14 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
         <div className="flex flex-col gap-1 rounded-xl border border-[#3ebf6e] bg-[#ddf8e7] px-4 py-3 animate-slide-up">
           <div className="flex items-start justify-between gap-2">
             <p className="font-bold text-primary">
-              {isMint ? 'Successful Purchase' : 'Successful Redemption'}
+              {isMint ? t`Successful Purchase` : t`Successful Redemption`}
             </p>
             <button
               type="button"
               className="flex shrink-0 items-center gap-1 whitespace-nowrap text-primary"
               onClick={() => setDetailsOpen((o) => !o)}
             >
-              {detailsOpen ? 'Hide details' : 'Show details'}
+              {detailsOpen ? t`Hide details` : t`Show details`}
               {detailsOpen ? (
                 <ChevronUp size={16} />
               ) : (
@@ -97,7 +100,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
           </div>
           {detailsOpen && (
             <div className="flex flex-col gap-2 pt-4">
-              <DetailRow label="Received:">
+              <DetailRow label={t`Received:`}>
                 <TokenLogo
                   className="shrink-0"
                   size="md"
@@ -110,7 +113,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
                   {formatTokenAmount(Number(receivedAmount))}
                 </span>
               </DetailRow>
-              <DetailRow label="Used:">
+              <DetailRow label={t`Used:`}>
                 <TokenLogo
                   className="shrink-0"
                   size="lg"
@@ -123,7 +126,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
                   ${formatCurrency(inputValue)}
                 </span>
               </DetailRow>
-              <DetailRow label="Transaction:">
+              <DetailRow label={t`Transaction:`}>
                 <a
                   href={transactionUrl(chainId as AvailableChain, txHash)}
                   target="_blank"
@@ -142,19 +145,21 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
           <div className="flex flex-col gap-4 rounded-2xl border border-[#e0d5c7] bg-[#fefbf8] p-4 opacity-0 animate-fade-in [animation-delay:300ms]">
             <div className="flex flex-col gap-1">
               <p className="text-xl font-medium leading-7 text-primary">
-                Stay informed about this DTF
+                <Trans>Stay informed about this DTF</Trans>
               </p>
               <p className="text-base text-foreground">
-                Get relevant updates about changes that may affect this DTF.
+                <Trans>
+                  Get relevant updates about changes that may affect this DTF.
+                </Trans>
               </p>
             </div>
             <ul className="flex flex-col gap-3 text-base text-foreground">
               {STAY_INFORMED.map(({ Icon, text }) => (
-                <li key={text} className="flex items-center gap-2">
+                <li key={t(text)} className="flex items-center gap-2">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-card">
                     <Icon size={12} />
                   </span>
-                  {text}
+                  {t(text)}
                 </li>
               ))}
             </ul>
@@ -174,7 +179,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
             disabled={contactSubmitted}
             className="px-4 pb-4 text-center text-primary opacity-0 animate-fade-in [animation-delay:300ms] disabled:cursor-not-allowed disabled:text-muted-foreground"
           >
-            No thanks
+            <Trans>No thanks</Trans>
           </button>
         </>
       )}

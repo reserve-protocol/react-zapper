@@ -165,6 +165,35 @@ Simple mode features:
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
+| `locale`         | `'en' \| 'es' \| 'ko' \| 'zh'`  | ❌       | UI language. Defaults to `'en'`; untranslated strings fall back to English |
+
+### Localization
+
+The zapper UI ships with built-in translations (English, Spanish, Korean,
+Chinese). Pass the optional `locale` prop to switch languages:
+
+```tsx
+<Zapper chain={1} dtfAddress="0x..." locale="es" />
+```
+
+Localization is fully self-contained and optional:
+
+- It requires **no extra dependencies** — the i18n runtime and all catalogs are
+  bundled inside the package.
+- Omitting `locale` (or passing `'en'`) renders English, exactly as before.
+- Any string without a translation falls back to English, so behavior never
+  breaks.
+
+If you render `ZapperContent` directly (without the `Zapper` wrapper), wrap it in
+the exported `ZapperI18nProvider` to enable localization:
+
+```tsx
+import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zapper'
+
+<ZapperI18nProvider locale="es">
+  <ZapperContent mode="inline" />
+</ZapperI18nProvider>
+```
 
 ### Quote Providers
 

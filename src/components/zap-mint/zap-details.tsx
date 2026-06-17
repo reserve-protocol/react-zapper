@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import Decimal from 'decimal.js-light'
 import { useAtomValue } from 'jotai'
 import { formatUnits } from 'viem'
@@ -100,8 +101,17 @@ const ZapDetails = ({
       visible={{
         left: (
           <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Quote includes fees</span>
-            <Help content="The displayed quote already includes all applicable fees and price impact." />
+            <span className="text-muted-foreground">
+              <Trans>Quote includes fees</Trans>
+            </span>
+            <Help
+              content={
+                <Trans>
+                  The displayed quote already includes all applicable fees and
+                  price impact.
+                </Trans>
+              }
+            />
           </div>
         ),
         right: source
@@ -111,7 +121,9 @@ const ZapDetails = ({
               const { Icon, label } = provider
               return (
                 <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Via</span>
+                  <span className="text-muted-foreground">
+                    <Trans>Via</Trans>
+                  </span>
                   <Icon size={14} />
                   <span>{label}</span>
                 </div>
@@ -121,9 +133,13 @@ const ZapDetails = ({
       }}
       details={[
         {
-          left: <span className="text-muted-foreground">Exchange Rate</span>,
+          left: (
+            <span className="text-muted-foreground">
+              <Trans>Exchange Rate</Trans>
+            </span>
+          ),
           right: <span>{ratioText}</span>,
-          help: 'The current exchange rate between the tokens.',
+          help: <Trans>The current exchange rate between the tokens.</Trans>,
         },
         // ...(!dtfAsTokenIn
         //   ? [
@@ -142,22 +158,28 @@ const ZapDetails = ({
         //     ]
         //   : []),
         {
-          left: <span className="text-muted-foreground">Price Impact</span>,
+          left: (
+            <span className="text-muted-foreground">
+              <Trans>Price Impact</Trans>
+            </span>
+          ),
           right: <ZapPriceImpact data={data} isDetail />,
-          help: 'The impact your trade has on the market price.',
+          help: <Trans>The impact your trade has on the market price.</Trans>,
         },
         ...(minAmountOut
           ? [
               {
                 left: (
-                  <span className="text-muted-foreground">Min Amount Out</span>
+                  <span className="text-muted-foreground">
+                    <Trans>Min Amount Out</Trans>
+                  </span>
                 ),
                 right: (
                   <span>
                     {formatTokenAmount(Number(minAmountOut))} {tokenOutSymbol}
                   </span>
                 ),
-                help: 'The minimum amount of tokens you will receive.',
+                help: <Trans>The minimum amount of tokens you will receive.</Trans>,
               },
             ]
           : []),
