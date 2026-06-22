@@ -22,7 +22,7 @@ import { transactionUrl } from '../../utils/urls'
 import TokenLogo from '../token-logo'
 import { Button } from '../ui/button'
 import { showContactInfoAtom, zapSuccessAtom } from './atom'
-import SubscribeUpdates from './subscribe-updates'
+import SubscribeUpdates, { type ContactStatus } from './subscribe-updates'
 
 const DetailRow = ({
   label,
@@ -48,7 +48,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
   const success = useAtomValue(zapSuccessAtom)
   const showContactInfo = useAtomValue(showContactInfoAtom)
   const [detailsOpen, setDetailsOpen] = useState(true)
-  const [contactSubmitted, setContactSubmitted] = useState(false)
+  const [contactStatus, setContactStatus] = useState<ContactStatus>('idle')
 
   if (!success) return null
 
@@ -167,22 +167,58 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
         )}
       </div>
 
-      {showContactInfo && (
-        <>
-          <SubscribeUpdates
-            className="px-4 opacity-0 animate-fade-in [animation-delay:300ms]"
-            onSubmitted={() => setContactSubmitted(true)}
-          />
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={contactSubmitted}
-            className="px-4 pb-4 text-center text-primary opacity-0 animate-fade-in [animation-delay:300ms] disabled:cursor-not-allowed disabled:text-muted-foreground"
-          >
-            <Trans>No thanks</Trans>
-          </button>
-        </>
-      )}
+      {showContactInfo &&
+        (contactStatus === 'success' ? (
+          <div className="flex flex-col gap-6">
+            <p className="px-4 text-left font-bold text-primary opacity-0 animate-fade-in">
+              <Trans>
+                Thanks for getting involved, we’re excited to have you! We’ll
+                reach out with any important updates on this DTF.
+              </Trans>
+            </p>
+            <div className="flex justify-center px-4 pb-4">
+              <Button
+                variant="secondary"
+                className="rounded-xl px-8"
+                onClick={onClose}
+              >
+                <Trans>Close</Trans>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {contactStatus === 'error' && (
+              <p className="px-4 text-left font-bold text-[#ef4345] animate-fade-in">
+                <Trans>
+                  Something went wrong. Please try again. If the problem
+                  persists, please{' '}
+                  <a
+                    href="https://reserve.canny.io/general-help-requests"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary"
+                  >
+                    submit a help request
+                  </a>
+                  .
+                </Trans>
+              </p>
+            )}
+            <SubscribeUpdates
+              className="px-4 opacity-0 animate-fade-in [animation-delay:300ms]"
+              onStatusChange={setContactStatus}
+            />
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={contactStatus === 'submitting'}
+              className="px-4 pb-4 text-center text-primary opacity-0 animate-fade-in [animation-delay:300ms] disabled:cursor-not-allowed disabled:text-muted-foreground"
+            >
+              <Trans>No thanks</Trans>
+            </button>
+          </>
+        ))}
     </div>
   )
 }
