@@ -52,6 +52,10 @@ msgstr "可以改善价格影响，但获取报价会花费更长时间。"
 msgid "Changes to assets inside this DTF"
 msgstr "此 DTF 内资产的变更"
 
+#: src/components/zap-mint/zap-success-view.tsx:185
+msgid "Close"
+msgstr "关闭"
+
 #: src/components/zap-mint/zap-settings.tsx:140
 msgid "Collect dust?"
 msgstr "收集碎屑？"
@@ -84,7 +88,7 @@ msgstr "在高波动期间，可能需要多次尝试才能找到定价合理的
 msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
 msgstr "碎屑是指无法兑换的剩余代币。如果你选择收集碎屑，它将被退回到你的 Wallet。将碎屑退回 Wallet 会增加交易费用。"
 
-#: src/components/zap-mint/subscribe-updates.tsx:33
+#: src/components/zap-mint/subscribe-updates.tsx:35
 msgid "Email"
 msgstr "Email"
 
@@ -92,7 +96,7 @@ msgstr "Email"
 msgid "Enable Deep liquidity search?"
 msgstr "启用深度流动性搜索？"
 
-#: src/components/zap-mint/subscribe-updates.tsx:34
+#: src/components/zap-mint/subscribe-updates.tsx:36
 msgid "Enter your email"
 msgstr "输入你的电子邮件"
 
@@ -184,7 +188,7 @@ msgstr "方法论或授权的更新"
 msgid "Min Amount Out"
 msgstr "最小输出数量"
 
-#: src/components/zap-mint/zap-success-view.tsx:182
+#: src/components/zap-mint/zap-success-view.tsx:218
 msgid "No thanks"
 msgstr "不用了"
 
@@ -265,6 +269,10 @@ msgstr "模拟失败 - 正在重新获取报价"
 msgid "Slippage"
 msgstr "滑点"
 
+#: src/components/zap-mint/zap-success-view.tsx:193
+msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
+msgstr "出了点问题。请重试。如果问题仍然存在，请<0>提交帮助请求</0>。"
+
 #: src/components/zap-mint/zap-error-msg.tsx:39
 msgid "Sorry, the market is volatile right now. Please increase slippage in your settings."
 msgstr "抱歉，当前市场波动较大。请在设置中提高滑点。"
@@ -285,7 +293,7 @@ msgstr "步骤 1. "
 msgid "Step 2. "
 msgstr "步骤 2. "
 
-#: src/components/zap-mint/subscribe-updates.tsx:158
+#: src/components/zap-mint/subscribe-updates.tsx:162
 msgid "Subscribe"
 msgstr "订阅"
 
@@ -301,13 +309,17 @@ msgstr "赎回成功"
 msgid "Switch to {chainName}"
 msgstr "切换到 {chainName}"
 
-#: src/components/zap-mint/subscribe-updates.tsx:39
+#: src/components/zap-mint/subscribe-updates.tsx:41
 msgid "Telegram"
 msgstr "Telegram"
 
-#: src/components/zap-mint/subscribe-updates.tsx:40
+#: src/components/zap-mint/subscribe-updates.tsx:42
 msgid "Telegram username"
 msgstr "Telegram 用户名"
+
+#: src/components/zap-mint/zap-success-view.tsx:174
+msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
+msgstr "感谢您的参与，我们很高兴有您加入！我们会就此 DTF 的任何重要更新与您联系。"
 
 #: src/components/zap-mint/zap-details.tsx:142
 msgid "The current exchange rate between the tokens."

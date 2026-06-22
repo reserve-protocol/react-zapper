@@ -52,6 +52,10 @@ msgstr "Puede mejorar el impacto en el precio, pero tardará más en obtener cot
 msgid "Changes to assets inside this DTF"
 msgstr "Cambios en los activos dentro de este DTF"
 
+#: src/components/zap-mint/zap-success-view.tsx:185
+msgid "Close"
+msgstr "Cerrar"
+
 #: src/components/zap-mint/zap-settings.tsx:140
 msgid "Collect dust?"
 msgstr "¿Recolectar dust?"
@@ -84,7 +88,7 @@ msgstr "Durante períodos de alta volatilidad puede tomar varios intentos encont
 msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
 msgstr "El dust es la cantidad sobrante de tokens que no se puede intercambiar. Si decides recolectar el dust, se enviará de vuelta a tu Wallet. Enviar el dust de vuelta a la Wallet aumentará la comisión de la transacción."
 
-#: src/components/zap-mint/subscribe-updates.tsx:33
+#: src/components/zap-mint/subscribe-updates.tsx:35
 msgid "Email"
 msgstr "Email"
 
@@ -92,7 +96,7 @@ msgstr "Email"
 msgid "Enable Deep liquidity search?"
 msgstr "¿Habilitar la búsqueda profunda de liquidez?"
 
-#: src/components/zap-mint/subscribe-updates.tsx:34
+#: src/components/zap-mint/subscribe-updates.tsx:36
 msgid "Enter your email"
 msgstr "Introduce tu correo electrónico"
 
@@ -184,7 +188,7 @@ msgstr "Actualizaciones de metodología o mandato"
 msgid "Min Amount Out"
 msgstr "Cantidad mínima a recibir"
 
-#: src/components/zap-mint/zap-success-view.tsx:182
+#: src/components/zap-mint/zap-success-view.tsx:218
 msgid "No thanks"
 msgstr "No, gracias"
 
@@ -265,6 +269,10 @@ msgstr "Falló la simulación - Recargando la cotización"
 msgid "Slippage"
 msgstr "Slippage"
 
+#: src/components/zap-mint/zap-success-view.tsx:193
+msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
+msgstr "Algo salió mal. Inténtalo de nuevo. Si el problema persiste, <0>envía una solicitud de ayuda</0>."
+
 #: src/components/zap-mint/zap-error-msg.tsx:39
 msgid "Sorry, the market is volatile right now. Please increase slippage in your settings."
 msgstr "Lo sentimos, el mercado está volátil en este momento. Aumenta el slippage en tu configuración."
@@ -285,7 +293,7 @@ msgstr "Paso 1. "
 msgid "Step 2. "
 msgstr "Paso 2. "
 
-#: src/components/zap-mint/subscribe-updates.tsx:158
+#: src/components/zap-mint/subscribe-updates.tsx:162
 msgid "Subscribe"
 msgstr "Suscribirse"
 
@@ -301,13 +309,17 @@ msgstr "Redención exitosa"
 msgid "Switch to {chainName}"
 msgstr "Cambiar a {chainName}"
 
-#: src/components/zap-mint/subscribe-updates.tsx:39
+#: src/components/zap-mint/subscribe-updates.tsx:41
 msgid "Telegram"
 msgstr "Telegram"
 
-#: src/components/zap-mint/subscribe-updates.tsx:40
+#: src/components/zap-mint/subscribe-updates.tsx:42
 msgid "Telegram username"
 msgstr "Usuario de Telegram"
+
+#: src/components/zap-mint/zap-success-view.tsx:174
+msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
+msgstr "¡Gracias por sumarte, nos alegra tenerte! Te contactaremos con cualquier novedad importante sobre este DTF."
 
 #: src/components/zap-mint/zap-details.tsx:142
 msgid "The current exchange rate between the tokens."

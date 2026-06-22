@@ -1,3 +1,9 @@
+## [2.3.1] - 2026-06-22
+
+### Changed
+
+- The post-transaction "Stay informed" contact flow now surfaces the submission result instead of failing silently. A successful subscribe replaces the input and "No thanks" with a confirmation message ("Thanks for getting involved…") and a "Close" button; a failure shows a predefined error message above the input (with a link to submit a help request) and keeps the form editable so the user can retry. New strings are translated for `es`, `ko`, and `zh`.
+
 ## [2.3.0] - 2026-06-17
 
 ### Added

@@ -6,6 +6,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
 #: src/components/zap-mint/buy/index.tsx:214
@@ -46,6 +52,10 @@ msgstr ""
 msgid "Changes to assets inside this DTF"
 msgstr ""
 
+#: src/components/zap-mint/zap-success-view.tsx:185
+msgid "Close"
+msgstr ""
+
 #: src/components/zap-mint/zap-settings.tsx:140
 msgid "Collect dust?"
 msgstr ""
@@ -78,7 +88,7 @@ msgstr ""
 msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
 msgstr ""
 
-#: src/components/zap-mint/subscribe-updates.tsx:33
+#: src/components/zap-mint/subscribe-updates.tsx:35
 msgid "Email"
 msgstr ""
 
@@ -86,7 +96,7 @@ msgstr ""
 msgid "Enable Deep liquidity search?"
 msgstr ""
 
-#: src/components/zap-mint/subscribe-updates.tsx:34
+#: src/components/zap-mint/subscribe-updates.tsx:36
 msgid "Enter your email"
 msgstr ""
 
@@ -178,7 +188,7 @@ msgstr ""
 msgid "Min Amount Out"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:182
+#: src/components/zap-mint/zap-success-view.tsx:218
 msgid "No thanks"
 msgstr ""
 
@@ -259,6 +269,10 @@ msgstr ""
 msgid "Slippage"
 msgstr ""
 
+#: src/components/zap-mint/zap-success-view.tsx:193
+msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
+msgstr ""
+
 #: src/components/zap-mint/zap-error-msg.tsx:39
 msgid "Sorry, the market is volatile right now. Please increase slippage in your settings."
 msgstr ""
@@ -279,7 +293,7 @@ msgstr ""
 msgid "Step 2. "
 msgstr ""
 
-#: src/components/zap-mint/subscribe-updates.tsx:158
+#: src/components/zap-mint/subscribe-updates.tsx:162
 msgid "Subscribe"
 msgstr ""
 
@@ -295,12 +309,16 @@ msgstr ""
 msgid "Switch to {chainName}"
 msgstr ""
 
-#: src/components/zap-mint/subscribe-updates.tsx:39
+#: src/components/zap-mint/subscribe-updates.tsx:41
 msgid "Telegram"
 msgstr ""
 
-#: src/components/zap-mint/subscribe-updates.tsx:40
+#: src/components/zap-mint/subscribe-updates.tsx:42
 msgid "Telegram username"
+msgstr ""
+
+#: src/components/zap-mint/zap-success-view.tsx:174
+msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr ""
 
 #: src/components/zap-mint/zap-details.tsx:142

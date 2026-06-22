@@ -20,6 +20,8 @@ import {
 import { Input } from '../ui/input'
 import { zapSuccessAtom } from './atom'
 
+export type ContactStatus = 'idle' | 'submitting' | 'success' | 'error'
+
 type SocialMediaOption = {
   key: 'email' | 'telegram'
   name: MessageDescriptor
@@ -83,10 +85,10 @@ const Dropdown = ({
 
 const SubscribeUpdates = ({
   className,
-  onSubmitted,
+  onStatusChange,
 }: {
   className?: string
-  onSubmitted?: () => void
+  onStatusChange?: (status: ContactStatus) => void
 }) => {
   const { t } = useLingui()
   const account = useAtomValue(walletAtom)
@@ -104,7 +106,7 @@ const SubscribeUpdates = ({
     async (key: SocialMediaOption['key']) => {
       if (!value) return
       setSubmitted(true)
-      onSubmitted?.()
+      onStatusChange?.('submitting')
       trackContact('zap_contact_submit', key)
       try {
         const res = await fetch(UPDATES_STORAGE_URL, {
@@ -122,12 +124,14 @@ const SubscribeUpdates = ({
         })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         trackContact('zap_contact_subscribed', key)
+        onStatusChange?.('success')
       } catch {
-        // Fail silently for the user — keep the submitted UI, just record it.
         trackContact('zap_contact_error', key)
+        setSubmitted(false)
+        onStatusChange?.('error')
       }
     },
-    [value, account, success, trackContact, onSubmitted]
+    [value, account, success, trackContact, onStatusChange]
   )
 
   return (
