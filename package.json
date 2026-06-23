@@ -1,6 +1,6 @@
 {
   "name": "@reserve-protocol/react-zapper",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "type": "module",
   "packageManager": "pnpm@11.1.1",
   "description": "React component for DTF minting with zap functionality",

@@ -68,8 +68,8 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 px-4 pt-4">
         <div className="flex items-center justify-between">
-          <span className="flex items-center justify-center rounded-2xl border border-[#3ebf6e] p-1">
-            <Check size={16} className="text-[#3ebf6e]" />
+          <span className="flex items-center justify-center rounded-2xl border border-success p-1">
+            <Check size={16} className="text-success" />
           </span>
           <Button
             variant="outline"
@@ -80,7 +80,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
           </Button>
         </div>
 
-        <div className="flex flex-col gap-1 rounded-xl border border-[#3ebf6e] bg-[#ddf8e7] px-4 py-3 animate-slide-up">
+        <div className="flex flex-col gap-1 rounded-xl border border-success/50 bg-success/10 px-4 py-3 animate-slide-up">
           <div className="flex items-start justify-between gap-2">
             <p className="font-bold text-primary">
               {isMint ? t`Successful Purchase` : t`Successful Redemption`}
@@ -142,7 +142,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
         </div>
 
         {showContactInfo && (
-          <div className="flex flex-col gap-4 rounded-2xl border border-[#e0d5c7] bg-[#fefbf8] p-4 opacity-0 animate-fade-in [animation-delay:300ms]">
+          <div className="flex flex-col gap-4 rounded-2xl border border-border-secondary bg-background p-4 opacity-0 animate-fade-in [animation-delay:300ms]">
             <div className="flex flex-col gap-1">
               <p className="text-xl font-medium leading-7 text-primary">
                 <Trans>Stay informed about this DTF</Trans>
@@ -189,7 +189,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
         ) : (
           <>
             {contactStatus === 'error' && (
-              <p className="px-4 text-left font-bold text-[#ef4345] animate-fade-in">
+              <p className="px-4 text-left font-bold text-destructive animate-fade-in">
                 <Trans>
                   Something went wrong. Please try again. If the problem
                   persists, please{' '}

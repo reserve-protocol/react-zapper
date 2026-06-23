@@ -1,3 +1,9 @@
+## [2.3.2] - 2026-06-23
+
+### Changed
+
+- Replaced the hardcoded hex colors in the post-transaction success view with the existing Tailwind theme tokens (`success`, `destructive`, `border-secondary`, `background`), matching the rest of the components. As a side effect the success view is now theme-aware and adapts to dark mode instead of using fixed light-mode colors.
+
 ## [2.3.1] - 2026-06-22
 
 ### Changed
