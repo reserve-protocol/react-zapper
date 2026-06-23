@@ -11,7 +11,6 @@ import {
 } from '../../state/atoms'
 import { TokenBalance } from '../../types'
 import { reducedZappableTokens } from '../../utils/constants'
-import { indexDTFBalanceAtom } from '../zap-mint/atom'
 
 const balancesCallAtom = atom((get) => {
   const wallet = get(walletAtom)
@@ -42,14 +41,9 @@ const balancesCallAtom = atom((get) => {
   }
 })
 
-export const TokenBalancesUpdater = ({
-  dtfAddress,
-}: {
-  dtfAddress: string
-}) => {
+export const TokenBalancesUpdater = () => {
   const { tokens, calls } = useAtomValue(balancesCallAtom) ?? {}
   const setBalances = useSetAtom(balancesAtom)
-  const setIndexDTFBalance = useSetAtom(indexDTFBalanceAtom)
   const wallet = useAtomValue(walletAtom)
   const chainId = useAtomValue(chainIdAtom)
 
@@ -82,9 +76,8 @@ export const TokenBalancesUpdater = ({
       }
 
       setBalances(balances)
-      setIndexDTFBalance(balances[dtfAddress]?.value || 0n)
     }
-  }, [data, balance, dtfAddress, setBalances, setIndexDTFBalance, tokens])
+  }, [data, balance, setBalances, tokens])
 
   return null
 }

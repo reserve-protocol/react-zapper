@@ -10,7 +10,12 @@ export const zapperCurrentTabAtom = atom<'buy' | 'sell'>('buy')
 export const showZapSettingsAtom = atom<boolean>(false)
 export const zapMintInputAtom = atomWithReset<string>('')
 export const zapMintInputCachedAtom = atom<string>('')
-export const indexDTFBalanceAtom = atom<bigint>(0n)
+export const indexDTFBalanceAtom = atom<bigint>((get) => {
+  const balances = get(balancesAtom)
+  const indexDTF = get(indexDTFAtom)
+  if (!indexDTF) return 0n
+  return balances[indexDTF.id]?.value ?? 0n
+})
 export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)

@@ -272,7 +272,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <IndexDTFMetadataUpdater dtfAddress={dtfAddress} />
       <IndexDTFBasketUpdater dtfAddress={dtfAddress} />
       <IndexDTFIconsUpdater />
-      <TokenBalancesUpdater dtfAddress={dtfAddress} />
+      <TokenBalancesUpdater />
       <QuoteSourceUpdater defaultSource={defaultSource} />
       <DebugUpdater debug={debug} />
       <SellOnlyUpdater sellOnly={sellOnly} />

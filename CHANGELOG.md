@@ -1,3 +1,9 @@
+## [2.3.3] - 2026-06-23
+
+### Fixed
+
+- Sell mode no longer shows a zero balance for the DTF token. The balance map is keyed by the lowercase subgraph address, but the lookup used the raw `dtfAddress` prop; when the host passed a checksummed (mixed-case) address the lookup missed and the balance stayed `0`, which also blocked sells via a false insufficient-balance check. `indexDTFBalanceAtom` now derives from `balancesAtom` using the same key the map is built with, mirroring the buy-mode pattern. Refresh cadence is unchanged.
+
 ## [2.3.2] - 2026-06-23
 
 ### Changed
