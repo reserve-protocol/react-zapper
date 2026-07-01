@@ -5,8 +5,9 @@ import {
   type ProviderId,
   type SupportedLocale,
 } from '@reserve-protocol/react-zapper'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useChains } from 'wagmi'
+import { Moon, Sun } from 'lucide-react'
 import { Button } from './components/ui/button'
 import {
   Card,
@@ -74,7 +75,17 @@ function App() {
   const [sellOnly, setSellOnly] = useState(false)
   const [showContactInfo, setShowContactInfo] = useState(true)
   const [locale, setLocale] = useState<SupportedLocale>('en')
+  const [dark, setDark] = useState<boolean>(() => {
+    const stored = localStorage.getItem('theme')
+    if (stored) return stored === 'dark'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
   const { open } = useZapperModal()
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark)
+    localStorage.setItem('theme', dark ? 'dark' : 'light')
+  }, [dark])
 
   // Update selected DTF when chain changes
   React.useEffect(() => {
@@ -97,7 +108,17 @@ function App() {
               Test the zapper component with different DTFs and modes
             </p>
           </div>
-          <ConnectButton />
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setDark((d) => !d)}
+              aria-label="Toggle theme"
+            >
+              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            <ConnectButton />
+          </div>
         </div>
 
         {/* Main Content Grid */}
