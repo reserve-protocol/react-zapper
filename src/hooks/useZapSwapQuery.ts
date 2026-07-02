@@ -217,7 +217,7 @@ const useZapSwapQuery = ({
       return selected
     },
     enabled: !disabled && !!cacheKey && availableProviders.length > 0,
-    refetchInterval: 12000,
+    refetchInterval: 9000,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * Math.pow(2, attempt), 10000),
   })

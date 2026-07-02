@@ -1,5 +1,6 @@
 import TokenLogo from '../token-logo'
 import { Button } from './button'
+import { PeacefulLoader } from './peaceful-loader'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -294,11 +295,12 @@ const SlowLoading = ({ enabled }: { enabled: boolean }) => {
   return (
     <div
       className={cn(
-        "absolute inset-0 flex flex-col items-center justify-center w-full h-full rounded-xl bg-cover bg-center dark:bg-card dark:bg-none bg-[url('https://storage.reserve.org/loading5.webp')] opacity-0",
+        'absolute inset-0 flex flex-col items-center justify-center w-full h-full rounded-xl overflow-hidden opacity-0',
         enabled ? 'animate-fade-in z-10' : '-z-10'
       )}
     >
-      <div className="flex items-center gap-1 justify-between bg-card rounded-full px-3 py-2 text-sm text-primary border border-primary">
+      {enabled && <PeacefulLoader />}
+      <div className="relative flex items-center gap-1 justify-between bg-card rounded-full px-3 py-2 text-sm text-primary border border-primary">
         <div className="flex items-center gap-1">
           <Loader size={16} className="animate-spin-slow" />
           {t(SLOW_LOADING_TEXTS[textIndex])}

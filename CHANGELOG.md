@@ -1,3 +1,12 @@
+## [2.3.4] - 2026-07-01
+
+### Changed
+
+- Replaced the slow-loading animation with a new theme-aware generative loader that adapts to light and dark mode.
+- The post-transaction contact capture is now email-only.
+- Wallets that are already subscribed now see an "already subscribed" confirmation instead of the contact form.
+- Quotes now refresh every 9 seconds (down from 12), and the submit CTA is disabled with a spinner during each refresh.
+
 ## [2.3.3] - 2026-06-23
 
 ### Fixed

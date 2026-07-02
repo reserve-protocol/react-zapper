@@ -7,11 +7,14 @@ import {
   ChevronDown,
   ChevronUp,
   Landmark,
+  Loader,
   PackageOpen,
   ScrollText,
   X,
 } from 'lucide-react'
 import { useState } from 'react'
+import { useContactRegistration } from '../../hooks/useContactRegistration'
+import { walletAtom } from '../../state/atoms'
 import { AvailableChain } from '../../utils/chains'
 import {
   formatCurrency,
@@ -43,12 +46,34 @@ const STAY_INFORMED = [
   { Icon: Landmark, text: msg`Governance role changes` },
 ]
 
+const ConfirmationBlock = ({
+  onClose,
+  children,
+}: {
+  onClose: () => void
+  children: React.ReactNode
+}) => (
+  <div className="flex flex-col gap-6">
+    <p className="px-4 text-left font-bold text-primary opacity-0 animate-fade-in">
+      {children}
+    </p>
+    <div className="flex justify-center px-4 pb-4">
+      <Button variant="secondary" className="rounded-xl px-8" onClick={onClose}>
+        <Trans>Close</Trans>
+      </Button>
+    </div>
+  </div>
+)
+
 const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
   const { t } = useLingui()
   const success = useAtomValue(zapSuccessAtom)
   const showContactInfo = useAtomValue(showContactInfoAtom)
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [contactStatus, setContactStatus] = useState<ContactStatus>('idle')
+  const account = useAtomValue(walletAtom)
+  const { data: registered, isLoading: checkingRegistration } =
+    useContactRegistration(account, showContactInfo)
 
   if (!success) return null
 
@@ -169,22 +194,25 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
 
       {showContactInfo &&
         (contactStatus === 'success' ? (
-          <div className="flex flex-col gap-6">
-            <p className="px-4 text-left font-bold text-primary opacity-0 animate-fade-in">
-              <Trans>
-                Thanks for getting involved, we’re excited to have you! We’ll
-                reach out with any important updates on this DTF.
-              </Trans>
-            </p>
-            <div className="flex justify-center px-4 pb-4">
-              <Button
-                variant="secondary"
-                className="rounded-xl px-8"
-                onClick={onClose}
-              >
-                <Trans>Close</Trans>
-              </Button>
-            </div>
+          <ConfirmationBlock onClose={onClose}>
+            <Trans>
+              Thanks for getting involved, we’re excited to have you! We’ll
+              reach out with any important updates on this DTF.
+            </Trans>
+          </ConfirmationBlock>
+        ) : registered ? (
+          <ConfirmationBlock onClose={onClose}>
+            <Trans>
+              You’re already subscribed to updates for this DTF. We’ll reach
+              out with any important changes.
+            </Trans>
+          </ConfirmationBlock>
+        ) : checkingRegistration ? (
+          <div className="flex justify-center px-4 pb-4">
+            <Loader
+              size={20}
+              className="animate-spin-slow text-muted-foreground"
+            />
           </div>
         ) : (
           <>

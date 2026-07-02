@@ -31,6 +31,7 @@ import {
   zapDustWarningCheckboxAtom,
   zapHighDustValueAtom,
   zapHighPriceImpactAtom,
+  zapFetchingAtom,
   zapMintInputCachedAtom,
   zapOngoingTxAtom,
   zapSuccessAtom,
@@ -157,6 +158,7 @@ const SubmitZapButton = ({
   const setZapSuccess = useSetAtom(zapSuccessAtom)
   const setInputAmountCached = useSetAtom(zapMintInputCachedAtom)
   const refetchQuote = useAtomValue(zapRefetchAtom)
+  const fetchingZapper = useAtomValue(zapFetchingAtom)
 
   const {
     write: approve,
@@ -377,7 +379,13 @@ const SubmitZapButton = ({
             ? !approvalReady || confirmingApproval || approving
             : !readyToSubmit || loadingTx || validatingTx)
         }
-        loading={approving || loadingTx || validatingTx || confirmingApproval}
+        loading={
+          fetchingZapper ||
+          approving ||
+          loadingTx ||
+          validatingTx ||
+          confirmingApproval
+        }
         gas={readyToSubmit ? gasLimit : undefined}
         onClick={() => {
           if (disabled) return
