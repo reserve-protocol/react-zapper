@@ -2,7 +2,10 @@
 
 ### Changed
 
-- Replaced the slow-loading `loading5.webp` background (which only showed in light mode) with `PeacefulLoader`, a self-contained Canvas 2D component that renders a calm generative animation behind the loading pill. Each time the loader appears it picks one of ~25 visualizations at random and themes it from the Tailwind CSS variables (`--background`/`--primary`/`--foreground`), with the Reserve brand accent colors hardcoded since they have no theme token. Dark mode now shows an animation too (previously it was blank). The render loop is DPR-aware, sizes to its container, respects `prefers-reduced-motion`, and pauses when offscreen or when the tab is hidden.
+- Replaced the slow-loading animation with a new theme-aware generative loader that adapts to light and dark mode.
+- The post-transaction contact capture is now email-only.
+- Wallets that are already subscribed now see an "already subscribed" confirmation instead of the contact form.
+- Quotes now refresh every 9 seconds (down from 12), and the submit CTA is disabled with a spinner during each refresh.
 
 ## [2.3.3] - 2026-06-23
 

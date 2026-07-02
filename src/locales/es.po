@@ -23,11 +23,11 @@ msgstr " + ${0} en dust "
 msgid "Approve use of {inputSymbol}"
 msgstr "Aprobar el uso de {inputSymbol}"
 
-#: src/components/ui/swap.tsx:262
+#: src/components/ui/swap.tsx:263
 msgid "Assembling different routes"
 msgstr "Armando distintas rutas"
 
-#: src/components/ui/swap.tsx:209
+#: src/components/ui/swap.tsx:210
 msgid "Balance"
 msgstr "Balance"
 
@@ -48,11 +48,11 @@ msgstr "Comprar {0}"
 msgid "Can improve price impact but it will take more time to get quotes."
 msgstr "Puede mejorar el impacto en el precio, pero tardará más en obtener cotizaciones."
 
-#: src/components/zap-mint/zap-success-view.tsx:41
+#: src/components/zap-mint/zap-success-view.tsx:44
 msgid "Changes to assets inside this DTF"
 msgstr "Cambios en los activos dentro de este DTF"
 
-#: src/components/zap-mint/zap-success-view.tsx:185
+#: src/components/zap-mint/zap-success-view.tsx:62
 msgid "Close"
 msgstr "Cerrar"
 
@@ -72,7 +72,7 @@ msgstr "¡Copiado al portapapeles!"
 msgid "Copy to clipboard"
 msgstr "Copiar al portapapeles"
 
-#: src/components/ui/swap.tsx:493
+#: src/components/ui/swap.tsx:495
 msgid "Custom"
 msgstr "Personalizado"
 
@@ -89,18 +89,18 @@ msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you ch
 msgstr "El dust es la cantidad sobrante de tokens que no se puede intercambiar. Si decides recolectar el dust, se enviará de vuelta a tu Wallet. Enviar el dust de vuelta a la Wallet aumentará la comisión de la transacción."
 
 #: src/components/zap-mint/subscribe-updates.tsx:35
-msgid "Email"
-msgstr "Email"
+#~ msgid "Email"
+#~ msgstr "Email"
 
 #: src/components/zap-mint/zap-settings.tsx:108
 msgid "Enable Deep liquidity search?"
 msgstr "¿Habilitar la búsqueda profunda de liquidez?"
 
-#: src/components/zap-mint/subscribe-updates.tsx:36
+#: src/components/zap-mint/subscribe-updates.tsx:70
 msgid "Enter your email"
 msgstr "Introduce tu correo electrónico"
 
-#: src/components/ui/swap.tsx:263
+#: src/components/ui/swap.tsx:264
 msgid "Evaluating slippage"
 msgstr "Evaluando slippage"
 
@@ -120,7 +120,7 @@ msgstr "¿Forzar el Mint del DTF?"
 msgid "Force minting DTF"
 msgstr "Forzando el Mint del DTF"
 
-#: src/components/zap-mint/zap-success-view.tsx:151
+#: src/components/zap-mint/zap-success-view.tsx:176
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "Recibe novedades relevantes sobre cambios que puedan afectar a este DTF."
 
@@ -128,7 +128,7 @@ msgstr "Recibe novedades relevantes sobre cambios que puedan afectar a este DTF.
 msgid "Get started"
 msgstr "Comenzar"
 
-#: src/components/zap-mint/zap-success-view.tsx:43
+#: src/components/zap-mint/zap-success-view.tsx:46
 msgid "Governance role changes"
 msgstr "Cambios en los roles de gobernanza"
 
@@ -136,7 +136,7 @@ msgstr "Cambios en los roles de gobernanza"
 msgid "Having issues minting? (Zaps are in beta)"
 msgstr "¿Tienes problemas con el Mint? (Los Zaps están en beta)"
 
-#: src/components/zap-mint/zap-success-view.tsx:93
+#: src/components/zap-mint/zap-success-view.tsx:118
 msgid "Hide details"
 msgstr "Ocultar detalles"
 
@@ -159,7 +159,7 @@ msgstr "Saldo insuficiente"
 msgid "Insufficient gas balance"
 msgstr "Saldo de gas insuficiente"
 
-#: src/components/ui/swap.tsx:265
+#: src/components/ui/swap.tsx:266
 msgid "Loading DTF"
 msgstr "Cargando DTF"
 
@@ -168,11 +168,11 @@ msgstr "Cargando DTF"
 msgid "Loading..."
 msgstr "Cargando..."
 
-#: src/components/ui/swap.tsx:219
+#: src/components/ui/swap.tsx:220
 msgid "Max"
 msgstr "Máx"
 
-#: src/components/ui/swap.tsx:466
+#: src/components/ui/swap.tsx:468
 msgid "Max slippage"
 msgstr "Slippage máximo"
 
@@ -180,7 +180,7 @@ msgstr "Slippage máximo"
 msgid "Max. mint slippage"
 msgstr "Slippage máx. de Mint"
 
-#: src/components/zap-mint/zap-success-view.tsx:42
+#: src/components/zap-mint/zap-success-view.tsx:45
 msgid "Methodology or mandate updates"
 msgstr "Actualizaciones de metodología o mandato"
 
@@ -188,7 +188,7 @@ msgstr "Actualizaciones de metodología o mandato"
 msgid "Min Amount Out"
 msgstr "Cantidad mínima a recibir"
 
-#: src/components/zap-mint/zap-success-view.tsx:218
+#: src/components/zap-mint/zap-success-view.tsx:246
 msgid "No thanks"
 msgstr "No, gracias"
 
@@ -212,11 +212,11 @@ msgstr "La cotización incluye comisiones"
 msgid "Quote Source"
 msgstr "Fuente de la cotización"
 
-#: src/components/zap-mint/zap-success-view.tsx:103
+#: src/components/zap-mint/zap-success-view.tsx:128
 msgid "Received:"
 msgstr "Recibido:"
 
-#: src/components/ui/swap.tsx:264
+#: src/components/ui/swap.tsx:265
 msgid "Reducing potential dust"
 msgstr "Reduciendo posible dust"
 
@@ -232,7 +232,7 @@ msgstr "Reportar"
 msgid "Reported"
 msgstr "Reportado"
 
-#: src/components/ui/swap.tsx:261
+#: src/components/ui/swap.tsx:262
 msgid "Searching DEX Liquidity"
 msgstr "Buscando liquidez en DEX"
 
@@ -257,7 +257,7 @@ msgstr "Enviar el dust de vuelta a la Wallet"
 msgid "Sending..."
 msgstr "Enviando..."
 
-#: src/components/zap-mint/zap-success-view.tsx:93
+#: src/components/zap-mint/zap-success-view.tsx:118
 msgid "Show details"
 msgstr "Mostrar detalles"
 
@@ -265,11 +265,11 @@ msgstr "Mostrar detalles"
 msgid "Simulation failed - Refetching quote"
 msgstr "Falló la simulación - Recargando la cotización"
 
-#: src/components/ui/swap.tsx:463
+#: src/components/ui/swap.tsx:465
 msgid "Slippage"
 msgstr "Slippage"
 
-#: src/components/zap-mint/zap-success-view.tsx:193
+#: src/components/zap-mint/zap-success-view.tsx:221
 msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
 msgstr "Algo salió mal. Inténtalo de nuevo. Si el problema persiste, <0>envía una solicitud de ayuda</0>."
 
@@ -281,7 +281,7 @@ msgstr "Lo sentimos, el mercado está volátil en este momento. Aumenta el slipp
 msgid "Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit."
 msgstr "Lo sentimos, nos está costando encontrar una ruta que tenga sentido para ti. Inténtalo de nuevo en un momento."
 
-#: src/components/zap-mint/zap-success-view.tsx:148
+#: src/components/zap-mint/zap-success-view.tsx:173
 msgid "Stay informed about this DTF"
 msgstr "Mantente informado sobre este DTF"
 
@@ -293,15 +293,15 @@ msgstr "Paso 1. "
 msgid "Step 2. "
 msgstr "Paso 2. "
 
-#: src/components/zap-mint/subscribe-updates.tsx:162
+#: src/components/zap-mint/subscribe-updates.tsx:83
 msgid "Subscribe"
 msgstr "Suscribirse"
 
-#: src/components/zap-mint/zap-success-view.tsx:86
+#: src/components/zap-mint/zap-success-view.tsx:111
 msgid "Successful Purchase"
 msgstr "Compra exitosa"
 
-#: src/components/zap-mint/zap-success-view.tsx:86
+#: src/components/zap-mint/zap-success-view.tsx:111
 msgid "Successful Redemption"
 msgstr "Redención exitosa"
 
@@ -310,14 +310,14 @@ msgid "Switch to {chainName}"
 msgstr "Cambiar a {chainName}"
 
 #: src/components/zap-mint/subscribe-updates.tsx:41
-msgid "Telegram"
-msgstr "Telegram"
+#~ msgid "Telegram"
+#~ msgstr "Telegram"
 
 #: src/components/zap-mint/subscribe-updates.tsx:42
-msgid "Telegram username"
-msgstr "Usuario de Telegram"
+#~ msgid "Telegram username"
+#~ msgstr "Usuario de Telegram"
 
-#: src/components/zap-mint/zap-success-view.tsx:174
+#: src/components/zap-mint/zap-success-view.tsx:198
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "¡Gracias por sumarte, nos alegra tenerte! Te contactaremos con cualquier novedad importante sobre este DTF."
 
@@ -358,7 +358,7 @@ msgstr "Esto es útil si quieres hacer Mint del DTF sin operar."
 msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
 msgstr "Esta operación genera una gran cantidad de dust, lo que significa que recibirás {0} del valor en activos individuales, y el resto en {tokenOutSymbol}."
 
-#: src/components/ui/swap.tsx:482
+#: src/components/ui/swap.tsx:484
 msgid "Toggle {option}"
 msgstr "Alternar {option}"
 
@@ -366,11 +366,11 @@ msgstr "Alternar {option}"
 msgid "Transaction successful"
 msgstr "Transacción exitosa"
 
-#: src/components/zap-mint/zap-success-view.tsx:129
+#: src/components/zap-mint/zap-success-view.tsx:154
 msgid "Transaction:"
 msgstr "Transacción:"
 
-#: src/components/zap-mint/zap-success-view.tsx:116
+#: src/components/zap-mint/zap-success-view.tsx:141
 msgid "Used:"
 msgstr "Usado:"
 
@@ -382,13 +382,17 @@ msgstr "Vía"
 msgid "Wait and try again or consider using manual mode"
 msgstr "Espera e inténtalo de nuevo, o considera usar el modo manual"
 
-#: src/components/ui/swap.tsx:359
+#: src/components/ui/swap.tsx:361
 msgid "You receive:"
 msgstr "Recibes:"
 
-#: src/components/ui/swap.tsx:237
+#: src/components/ui/swap.tsx:238
 msgid "You use:"
 msgstr "Usas:"
+
+#: src/components/zap-mint/zap-success-view.tsx:205
+msgid "You’re already subscribed to updates for this DTF. We’ll reach out with any important changes."
+msgstr "Ya estás suscrito a las novedades de este DTF. Te avisaremos ante cualquier cambio importante."
 
 #: src/components/zap-mint/zap-healthcheck.tsx:24
 msgid "Zaps are currently experiencing issues"
