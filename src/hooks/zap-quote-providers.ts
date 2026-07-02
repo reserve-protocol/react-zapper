@@ -74,6 +74,21 @@ const buildProviderUrl = (
   return provider.buildEndpoint({ ...rest, url })
 }
 
+// Quotes without a provider-reported expiry are considered valid for 1 minute
+const DEFAULT_QUOTE_TTL = 60_000
+
+// Providers report expiry inconsistently (epoch ms, epoch seconds, ISO string,
+// null, or not at all) — normalize everything to epoch ms or null.
+const normalizeValidUntil = (value: unknown): number | null => {
+  if (value == null) return null
+  const n =
+    typeof value === 'string'
+      ? Number(value) || Date.parse(value)
+      : Number(value)
+  if (!Number.isFinite(n) || n <= 0) return null
+  return n < 1e12 ? n * 1000 : n
+}
+
 const fetchOne = async (
   provider: ProviderConfig,
   ctx: FetchQuoteContext
@@ -136,7 +151,19 @@ const fetchOne = async (
     throw new Error(data.error)
   }
 
-  return { ...data, source: provider.id, endpoint }
+  return {
+    ...data,
+    result: data.result
+      ? {
+          ...data.result,
+          validUntil:
+            normalizeValidUntil(data.result.validUntil ?? data.validUntil) ??
+            Date.now() + DEFAULT_QUOTE_TTL,
+        }
+      : data.result,
+    source: provider.id,
+    endpoint,
+  }
 }
 
 const parseMinOut = (q: ProviderQuote): bigint => {

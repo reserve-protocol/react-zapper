@@ -19,7 +19,7 @@ msgstr ""
 msgid " + ${0} in dust "
 msgstr " + ${0} en dust "
 
-#: src/components/zap-mint/submit-zap.tsx:400
+#: src/components/zap-mint/submit-zap.tsx:426
 msgid "Approve use of {inputSymbol}"
 msgstr "Aprobar el uso de {inputSymbol}"
 
@@ -124,7 +124,7 @@ msgstr "Forzando el Mint del DTF"
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "Recibe novedades relevantes sobre cambios que puedan afectar a este DTF."
 
-#: src/components/zap-mint/submit-zap.tsx:73
+#: src/components/zap-mint/submit-zap.tsx:76
 msgid "Get started"
 msgstr "Comenzar"
 
@@ -151,7 +151,7 @@ msgstr "Valor de dust alto: ${0} ({1} del valor de salida)"
 msgid "High price impact: {0}"
 msgstr "Alto impacto en el precio: {0}"
 
-#: src/components/zap-mint/submit-zap.tsx:97
+#: src/components/zap-mint/submit-zap.tsx:100
 msgid "Insufficient balance"
 msgstr "Saldo insuficiente"
 
@@ -163,8 +163,8 @@ msgstr "Saldo de gas insuficiente"
 msgid "Loading DTF"
 msgstr "Cargando DTF"
 
-#: src/components/zap-mint/submit-zap.tsx:73
-#: src/components/zap-mint/submit-zap.tsx:95
+#: src/components/zap-mint/submit-zap.tsx:76
+#: src/components/zap-mint/submit-zap.tsx:98
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -203,6 +203,10 @@ msgstr "Intenta actualizar, o cambia al Mint manual."
 #: src/components/zap-mint/zap-details.tsx:163
 msgid "Price Impact"
 msgstr "Impacto en el precio"
+
+#: src/components/zap-mint/submit-zap.tsx:420
+msgid "Quote expired"
+msgstr "Cotización expirada"
 
 #: src/components/zap-mint/zap-details.tsx:105
 msgid "Quote includes fees"
@@ -261,7 +265,7 @@ msgstr "Enviando..."
 msgid "Show details"
 msgstr "Mostrar detalles"
 
-#: src/components/zap-mint/submit-zap.tsx:397
+#: src/components/zap-mint/submit-zap.tsx:422
 msgid "Simulation failed - Refetching quote"
 msgstr "Falló la simulación - Recargando la cotización"
 
@@ -285,11 +289,11 @@ msgstr "Lo sentimos, nos está costando encontrar una ruta que tenga sentido par
 msgid "Stay informed about this DTF"
 msgstr "Mantente informado sobre este DTF"
 
-#: src/components/zap-mint/submit-zap.tsx:400
+#: src/components/zap-mint/submit-zap.tsx:426
 msgid "Step 1. "
 msgstr "Paso 1. "
 
-#: src/components/zap-mint/submit-zap.tsx:399
+#: src/components/zap-mint/submit-zap.tsx:425
 msgid "Step 2. "
 msgstr "Paso 2. "
 

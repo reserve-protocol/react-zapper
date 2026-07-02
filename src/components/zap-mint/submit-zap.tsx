@@ -10,6 +10,7 @@ import {
   useWaitForTransactionReceipt,
 } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
+import useQuoteCountdown from '../../hooks/useQuoteCountdown'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { walletAtom } from '../../state/atoms'
 import { ZapResult } from '../../types/api'
@@ -42,6 +43,7 @@ import {
 import ZapDustWarningCheckbox from './zap-dust-warning-checkbox'
 import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
+import { cn } from '../../utils/cn'
 import { minBigInt } from '@/utils'
 
 // EIP-7825: Transaction Gas Limit Cap
@@ -119,6 +121,7 @@ const SubmitZapButton = ({
     truePriceImpact,
     dustValue,
     amountOutValue,
+    validUntil,
   },
   source,
   chainId,
@@ -245,6 +248,18 @@ const SubmitZapButton = ({
     hash: data,
     label: `Swapped ${inputSymbol} for ${outputSymbol}`,
   })
+
+  // While the CTA is clicked and the quote refresh is paused (signing in the
+  // wallet or waiting for the approval to mine), count down to quote expiry.
+  const countdownActive =
+    ongoingTx && !receipt && !validatingTx && !simulationFailed
+  const secondsLeft = useQuoteCountdown(validUntil, countdownActive)
+  const quoteExpired = countdownActive && secondsLeft === 0
+  const heartbeat =
+    countdownActive &&
+    secondsLeft !== null &&
+    secondsLeft > 0 &&
+    secondsLeft <= 5
 
   const execute = useCallback(() => {
     if (!tx || !readyToSubmit) return
@@ -399,13 +414,17 @@ const SubmitZapButton = ({
             approve()
           }
         }}
-        className="rounded-xl"
+        className={cn('rounded-xl', heartbeat && 'animate-heartbeat')}
       >
-        {simulationFailed
+        {quoteExpired
+          ? t`Quote expired`
+          : simulationFailed
           ? t`Simulation failed - Refetching quote`
-          : readyToSubmit
-          ? `${addStepTwoLabel ? t`Step 2. ` : ''}${buttonLabel}`
-          : `${addStepOneLabel ? t`Step 1. ` : ''}${t`Approve use of ${inputSymbol}`}`}
+          : `${
+              readyToSubmit
+                ? `${addStepTwoLabel ? t`Step 2. ` : ''}${buttonLabel}`
+                : `${addStepOneLabel ? t`Step 1. ` : ''}${t`Approve use of ${inputSymbol}`}`
+            }${secondsLeft !== null && secondsLeft > 0 ? ` (${secondsLeft}s)` : ''}`}
       </TransactionButton>
       {mode !== 'simple' && <ZapTxErrorMsg error={error} />}
     </div>

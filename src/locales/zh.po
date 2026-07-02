@@ -19,7 +19,7 @@ msgstr ""
 msgid " + ${0} in dust "
 msgstr " + ${0} 碎屑 "
 
-#: src/components/zap-mint/submit-zap.tsx:400
+#: src/components/zap-mint/submit-zap.tsx:426
 msgid "Approve use of {inputSymbol}"
 msgstr "授权使用 {inputSymbol}"
 
@@ -124,7 +124,7 @@ msgstr "强制 Mint DTF"
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "获取可能影响此 DTF 的相关变更通知。"
 
-#: src/components/zap-mint/submit-zap.tsx:73
+#: src/components/zap-mint/submit-zap.tsx:76
 msgid "Get started"
 msgstr "开始"
 
@@ -151,7 +151,7 @@ msgstr "碎屑价值较高：${0}（占输出价值的 {1}）"
 msgid "High price impact: {0}"
 msgstr "价格影响较高：{0}"
 
-#: src/components/zap-mint/submit-zap.tsx:97
+#: src/components/zap-mint/submit-zap.tsx:100
 msgid "Insufficient balance"
 msgstr "余额不足"
 
@@ -163,8 +163,8 @@ msgstr "Gas 余额不足"
 msgid "Loading DTF"
 msgstr "正在加载 DTF"
 
-#: src/components/zap-mint/submit-zap.tsx:73
-#: src/components/zap-mint/submit-zap.tsx:95
+#: src/components/zap-mint/submit-zap.tsx:76
+#: src/components/zap-mint/submit-zap.tsx:98
 msgid "Loading..."
 msgstr "加载中..."
 
@@ -203,6 +203,10 @@ msgstr "请尝试刷新，或切换到手动 Mint。"
 #: src/components/zap-mint/zap-details.tsx:163
 msgid "Price Impact"
 msgstr "价格影响"
+
+#: src/components/zap-mint/submit-zap.tsx:420
+msgid "Quote expired"
+msgstr "报价已过期"
 
 #: src/components/zap-mint/zap-details.tsx:105
 msgid "Quote includes fees"
@@ -261,7 +265,7 @@ msgstr "正在发送……"
 msgid "Show details"
 msgstr "显示详情"
 
-#: src/components/zap-mint/submit-zap.tsx:397
+#: src/components/zap-mint/submit-zap.tsx:422
 msgid "Simulation failed - Refetching quote"
 msgstr "模拟失败 - 正在重新获取报价"
 
@@ -285,11 +289,11 @@ msgstr "抱歉，我们暂时难以为你找到合适的路径。请稍后重试
 msgid "Stay informed about this DTF"
 msgstr "关注此 DTF 的动态"
 
-#: src/components/zap-mint/submit-zap.tsx:400
+#: src/components/zap-mint/submit-zap.tsx:426
 msgid "Step 1. "
 msgstr "步骤 1. "
 
-#: src/components/zap-mint/submit-zap.tsx:399
+#: src/components/zap-mint/submit-zap.tsx:425
 msgid "Step 2. "
 msgstr "步骤 2. "
 

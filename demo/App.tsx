@@ -75,6 +75,7 @@ function App() {
   const [sellOnly, setSellOnly] = useState(false)
   const [showContactInfo, setShowContactInfo] = useState(true)
   const [locale, setLocale] = useState<SupportedLocale>('en')
+  const [refreshRate, setRefreshRate] = useState(9000)
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('theme')
     if (stored) return stored === 'dark'
@@ -291,6 +292,24 @@ function App() {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">
+                  Quote Refresh Rate
+                </label>
+                <Select
+                  value={refreshRate.toString()}
+                  onValueChange={(value) => setRefreshRate(Number(value))}
+                >
+                  <SelectTrigger className="w-full md:w-96">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5000">5 seconds</SelectItem>
+                    <SelectItem value="9000">9 seconds (default)</SelectItem>
+                    <SelectItem value="15000">15 seconds</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">
                   Display Mode
                 </label>
                 <Select
@@ -423,6 +442,7 @@ function App() {
                     sellOnly={sellOnly}
                     showContactInfo={showContactInfo}
                     locale={locale}
+                    refreshRate={refreshRate}
                   />
                   <Button onClick={open} className="w-full rounded-xl" size="lg">
                     Open Zapper Modal
@@ -441,6 +461,7 @@ function App() {
                     sellOnly={sellOnly}
                     showContactInfo={showContactInfo}
                     locale={locale}
+                    refreshRate={refreshRate}
                   />
                 </div>
               )}

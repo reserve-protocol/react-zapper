@@ -12,6 +12,7 @@ import {
   deepLiquidityAtom,
   indexDTFAtom,
   quoteSourceAtom,
+  refreshRateAtom,
   walletAtom,
   zapperApiUrlAtom,
 } from '../state/atoms'
@@ -84,6 +85,7 @@ const useZapSwapQuery = ({
   const setRetryId = useSetAtom(retryIdAtom)
   const setSourceId = useSetAtom(sourceIdAtom)
   const dtf = useAtomValue(indexDTFAtom)
+  const refreshRate = useAtomValue(refreshRateAtom)
 
   const shouldSkipZapper =
     (DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP[chainId]?.includes(
@@ -217,7 +219,7 @@ const useZapSwapQuery = ({
       return selected
     },
     enabled: !disabled && !!cacheKey && availableProviders.length > 0,
-    refetchInterval: 9000,
+    refetchInterval: refreshRate,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * Math.pow(2, attempt), 10000),
   })

@@ -109,6 +109,10 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(12px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.03)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -121,6 +125,7 @@ export default {
           'width-expand 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards',
         'spin-slow': 'spin-slow 4s linear infinite',
         'slide-up': 'slide-up 0.4s ease-out forwards',
+        heartbeat: 'heartbeat 1s ease-in-out infinite',
       },
     },
   },

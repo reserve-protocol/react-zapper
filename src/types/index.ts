@@ -32,6 +32,8 @@ export interface ZapperProps {
   showContactInfo?: boolean
   /** UI language. Defaults to 'en'. Falls back to English for any untranslated string. */
   locale?: SupportedLocale
+  /** Quote refresh interval in milliseconds. Defaults to 9000. */
+  refreshRate?: number
 }
 
 export interface UseZapperModalReturn {

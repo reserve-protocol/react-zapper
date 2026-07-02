@@ -99,3 +99,9 @@ export const quoteSourceAtom = atom<QuoteSource>('best')
  * It will make quotes slightly slower
  */
 export const deepLiquidityAtom = atom(false)
+
+/**
+ * Quote refresh interval in milliseconds, configurable via the `refreshRate` prop
+ */
+export const DEFAULT_REFRESH_RATE = 9_000
+export const refreshRateAtom = atom<number>(DEFAULT_REFRESH_RATE)

@@ -9,6 +9,7 @@ import {
   apiUrlAtom,
   chainIdAtom,
   connectWalletAtom,
+  DEFAULT_REFRESH_RATE,
   indexDTFAtom,
   indexDTFBasketAmountsAtom,
   indexDTFBasketAtom,
@@ -18,6 +19,7 @@ import {
   indexDTFIconsAtom,
   QuoteSource,
   quoteSourceAtom,
+  refreshRateAtom,
   walletAtom,
   zapperApiUrlAtom,
 } from '../state/atoms'
@@ -48,6 +50,7 @@ interface UpdatersProps {
   mode?: 'modal' | 'inline' | 'simple'
   sellOnly?: boolean
   showContactInfo?: boolean
+  refreshRate?: number
 }
 
 const IndexDTFMetadataUpdater: React.FC<{
@@ -237,6 +240,16 @@ const SellOnlyUpdater = ({ sellOnly }: { sellOnly?: boolean }) => {
   return null
 }
 
+const RefreshRateUpdater = ({ refreshRate }: { refreshRate?: number }) => {
+  const setRefreshRate = useSetAtom(refreshRateAtom)
+
+  useEffect(() => {
+    setRefreshRate(refreshRate ?? DEFAULT_REFRESH_RATE)
+  }, [refreshRate, setRefreshRate])
+
+  return null
+}
+
 const ContactInfoUpdater = ({
   showContactInfo,
 }: {
@@ -262,6 +275,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   mode = 'modal',
   sellOnly,
   showContactInfo,
+  refreshRate,
 }) => {
   return (
     <>
@@ -277,6 +291,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <DebugUpdater debug={debug} />
       <SellOnlyUpdater sellOnly={sellOnly} />
       <ContactInfoUpdater showContactInfo={showContactInfo} />
+      <RefreshRateUpdater refreshRate={refreshRate} />
       <SessionTracker mode={mode} />
     </>
   )

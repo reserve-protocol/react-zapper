@@ -19,7 +19,7 @@ msgstr ""
 msgid " + ${0} in dust "
 msgstr " + ${0} 더스트 "
 
-#: src/components/zap-mint/submit-zap.tsx:400
+#: src/components/zap-mint/submit-zap.tsx:426
 msgid "Approve use of {inputSymbol}"
 msgstr "{inputSymbol} 사용 승인"
 
@@ -124,7 +124,7 @@ msgstr "DTF 강제 Mint"
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "이 DTF에 영향을 줄 수 있는 변경 사항에 대한 관련 소식을 받아보세요."
 
-#: src/components/zap-mint/submit-zap.tsx:73
+#: src/components/zap-mint/submit-zap.tsx:76
 msgid "Get started"
 msgstr "시작하기"
 
@@ -151,7 +151,7 @@ msgstr "높은 더스트 가치: ${0} (출력 가치의 {1})"
 msgid "High price impact: {0}"
 msgstr "높은 가격 영향: {0}"
 
-#: src/components/zap-mint/submit-zap.tsx:97
+#: src/components/zap-mint/submit-zap.tsx:100
 msgid "Insufficient balance"
 msgstr "잔액이 부족합니다"
 
@@ -163,8 +163,8 @@ msgstr "가스 잔액 부족"
 msgid "Loading DTF"
 msgstr "DTF 로딩 중"
 
-#: src/components/zap-mint/submit-zap.tsx:73
-#: src/components/zap-mint/submit-zap.tsx:95
+#: src/components/zap-mint/submit-zap.tsx:76
+#: src/components/zap-mint/submit-zap.tsx:98
 msgid "Loading..."
 msgstr "로딩 중..."
 
@@ -203,6 +203,10 @@ msgstr "새로고침하거나 수동 Mint로 전환해 주세요."
 #: src/components/zap-mint/zap-details.tsx:163
 msgid "Price Impact"
 msgstr "가격 영향"
+
+#: src/components/zap-mint/submit-zap.tsx:420
+msgid "Quote expired"
+msgstr "견적 만료됨"
 
 #: src/components/zap-mint/zap-details.tsx:105
 msgid "Quote includes fees"
@@ -261,7 +265,7 @@ msgstr "전송 중..."
 msgid "Show details"
 msgstr "세부 정보 보기"
 
-#: src/components/zap-mint/submit-zap.tsx:397
+#: src/components/zap-mint/submit-zap.tsx:422
 msgid "Simulation failed - Refetching quote"
 msgstr "시뮬레이션 실패 - 견적 다시 가져오는 중"
 
@@ -285,11 +289,11 @@ msgstr "죄송합니다. 적합한 경로를 찾는 데 어려움을 겪고 있�
 msgid "Stay informed about this DTF"
 msgstr "이 DTF에 대한 소식 받기"
 
-#: src/components/zap-mint/submit-zap.tsx:400
+#: src/components/zap-mint/submit-zap.tsx:426
 msgid "Step 1. "
 msgstr "1단계. "
 
-#: src/components/zap-mint/submit-zap.tsx:399
+#: src/components/zap-mint/submit-zap.tsx:425
 msgid "Step 2. "
 msgstr "2단계. "
 

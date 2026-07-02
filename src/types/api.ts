@@ -48,6 +48,9 @@ export type ZapResult = {
     to: Address
     value: string
   } | null
+  // Quote expiration as epoch ms, normalized client-side. When the provider
+  // doesn't report one, it defaults to 1 minute from fetch time.
+  validUntil?: number | null
   debug?: Debug
 }
 
@@ -85,6 +88,8 @@ export type ZapResponse = {
   status: 'success' | 'error'
   result?: ZapResult
   error?: string
+  // Raw expiration in case a provider returns it top-level instead of in result
+  validUntil?: number | string | null
 }
 
 export const fetcher = (url: string) => fetch(url).then((res) => res.json())

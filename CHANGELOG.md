@@ -1,3 +1,10 @@
+## [2.3.5] - 2026-07-02
+
+### Added
+
+- Configurable quote refresh rate via the new `refreshRate` prop (defaults to 9 seconds).
+- Quote expiration countdown on the submit button while confirming in the wallet.
+
 ## [2.3.4] - 2026-07-01
 
 ### Changed

@@ -164,6 +164,7 @@ Simple mode features:
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |
+| `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `9000`) |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
 | `locale`         | `'en' \| 'es' \| 'ko' \| 'zh'`  | ❌       | UI language. Defaults to `'en'`; untranslated strings fall back to English |
 
