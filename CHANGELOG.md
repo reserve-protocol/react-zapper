@@ -1,3 +1,9 @@
+## [2.4.0] - 2026-07-08
+
+### Added
+
+- New optional `disabledSettings` prop (`{ deepLiquidity?: boolean; forceMint?: boolean }`). A disabled option renders its checkbox frozen unchecked in the zap settings panel and the corresponding behavior is forced off in quote requests.
+
 ## [2.3.6] - 2026-07-07
 
 ### Added
