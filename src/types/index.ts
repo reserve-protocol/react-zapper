@@ -17,6 +17,17 @@ export interface TokenBalance {
   decimals: number
 }
 
+export interface ScheduleCallConfig {
+  /** Where the CTA sends the user (e.g. a Calendly link). */
+  url: string
+  /** Minimum purchase size (USD) that qualifies as a "larger holder". Defaults to 500. */
+  minUsd?: number
+  /** Consumer already recorded this wallet scheduling — hide the offer. */
+  scheduled?: boolean
+  /** Fired when the user clicks the CTA (consumer records the click + tracks). */
+  onSchedule?: () => void
+}
+
 export interface ZapperProps {
   mode?: 'modal' | 'inline' | 'simple'
   chain: AvailableChain
@@ -30,6 +41,8 @@ export interface ZapperProps {
   disabled?: boolean
   /** Show the "Stay informed" contact-capture panel after a successful mint. Defaults to true. */
   showContactInfo?: boolean
+  /** Offer a "schedule an intro call" panel after a large purchase. Omit to disable. */
+  scheduleCall?: ScheduleCallConfig
   /** UI language. Defaults to 'en'. Falls back to English for any untranslated string. */
   locale?: SupportedLocale
   /** Quote refresh interval in milliseconds. Defaults to 9000. */

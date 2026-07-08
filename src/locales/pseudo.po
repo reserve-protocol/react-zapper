@@ -19,6 +19,10 @@ msgstr ""
 msgid " + ${0} in dust "
 msgstr ""
 
+#: src/components/zap-mint/zap-success-view.tsx:182
+msgid "A direct line to the team"
+msgstr ""
+
 #: src/components/zap-mint/submit-zap.tsx:426
 msgid "Approve use of {inputSymbol}"
 msgstr ""
@@ -53,11 +57,15 @@ msgid "Changes to assets inside this DTF"
 msgstr ""
 
 #: src/components/zap-mint/zap-success-view.tsx:62
-msgid "Close"
-msgstr ""
+#~ msgid "Close"
+#~ msgstr ""
 
 #: src/components/zap-mint/zap-settings.tsx:140
 msgid "Collect dust?"
+msgstr ""
+
+#: src/components/zap-mint/zap-success-view.tsx:185
+msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
 msgstr ""
 
 #: src/components/transaction-button.tsx:92
@@ -120,7 +128,7 @@ msgstr ""
 msgid "Force minting DTF"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:176
+#: src/components/zap-mint/zap-success-view.tsx:214
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr ""
 
@@ -136,7 +144,7 @@ msgstr ""
 msgid "Having issues minting? (Zaps are in beta)"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:118
+#: src/components/zap-mint/zap-success-view.tsx:127
 msgid "Hide details"
 msgstr ""
 
@@ -188,7 +196,7 @@ msgstr ""
 msgid "Min Amount Out"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:246
+#: src/components/zap-mint/zap-success-view.tsx:276
 msgid "No thanks"
 msgstr ""
 
@@ -216,7 +224,7 @@ msgstr ""
 msgid "Quote Source"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:128
+#: src/components/zap-mint/zap-success-view.tsx:137
 msgid "Received:"
 msgstr ""
 
@@ -234,6 +242,10 @@ msgstr ""
 
 #: src/components/zap-mint/zap-error-msg.tsx:118
 msgid "Reported"
+msgstr ""
+
+#: src/components/zap-mint/zap-success-view.tsx:201
+msgid "Schedule an intro call"
 msgstr ""
 
 #: src/components/ui/swap.tsx:262
@@ -261,7 +273,7 @@ msgstr ""
 msgid "Sending..."
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:118
+#: src/components/zap-mint/zap-success-view.tsx:127
 msgid "Show details"
 msgstr ""
 
@@ -273,7 +285,7 @@ msgstr ""
 msgid "Slippage"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:221
+#: src/components/zap-mint/zap-success-view.tsx:251
 msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
 msgstr ""
 
@@ -285,7 +297,7 @@ msgstr ""
 msgid "Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit."
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:173
+#: src/components/zap-mint/zap-success-view.tsx:211
 msgid "Stay informed about this DTF"
 msgstr ""
 
@@ -301,11 +313,11 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:111
+#: src/components/zap-mint/zap-success-view.tsx:120
 msgid "Successful Purchase"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:111
+#: src/components/zap-mint/zap-success-view.tsx:120
 msgid "Successful Redemption"
 msgstr ""
 
@@ -321,7 +333,7 @@ msgstr ""
 #~ msgid "Telegram username"
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:198
+#: src/components/zap-mint/zap-success-view.tsx:235
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr ""
 
@@ -370,11 +382,11 @@ msgstr ""
 msgid "Transaction successful"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:154
+#: src/components/zap-mint/zap-success-view.tsx:163
 msgid "Transaction:"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:141
+#: src/components/zap-mint/zap-success-view.tsx:150
 msgid "Used:"
 msgstr ""
 
@@ -395,8 +407,8 @@ msgid "You use:"
 msgstr ""
 
 #: src/components/zap-mint/zap-success-view.tsx:205
-msgid "You’re already subscribed to updates for this DTF. We’ll reach out with any important changes."
-msgstr ""
+#~ msgid "You’re already subscribed to updates for this DTF. We’ll reach out with any important changes."
+#~ msgstr ""
 
 #: src/components/zap-mint/zap-healthcheck.tsx:24
 msgid "Zaps are currently experiencing issues"

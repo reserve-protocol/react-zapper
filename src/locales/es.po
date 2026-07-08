@@ -19,6 +19,10 @@ msgstr ""
 msgid " + ${0} in dust "
 msgstr " + ${0} en dust "
 
+#: src/components/zap-mint/zap-success-view.tsx:182
+msgid "A direct line to the team"
+msgstr "Una línea directa con el equipo"
+
 #: src/components/zap-mint/submit-zap.tsx:426
 msgid "Approve use of {inputSymbol}"
 msgstr "Aprobar el uso de {inputSymbol}"
@@ -53,12 +57,16 @@ msgid "Changes to assets inside this DTF"
 msgstr "Cambios en los activos dentro de este DTF"
 
 #: src/components/zap-mint/zap-success-view.tsx:62
-msgid "Close"
-msgstr "Cerrar"
+#~ msgid "Close"
+#~ msgstr "Cerrar"
 
 #: src/components/zap-mint/zap-settings.tsx:140
 msgid "Collect dust?"
 msgstr "¿Recolectar dust?"
+
+#: src/components/zap-mint/zap-success-view.tsx:185
+msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
+msgstr "Felicidades por comprar una cantidad significativa de este DTF. Los grandes tenedores tienen derecho a una conexión directa con el equipo detrás de Reserve. Agenda una llamada de presentación para conocernos, recibir ayuda con lo que necesites en el futuro y compartir tus ideas mientras seguimos construyendo y creciendo."
 
 #: src/components/transaction-button.tsx:92
 msgid "Connect Wallet"
@@ -120,7 +128,7 @@ msgstr "¿Forzar el Mint del DTF?"
 msgid "Force minting DTF"
 msgstr "Forzando el Mint del DTF"
 
-#: src/components/zap-mint/zap-success-view.tsx:176
+#: src/components/zap-mint/zap-success-view.tsx:214
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "Recibe novedades relevantes sobre cambios que puedan afectar a este DTF."
 
@@ -136,7 +144,7 @@ msgstr "Cambios en los roles de gobernanza"
 msgid "Having issues minting? (Zaps are in beta)"
 msgstr "¿Tienes problemas con el Mint? (Los Zaps están en beta)"
 
-#: src/components/zap-mint/zap-success-view.tsx:118
+#: src/components/zap-mint/zap-success-view.tsx:127
 msgid "Hide details"
 msgstr "Ocultar detalles"
 
@@ -188,7 +196,7 @@ msgstr "Actualizaciones de metodología o mandato"
 msgid "Min Amount Out"
 msgstr "Cantidad mínima a recibir"
 
-#: src/components/zap-mint/zap-success-view.tsx:246
+#: src/components/zap-mint/zap-success-view.tsx:276
 msgid "No thanks"
 msgstr "No, gracias"
 
@@ -216,7 +224,7 @@ msgstr "La cotización incluye comisiones"
 msgid "Quote Source"
 msgstr "Fuente de la cotización"
 
-#: src/components/zap-mint/zap-success-view.tsx:128
+#: src/components/zap-mint/zap-success-view.tsx:137
 msgid "Received:"
 msgstr "Recibido:"
 
@@ -235,6 +243,10 @@ msgstr "Reportar"
 #: src/components/zap-mint/zap-error-msg.tsx:118
 msgid "Reported"
 msgstr "Reportado"
+
+#: src/components/zap-mint/zap-success-view.tsx:201
+msgid "Schedule an intro call"
+msgstr "Agenda una llamada de presentación"
 
 #: src/components/ui/swap.tsx:262
 msgid "Searching DEX Liquidity"
@@ -261,7 +273,7 @@ msgstr "Enviar el dust de vuelta a la Wallet"
 msgid "Sending..."
 msgstr "Enviando..."
 
-#: src/components/zap-mint/zap-success-view.tsx:118
+#: src/components/zap-mint/zap-success-view.tsx:127
 msgid "Show details"
 msgstr "Mostrar detalles"
 
@@ -273,7 +285,7 @@ msgstr "Falló la simulación - Recargando la cotización"
 msgid "Slippage"
 msgstr "Slippage"
 
-#: src/components/zap-mint/zap-success-view.tsx:221
+#: src/components/zap-mint/zap-success-view.tsx:251
 msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
 msgstr "Algo salió mal. Inténtalo de nuevo. Si el problema persiste, <0>envía una solicitud de ayuda</0>."
 
@@ -285,7 +297,7 @@ msgstr "Lo sentimos, el mercado está volátil en este momento. Aumenta el slipp
 msgid "Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit."
 msgstr "Lo sentimos, nos está costando encontrar una ruta que tenga sentido para ti. Inténtalo de nuevo en un momento."
 
-#: src/components/zap-mint/zap-success-view.tsx:173
+#: src/components/zap-mint/zap-success-view.tsx:211
 msgid "Stay informed about this DTF"
 msgstr "Mantente informado sobre este DTF"
 
@@ -301,11 +313,11 @@ msgstr "Paso 2. "
 msgid "Subscribe"
 msgstr "Suscribirse"
 
-#: src/components/zap-mint/zap-success-view.tsx:111
+#: src/components/zap-mint/zap-success-view.tsx:120
 msgid "Successful Purchase"
 msgstr "Compra exitosa"
 
-#: src/components/zap-mint/zap-success-view.tsx:111
+#: src/components/zap-mint/zap-success-view.tsx:120
 msgid "Successful Redemption"
 msgstr "Redención exitosa"
 
@@ -321,7 +333,7 @@ msgstr "Cambiar a {chainName}"
 #~ msgid "Telegram username"
 #~ msgstr "Usuario de Telegram"
 
-#: src/components/zap-mint/zap-success-view.tsx:198
+#: src/components/zap-mint/zap-success-view.tsx:235
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "¡Gracias por sumarte, nos alegra tenerte! Te contactaremos con cualquier novedad importante sobre este DTF."
 
@@ -370,11 +382,11 @@ msgstr "Alternar {option}"
 msgid "Transaction successful"
 msgstr "Transacción exitosa"
 
-#: src/components/zap-mint/zap-success-view.tsx:154
+#: src/components/zap-mint/zap-success-view.tsx:163
 msgid "Transaction:"
 msgstr "Transacción:"
 
-#: src/components/zap-mint/zap-success-view.tsx:141
+#: src/components/zap-mint/zap-success-view.tsx:150
 msgid "Used:"
 msgstr "Usado:"
 
@@ -395,8 +407,8 @@ msgid "You use:"
 msgstr "Usas:"
 
 #: src/components/zap-mint/zap-success-view.tsx:205
-msgid "You’re already subscribed to updates for this DTF. We’ll reach out with any important changes."
-msgstr "Ya estás suscrito a las novedades de este DTF. Te avisaremos ante cualquier cambio importante."
+#~ msgid "You’re already subscribed to updates for this DTF. We’ll reach out with any important changes."
+#~ msgstr "Ya estás suscrito a las novedades de este DTF. Te avisaremos ante cualquier cambio importante."
 
 #: src/components/zap-mint/zap-healthcheck.tsx:24
 msgid "Zaps are currently experiencing issues"
