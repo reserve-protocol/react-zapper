@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 import type { UseQuoteResult } from '../../hooks/useQuote'
 import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
-import { Token, TokenBalance } from '../../types'
+import { ScheduleCallConfig, Token, TokenBalance } from '../../types'
 import { reducedZappableTokens } from '../../utils/constants'
 
 const openZapMintModalBaseAtom = atom(false)
@@ -20,6 +20,7 @@ export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)
 export const showContactInfoAtom = atom<boolean>(true)
+export const scheduleCallAtom = atom<ScheduleCallConfig | undefined>(undefined)
 
 // Snapshot of the last successful zap; drives the success view. Captured at
 // confirmation so the view survives the Buy/Sell form unmounting.

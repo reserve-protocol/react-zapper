@@ -24,7 +24,7 @@ import {
 import { transactionUrl } from '../../utils/urls'
 import TokenLogo from '../token-logo'
 import { Button } from '../ui/button'
-import { showContactInfoAtom, zapSuccessAtom } from './atom'
+import { scheduleCallAtom, showContactInfoAtom, zapSuccessAtom } from './atom'
 import SubscribeUpdates, { type ContactStatus } from './subscribe-updates'
 
 const DetailRow = ({
@@ -46,29 +46,18 @@ const STAY_INFORMED = [
   { Icon: Landmark, text: msg`Governance role changes` },
 ]
 
-const ConfirmationBlock = ({
-  onClose,
-  children,
-}: {
-  onClose: () => void
-  children: React.ReactNode
-}) => (
-  <div className="flex flex-col gap-6">
-    <p className="px-4 text-left font-bold text-primary opacity-0 animate-fade-in">
-      {children}
-    </p>
-    <div className="flex justify-center px-4 pb-4">
-      <Button variant="secondary" className="rounded-xl px-8" onClick={onClose}>
-        <Trans>Close</Trans>
-      </Button>
-    </div>
-  </div>
+// No dedicated Close button — the header X owns closing the modal.
+const ConfirmationBlock = ({ children }: { children: React.ReactNode }) => (
+  <p className="px-4 text-left font-bold text-primary opacity-0 animate-fade-in">
+    {children}
+  </p>
 )
 
 const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
   const { t } = useLingui()
   const success = useAtomValue(zapSuccessAtom)
   const showContactInfo = useAtomValue(showContactInfoAtom)
+  const scheduleCall = useAtomValue(scheduleCallAtom)
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [contactStatus, setContactStatus] = useState<ContactStatus>('idle')
   const account = useAtomValue(walletAtom)
@@ -89,8 +78,28 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
     receivedAmount,
   } = success
 
+  // Intro-call offer: large *purchases* only, once per wallet (consumer-tracked
+  // via `scheduled`, plus an optimistic local hide once they click).
+  const showSchedule =
+    !!scheduleCall &&
+    !scheduleCall.scheduled &&
+    isMint &&
+    inputValue >= (scheduleCall.minUsd ?? 500)
+
+  // Persist the flag but keep the panel visible in THIS view — if the user
+  // closed the Calendly tab by mistake they can click again. It's hidden on the
+  // next modal render, when the consumer re-reads the flag into `scheduled`.
+  const handleSchedule = () => {
+    scheduleCall?.onSchedule?.()
+  }
+
+  // "Stay informed" is hidden entirely once the wallet is already subscribed.
+  const justSubscribed = contactStatus === 'success'
+  const showSubscribe =
+    showContactInfo && !registered && !checkingRegistration && !justSubscribed
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-4">
       <div className="flex flex-col gap-4 px-4 pt-4">
         <div className="flex items-center justify-between">
           <span className="flex items-center justify-center rounded-2xl border border-success p-1">
@@ -166,7 +175,36 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
           )}
         </div>
 
-        {showContactInfo && (
+        {showSchedule && (
+          <div className="flex flex-col gap-4 rounded-2xl border border-border-secondary bg-background p-4 opacity-0 animate-fade-in [animation-delay:150ms]">
+            <div className="flex flex-col gap-1">
+              <p className="text-xl font-medium leading-7 text-primary">
+                <Trans>A direct line to the team</Trans>
+              </p>
+              <p className="text-base text-foreground">
+                <Trans>
+                  Congratulations on purchasing a meaningful amount of this DTF.
+                  Larger holders are entitled to a direct connection with the
+                  team behind Reserve. Schedule an intro call to get to know us,
+                  get help with anything in the future, and share your thoughts
+                  as we continue to build and grow.
+                </Trans>
+              </p>
+            </div>
+            <Button asChild className="rounded-xl">
+              <a
+                href={scheduleCall?.url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleSchedule}
+              >
+                <Trans>Schedule an intro call</Trans>
+              </a>
+            </Button>
+          </div>
+        )}
+
+        {showSubscribe && (
           <div className="flex flex-col gap-4 rounded-2xl border border-border-secondary bg-background p-4 opacity-0 animate-fade-in [animation-delay:300ms]">
             <div className="flex flex-col gap-1">
               <p className="text-xl font-medium leading-7 text-primary">
@@ -192,61 +230,53 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
         )}
       </div>
 
-      {showContactInfo &&
-        (contactStatus === 'success' ? (
-          <ConfirmationBlock onClose={onClose}>
-            <Trans>
-              Thanks for getting involved, we’re excited to have you! We’ll
-              reach out with any important updates on this DTF.
-            </Trans>
-          </ConfirmationBlock>
-        ) : registered ? (
-          <ConfirmationBlock onClose={onClose}>
-            <Trans>
-              You’re already subscribed to updates for this DTF. We’ll reach
-              out with any important changes.
-            </Trans>
-          </ConfirmationBlock>
-        ) : checkingRegistration ? (
-          <div className="flex justify-center px-4 pb-4">
-            <Loader
-              size={20}
-              className="animate-spin-slow text-muted-foreground"
-            />
-          </div>
-        ) : (
-          <>
-            {contactStatus === 'error' && (
-              <p className="px-4 text-left font-bold text-destructive animate-fade-in">
-                <Trans>
-                  Something went wrong. Please try again. If the problem
-                  persists, please{' '}
-                  <a
-                    href="https://reserve.canny.io/general-help-requests"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary"
-                  >
-                    submit a help request
-                  </a>
-                  .
-                </Trans>
-              </p>
-            )}
-            <SubscribeUpdates
-              className="px-4 opacity-0 animate-fade-in [animation-delay:300ms]"
-              onStatusChange={setContactStatus}
-            />
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={contactStatus === 'submitting'}
-              className="px-4 pb-4 text-center text-primary opacity-0 animate-fade-in [animation-delay:300ms] disabled:cursor-not-allowed disabled:text-muted-foreground"
-            >
-              <Trans>No thanks</Trans>
-            </button>
-          </>
-        ))}
+      {justSubscribed ? (
+        <ConfirmationBlock>
+          <Trans>
+            Thanks for getting involved, we’re excited to have you! We’ll reach
+            out with any important updates on this DTF.
+          </Trans>
+        </ConfirmationBlock>
+      ) : showContactInfo && checkingRegistration ? (
+        <div className="flex justify-center px-4">
+          <Loader
+            size={20}
+            className="animate-spin-slow text-muted-foreground"
+          />
+        </div>
+      ) : showSubscribe ? (
+        <>
+          {contactStatus === 'error' && (
+            <p className="px-4 text-left font-bold text-destructive animate-fade-in">
+              <Trans>
+                Something went wrong. Please try again. If the problem persists,
+                please{' '}
+                <a
+                  href="https://reserve.canny.io/general-help-requests"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary"
+                >
+                  submit a help request
+                </a>
+                .
+              </Trans>
+            </p>
+          )}
+          <SubscribeUpdates
+            className="px-4 opacity-0 animate-fade-in [animation-delay:300ms]"
+            onStatusChange={setContactStatus}
+          />
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={contactStatus === 'submitting'}
+            className="px-4 text-center text-primary opacity-0 animate-fade-in [animation-delay:300ms] disabled:cursor-not-allowed disabled:text-muted-foreground"
+          >
+            <Trans>No thanks</Trans>
+          </button>
+        </>
+      ) : null}
     </div>
   )
 }

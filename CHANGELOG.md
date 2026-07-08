@@ -1,3 +1,14 @@
+## [2.3.6] - 2026-07-07
+
+### Added
+
+- New optional `scheduleCall` prop. When set, the post-purchase success view shows a "schedule an intro call" panel for larger buys — gated on the purchase size (`minUsd`, default $500). The consumer supplies the URL, an already-scheduled flag, and an `onSchedule` callback; the panel stays visible within the current view and only disappears once the consumer passes `scheduled: true` on a later render.
+
+### Changed
+
+- The "Stay informed" subscribe panel is now hidden entirely for wallets already subscribed to the DTF (previously it showed an "already subscribed" confirmation).
+- Removed the dedicated "Close" button from the success view; the header close (X) is the single way to dismiss it.
+
 ## [2.3.5] - 2026-07-02
 
 ### Added

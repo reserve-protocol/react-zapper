@@ -23,10 +23,11 @@ import {
   walletAtom,
   zapperApiUrlAtom,
 } from '../state/atoms'
-import { DEFAULT_API_URL, Token } from '../types'
+import { DEFAULT_API_URL, ScheduleCallConfig, Token } from '../types'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
 import {
+  scheduleCallAtom,
   sellOnlyAtom,
   showContactInfoAtom,
   zapperCurrentTabAtom,
@@ -50,6 +51,7 @@ interface UpdatersProps {
   mode?: 'modal' | 'inline' | 'simple'
   sellOnly?: boolean
   showContactInfo?: boolean
+  scheduleCall?: ScheduleCallConfig
   refreshRate?: number
 }
 
@@ -264,6 +266,20 @@ const ContactInfoUpdater = ({
   return null
 }
 
+const ScheduleCallUpdater = ({
+  scheduleCall,
+}: {
+  scheduleCall?: ScheduleCallConfig
+}) => {
+  const setScheduleCall = useSetAtom(scheduleCallAtom)
+
+  useEffect(() => {
+    setScheduleCall(scheduleCall)
+  }, [scheduleCall, setScheduleCall])
+
+  return null
+}
+
 const Updaters: React.FC<UpdatersProps> = ({
   dtfAddress,
   chainId,
@@ -275,6 +291,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   mode = 'modal',
   sellOnly,
   showContactInfo,
+  scheduleCall,
   refreshRate,
 }) => {
   return (
@@ -291,6 +308,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <DebugUpdater debug={debug} />
       <SellOnlyUpdater sellOnly={sellOnly} />
       <ContactInfoUpdater showContactInfo={showContactInfo} />
+      <ScheduleCallUpdater scheduleCall={scheduleCall} />
       <RefreshRateUpdater refreshRate={refreshRate} />
       <SessionTracker mode={mode} />
     </>
