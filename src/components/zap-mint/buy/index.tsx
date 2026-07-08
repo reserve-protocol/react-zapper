@@ -6,7 +6,12 @@ import { formatEther, parseUnits } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
-import { chainIdAtom, indexDTFAtom, walletAtom } from '../../../state/atoms'
+import {
+  chainIdAtom,
+  indexDTFAtom,
+  tokenSelectorLoadingAtom,
+  walletAtom,
+} from '../../../state/atoms'
 import { Token } from '../../../types'
 import {
   formatCurrency,
@@ -52,6 +57,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const selectedTokenBalance = useAtomValue(selectedTokenBalanceAtom)
   const tokens = useAtomValue(tokensAtom)
+  const tokensLoading = useAtomValue(tokenSelectorLoadingAtom)
   const slippage = useAtomValue(slippageAtom)
   const forceMint = useAtomValue(forceMintAtom)
   const debug = useAtomValue(zapperDebugAtom)
@@ -203,6 +209,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
           onMax,
           tokens,
           onTokenSelect: handleTokenSelect,
+          tokensLoading,
           disabled: !account,
         }}
         to={{

@@ -36,6 +36,22 @@ export const connectWalletAtom = atom<{ fn: () => void }>({ fn: () => { } })
 export const balancesAtom = atom<Record<string, TokenBalance>>({})
 
 /**
+ * Frozen ordering of the zappable token list (lowercase addresses), sorted by
+ * the user's holdings in USD. Computed once per wallet/chain when balances and
+ * prices first resolve; undefined = default constants order. Kept frozen so
+ * live balance refreshes don't reshuffle the list or switch the default token
+ * mid-session.
+ */
+export const zappableTokenOrderAtom = atom<string[] | undefined>(undefined)
+
+/**
+ * True while the balances/prices needed to order the token list are loading.
+ * Only set by TokenBalancesUpdater, so it stays false (no skeleton) when the
+ * updaters aren't mounted.
+ */
+export const tokenSelectorLoadingAtom = atom(false)
+
+/**
  * Index DTF atom - the current DTF token being zapped
  */
 export const indexDTFAtom = atom<{

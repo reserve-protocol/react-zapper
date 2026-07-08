@@ -1,3 +1,13 @@
+## [2.5.1] - 2026-07-08
+
+### Changed
+
+- The input token selector now orders tokens by the USD value of the user's holdings (largest first), and the default selected token is the one the user holds the most of. The order is computed once per wallet/chain when balances and prices resolve, so the list doesn't reshuffle mid-session. Without a connected wallet, or if balances/prices can't be fetched, the selector keeps the previous fixed order.
+
+### Added
+
+- Loading skeleton on the token selector and balance while balances/prices are being fetched, so the list doesn't visibly reorder or switch the selected token after rendering.
+
 ## [2.5.0] - 2026-07-08
 
 ### Changed

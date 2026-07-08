@@ -1,7 +1,12 @@
 import { atom } from 'jotai'
 import { atomWithReset } from 'jotai/utils'
 import type { UseQuoteResult } from '../../hooks/useQuote'
-import { balancesAtom, chainIdAtom, indexDTFAtom } from '../../state/atoms'
+import {
+  balancesAtom,
+  chainIdAtom,
+  indexDTFAtom,
+  zappableTokenOrderAtom,
+} from '../../state/atoms'
 import {
   DisabledSettingsConfig,
   ScheduleCallConfig,
@@ -59,9 +64,17 @@ export const openZapMintModalAtom = atom(
 )
 
 export const selectedTokenAtom = atom<Token | undefined>(undefined)
+// Returns tokens from the constants module so the reference stays stable:
+// zapper.tsx resets the selected token whenever the default changes.
 export const defaultSelectedTokenAtom = atom<Token>((get) => {
   const chainId = get(chainIdAtom)
-  return reducedZappableTokens[chainId][0]
+  const tokens = reducedZappableTokens[chainId]
+  const order = get(zappableTokenOrderAtom)
+  if (!order) return tokens[0]
+  return (
+    tokens.find((token) => token.address.toLowerCase() === order[0]) ??
+    tokens[0]
+  )
 })
 export const selectedTokenOrDefaultAtom = atom<Token>((get) => {
   const selectedToken = get(selectedTokenAtom)
@@ -80,10 +93,17 @@ export const selectedTokenBalanceAtom = atom<TokenBalance | undefined>(
 export const tokensAtom = atom<(Token & { balance?: string })[]>((get) => {
   const chainId = get(chainIdAtom)
   const balances = get(balancesAtom)
-  return reducedZappableTokens[chainId].map((token) => ({
+  const order = get(zappableTokenOrderAtom)
+  const tokens = reducedZappableTokens[chainId].map((token) => ({
     ...token,
     balance: balances[token.address]?.balance,
   }))
+  if (!order) return tokens
+  const position = (token: Token) => {
+    const index = order.indexOf(token.address.toLowerCase())
+    return index === -1 ? order.length : index
+  }
+  return tokens.sort((a, b) => position(a) - position(b))
 })
 
 export const tokenInAtom = atom<Token | undefined>((get) => {

@@ -407,6 +407,11 @@ const ethTokens = zappableTokens[1] // Ethereum mainnet tokens
 const baseTokens = zappableTokens[8453] // Base tokens
 ```
 
+Inside the widget, the token selector orders this list by the USD value of the
+connected wallet's holdings (largest first) and defaults to the token the user
+holds the most of. Without a connected wallet — or if balances/prices can't be
+fetched — the list keeps the order above.
+
 ## Development
 
 ### Prerequisites

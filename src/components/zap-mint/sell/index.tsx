@@ -8,6 +8,7 @@ import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
   indexDTFAtom,
   indexDTFPriceAtom,
+  tokenSelectorLoadingAtom,
   walletAtom,
 } from '../../../state/atoms'
 import { Token } from '../../../types'
@@ -57,6 +58,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const indexDTFBalance = useAtomValue(indexDTFBalanceAtom)
   const indxDTFParsedBalance = formatEther(indexDTFBalance)
   const tokens = useAtomValue(tokensAtom)
+  const tokensLoading = useAtomValue(tokenSelectorLoadingAtom)
   const slippage = useAtomValue(slippageAtom)
   const forceMint = useAtomValue(forceMintAtom)
   const debug = useAtomValue(zapperDebugAtom)
@@ -224,6 +226,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
           value: formatUnits(BigInt(valueTo || 0), selectedToken.decimals),
           tokens,
           onTokenSelect: handleTokenSelect,
+          tokensLoading,
           disabled: disabled || ongoingTx,
         }}
         onSwap={sellOnly ? undefined : changeTab}

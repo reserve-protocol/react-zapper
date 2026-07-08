@@ -56,6 +56,7 @@ type SwapItem = {
   onChange?: (value: string) => void
   tokens?: TokenWithBalance[]
   onTokenSelect?: (token: Token) => void
+  tokensLoading?: boolean
   disabled?: boolean
   className?: string
 }
@@ -104,8 +105,12 @@ const TokenSelector = ({
   symbol = '',
   tokens,
   onTokenSelect,
+  tokensLoading = false,
   disabled = false,
-}: Pick<SwapItem, 'address' | 'symbol' | 'tokens' | 'onTokenSelect'> & {
+}: Pick<
+  SwapItem,
+  'address' | 'symbol' | 'tokens' | 'onTokenSelect' | 'tokensLoading'
+> & {
   disabled?: boolean
 }) => {
   const chainId = useAtomValue(chainIdAtom)
@@ -116,6 +121,14 @@ const TokenSelector = ({
       ? brand?.dtf?.icon
       : undefined
   const [open, setOpen] = React.useState(false)
+
+  if (tokensLoading) {
+    return (
+      <div className="flex flex-col gap-1 justify-center items-end min-w-fit mt-1">
+        <Skeleton className="h-8 w-28 rounded-full" />
+      </div>
+    )
+  }
 
   if (!tokens || tokens.length === 0) {
     return (
@@ -203,19 +216,27 @@ const PriceValue = ({ price }: Pick<SwapItem, 'price'>) => (
 const MaxButton = ({
   balance,
   onMax,
+  loading = false,
   disabled,
-}: Pick<SwapItem, 'balance' | 'onMax'> & { disabled?: boolean }) => (
+}: Pick<SwapItem, 'balance' | 'onMax'> & {
+  loading?: boolean
+  disabled?: boolean
+}) => (
   <div className="flex items-center gap-1 text-base">
     <span className="text-legend">
       <Trans>Balance</Trans>
     </span>
-    <span className="font-bold">{balance}</span>
+    {loading ? (
+      <Skeleton className="h-4 w-14" />
+    ) : (
+      <span className="font-bold">{balance}</span>
+    )}
     <Button
       variant="ghost"
       className="h-6 rounded-full ml-1 bg-primary/15 text-primary/80 hover:bg-primary/15 hover:text-primary/80 font-semibold"
       size="xs"
       onClick={onMax}
-      disabled={disabled}
+      disabled={disabled || loading}
     >
       <Trans>Max</Trans>
     </Button>
@@ -250,6 +271,7 @@ export const TokenInputBox = ({
           <MaxButton
             balance={from.balance}
             onMax={from.onMax}
+            loading={from.tokensLoading}
             disabled={disabled || from.disabled}
           />
         </div>
