@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '../ui/select'
 import { SlippageSelector } from '../ui/swap'
-import { forceMintAtom, slippageAtom } from './atom'
+import { disabledSettingsAtom, forceMintAtom, slippageAtom } from './atom'
 
 const ZapSettingsRowTitle = ({
   title,
@@ -41,6 +41,7 @@ const ZapSettings = () => {
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
   const [quoteSource, setQuoteSource] = useAtom(quoteSourceAtom)
   const [deepLiquidity, setDeepLiquidity] = useAtom(deepLiquidityAtom)
+  const disabledSettings = useAtomValue(disabledSettingsAtom)
 
   const handleSlippageChange = (value: string) => {
     setSlippage(value)
@@ -116,6 +117,7 @@ const ZapSettings = () => {
           <Checkbox
             checked={deepLiquidity}
             onCheckedChange={handleDeepLiquidityChange}
+            disabled={disabledSettings?.deepLiquidity}
           />
         </div>
       </div>
@@ -132,6 +134,7 @@ const ZapSettings = () => {
           <Checkbox
             checked={forceMint}
             onCheckedChange={handleForceMintChange}
+            disabled={disabledSettings?.forceMint}
           />
         </div>
       </div>

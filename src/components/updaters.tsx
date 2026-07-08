@@ -9,6 +9,7 @@ import {
   apiUrlAtom,
   chainIdAtom,
   connectWalletAtom,
+  deepLiquidityAtom,
   DEFAULT_REFRESH_RATE,
   indexDTFAtom,
   indexDTFBasketAmountsAtom,
@@ -23,10 +24,17 @@ import {
   walletAtom,
   zapperApiUrlAtom,
 } from '../state/atoms'
-import { DEFAULT_API_URL, ScheduleCallConfig, Token } from '../types'
+import {
+  DEFAULT_API_URL,
+  DisabledSettingsConfig,
+  ScheduleCallConfig,
+  Token,
+} from '../types'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
 import {
+  disabledSettingsAtom,
+  forceMintAtom,
   scheduleCallAtom,
   sellOnlyAtom,
   showContactInfoAtom,
@@ -52,6 +60,7 @@ interface UpdatersProps {
   sellOnly?: boolean
   showContactInfo?: boolean
   scheduleCall?: ScheduleCallConfig
+  disabledSettings?: DisabledSettingsConfig
   refreshRate?: number
 }
 
@@ -280,6 +289,28 @@ const ScheduleCallUpdater = ({
   return null
 }
 
+const DisabledSettingsUpdater = ({
+  disabledSettings,
+}: {
+  disabledSettings?: DisabledSettingsConfig
+}) => {
+  const setDisabledSettings = useSetAtom(disabledSettingsAtom)
+  const setDeepLiquidity = useSetAtom(deepLiquidityAtom)
+  const setForceMint = useSetAtom(forceMintAtom)
+
+  useEffect(() => {
+    setDisabledSettings(disabledSettings)
+    if (disabledSettings?.deepLiquidity) {
+      setDeepLiquidity(false)
+    }
+    if (disabledSettings?.forceMint) {
+      setForceMint(false)
+    }
+  }, [disabledSettings, setDisabledSettings, setDeepLiquidity, setForceMint])
+
+  return null
+}
+
 const Updaters: React.FC<UpdatersProps> = ({
   dtfAddress,
   chainId,
@@ -292,6 +323,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   sellOnly,
   showContactInfo,
   scheduleCall,
+  disabledSettings,
   refreshRate,
 }) => {
   return (
@@ -309,6 +341,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <SellOnlyUpdater sellOnly={sellOnly} />
       <ContactInfoUpdater showContactInfo={showContactInfo} />
       <ScheduleCallUpdater scheduleCall={scheduleCall} />
+      <DisabledSettingsUpdater disabledSettings={disabledSettings} />
       <RefreshRateUpdater refreshRate={refreshRate} />
       <SessionTracker mode={mode} />
     </>

@@ -165,6 +165,7 @@ Simple mode features:
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |
 | `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `9000`) |
+| `disabledSettings` | `DisabledSettingsConfig`      | ❌       | Disable individual zap settings (`deepLiquidity`, `forceMint`); disabled options render frozen unchecked and the behavior is forced off |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
 | `locale`         | `'en' \| 'es' \| 'ko' \| 'zh'`  | ❌       | UI language. Defaults to `'en'`; untranslated strings fall back to English |
 

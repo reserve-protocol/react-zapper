@@ -28,4 +28,5 @@ export type {
   UseZapperModalReturn,
   Token,
   TokenBalance,
+  DisabledSettingsConfig,
 } from './types'
