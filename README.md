@@ -199,7 +199,7 @@ import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zappe
 
 ### Quote Providers
 
-The zapper supports four quote providers: the Reserve-native `zap` and three external aggregators — `odos`, `velora`, and `enso`. In `best` mode (the default), every enabled provider is queried in parallel and the one returning the highest `minAmountOut` wins. Individual failures are tolerated as long as at least one provider responds.
+The zapper supports four quote providers: the Reserve-native `zap` and three external aggregators — `odos`, `velora`, and `enso`. In `best` mode (the default), every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount. Individual provider failures are tolerated as long as at least one provider responds.
 
 Provider availability per chain is controlled by the `PROVIDER_ENABLED` matrix exported from the package:
 

@@ -267,14 +267,6 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
             className="px-4 opacity-0 animate-fade-in [animation-delay:300ms]"
             onStatusChange={setContactStatus}
           />
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={contactStatus === 'submitting'}
-            className="px-4 text-center text-primary opacity-0 animate-fade-in [animation-delay:300ms] disabled:cursor-not-allowed disabled:text-muted-foreground"
-          >
-            <Trans>No thanks</Trans>
-          </button>
         </>
       ) : null}
     </div>

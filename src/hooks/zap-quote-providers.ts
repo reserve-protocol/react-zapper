@@ -11,6 +11,10 @@ import {
   trackIndexDTFQuoteRequested,
 } from '../utils/tracking'
 import type { ProviderConfig, ProviderId } from '../utils/providers'
+import {
+  filterQuotesBySimulation,
+  type SimulateQuote,
+} from './zap-quote-simulation'
 
 export type ProviderQuote = ZapResponse & {
   source: ProviderId
@@ -41,6 +45,12 @@ export type FetchQuoteContext = {
     chainId: number
     type: 'buy' | 'sell'
   }
+  /**
+   * When provided (and comparing multiple candidates in `best` mode), each
+   * candidate tx is simulated and quotes that revert are excluded from the
+   * selection.
+   */
+  simulate?: SimulateQuote
 }
 
 export type FetchQuoteResult = {
@@ -48,6 +58,7 @@ export type FetchQuoteResult = {
   attempted: ProviderId[]
   successful: ProviderId[]
   failed: { source: ProviderId; error: unknown }[]
+  simulationFiltered: { source: ProviderId; error: unknown }[]
 }
 
 const appendTrackingParams = (
@@ -181,13 +192,15 @@ const parseMinOut = (q: ProviderQuote): bigint => {
  */
 const pickBestQuote = (
   quotes: ProviderQuote[],
-  analytics: FetchQuoteContext['analytics']
+  analytics: FetchQuoteContext['analytics'],
+  extra?: Record<string, unknown>
 ): ProviderQuote => {
   if (quotes.length === 1) {
     mixpanelTrack('Quote Source Winner', {
       source: quotes[0].source,
       reason: `only_${quotes[0].source}_available`,
       ...analytics,
+      ...extra,
     })
     return quotes[0]
   }
@@ -213,6 +226,7 @@ const pickBestQuote = (
     winningMinAmountOut: bestAmount.toString(),
     comparedProviders: quotes.map((q) => q.source).join(','),
     ...analytics,
+    ...extra,
   })
 
   return best
@@ -247,6 +261,7 @@ export const fetchBestZapQuote = async (
       attempted: [candidates[0].id],
       successful: [candidates[0].id],
       failed: [],
+      simulationFiltered: [],
     }
   }
 
@@ -273,10 +288,57 @@ export const fetchBestZapQuote = async (
     throw firstRejection?.reason ?? new Error('No quotes available')
   }
 
+  // Drop candidates whose tx reverts in simulation before picking a winner.
+  // With a single successful quote filtering can't change the selection, so
+  // it is skipped (no added latency); quotes still needing approval are kept
+  // unverified, so the common cold-start ERC-20 path issues zero estimates.
+  let pool = successful
+  let simulationFiltered: FetchQuoteResult['simulationFiltered'] = []
+
+  if (ctx.simulate && quoteSource === 'best' && successful.length >= 2) {
+    const { kept, filtered } = await filterQuotesBySimulation(
+      successful,
+      ctx.simulate
+    )
+
+    filtered.forEach(({ quote, error }) =>
+      mixpanelTrack('Quote Simulation Filtered', {
+        source: quote.source,
+        minAmountOut: quote.result?.minAmountOut,
+        error: (error instanceof Error ? error.message : String(error))
+          .split('\n')[0]
+          .slice(0, 180),
+        ...ctx.analytics,
+      })
+    )
+    simulationFiltered = filtered.map(({ quote, error }) => ({
+      source: quote.source,
+      error,
+    }))
+
+    if (kept.length > 0) {
+      pool = kept
+    } else {
+      // Every candidate reverted — fall back to the unfiltered pool rather
+      // than introduce a new "no route" state; the submit button's own
+      // simulation gate surfaces the failure as before.
+      mixpanelTrack('Quote Simulation All Failed', {
+        comparedProviders: successful.map((q) => q.source).join(','),
+        ...ctx.analytics,
+      })
+    }
+  }
+
   return {
-    selected: pickBestQuote(successful, ctx.analytics),
+    selected: pickBestQuote(pool, ctx.analytics, {
+      simulationFiltered:
+        simulationFiltered.map((f) => f.source).join(',') || undefined,
+      simulationFallback:
+        simulationFiltered.length > 0 && pool === successful ? true : undefined,
+    }),
     attempted: candidates.map((p) => p.id),
     successful: successful.map((q) => q.source),
     failed,
+    simulationFiltered,
   }
 }

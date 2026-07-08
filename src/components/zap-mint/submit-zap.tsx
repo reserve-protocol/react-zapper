@@ -1,5 +1,4 @@
 import { Trans, useLingui } from '@lingui/react/macro'
-import { useQueryClient } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Address, erc20Abi, formatUnits, Hex } from 'viem'
@@ -10,7 +9,9 @@ import {
   useWaitForTransactionReceipt,
 } from 'wagmi'
 import useContractWrite from '../../hooks/useContractWrite'
+import useDeferredLoading from '../../hooks/useDeferredLoading'
 import useQuoteCountdown from '../../hooks/useQuoteCountdown'
+import { classifyEstimateGasError } from '../../hooks/zap-quote-simulation'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { walletAtom } from '../../state/atoms'
 import { ZapResult } from '../../types/api'
@@ -162,6 +163,9 @@ const SubmitZapButton = ({
   const setInputAmountCached = useSetAtom(zapMintInputCachedAtom)
   const refetchQuote = useAtomValue(zapRefetchAtom)
   const fetchingZapper = useAtomValue(zapFetchingAtom)
+  // Quote refreshes often resolve in a couple hundred ms — don't blink the
+  // CTA for those; when the fetching state does show, keep it readable.
+  const showFetching = useDeferredLoading(fetchingZapper && !ongoingTx)
 
   const {
     write: approve,
@@ -229,18 +233,22 @@ const SubmitZapButton = ({
     },
   })
 
+  // Only positive evidence of an on-chain revert gates the CTA — transient
+  // RPC noise (rate limits, timeouts) on a simulation attempt must not flash
+  // the button into "Simulation failed" (or block a quote that is fine).
   const simulationFailed = useMemo(
-    () => Boolean(simulationError || simulationFailureReason),
+    () =>
+      [simulationError, simulationFailureReason].some(
+        (e) => e != null && classifyEstimateGasError(e) === 'revert'
+      ),
     [simulationError, simulationFailureReason]
   )
 
-  const queryClient = useQueryClient()
-  useEffect(() => {
-    if (simulationFailed) {
-      queryClient.invalidateQueries({ queryKey: ['zapDeploy'] })
-      refetchQuote.fn?.()
-    }
-  }, [simulationFailed, refetchQuote, queryClient])
+  // NOTE: deliberately no "refetch the quote when the simulation fails"
+  // effect here — combined with the re-arm below it creates a sub-second
+  // feedback loop (new quote -> new sim -> fails -> refetch quote -> ...).
+  // Quote freshness is owned by the regular refetchInterval, the one-shot
+  // refetch after a failed tx, and the pre-selection simulation filter.
 
   // Once its retries are exhausted, an errored estimateGas query never runs
   // again on its own, and a refreshed quote can carry identical tx bytes
@@ -421,7 +429,7 @@ const SubmitZapButton = ({
             : !readyToSubmit || loadingTx || validatingTx)
         }
         loading={
-          fetchingZapper ||
+          showFetching ||
           approving ||
           loadingTx ||
           validatingTx ||
@@ -444,6 +452,8 @@ const SubmitZapButton = ({
       >
         {quoteExpired
           ? t`Quote expired`
+          : showFetching
+          ? t`Fetching quote...`
           : simulationFailed
           ? t`Simulation failed - Refetching quote`
           : `${

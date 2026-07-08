@@ -84,6 +84,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'buy',
       inputValue,
+      insufficientBalance,
     })
 
   const zapperErrorMessage = isFetching

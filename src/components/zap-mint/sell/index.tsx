@@ -86,6 +86,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'sell',
       inputValue,
+      insufficientBalance,
     })
 
   const zapperErrorMessage = isFetching

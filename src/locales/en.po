@@ -14,8 +14,8 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
-#: src/components/zap-mint/buy/index.tsx:214
-#: src/components/zap-mint/sell/index.tsx:218
+#: src/components/zap-mint/buy/index.tsx:215
+#: src/components/zap-mint/sell/index.tsx:219
 msgid " + ${0} in dust "
 msgstr ""
 
@@ -23,7 +23,7 @@ msgstr ""
 msgid "A direct line to the team"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:426
+#: src/components/zap-mint/submit-zap.tsx:462
 msgid "Approve use of {inputSymbol}"
 msgstr ""
 
@@ -44,11 +44,11 @@ msgid "Buy"
 msgstr ""
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/buy/index.tsx:232
+#: src/components/zap-mint/buy/index.tsx:233
 msgid "Buy {0}"
 msgstr ""
 
-#: src/components/zap-mint/zap-settings.tsx:109
+#: src/components/zap-mint/zap-settings.tsx:110
 msgid "Can improve price impact but it will take more time to get quotes."
 msgstr ""
 
@@ -61,8 +61,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/zap-mint/zap-settings.tsx:140
-msgid "Collect dust?"
-msgstr ""
+#~ msgid "Collect dust?"
+#~ msgstr ""
 
 #: src/components/zap-mint/zap-success-view.tsx:185
 msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
@@ -80,11 +80,11 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/components/ui/swap.tsx:495
+#: src/components/ui/swap.tsx:488
 msgid "Custom"
 msgstr ""
 
-#: src/components/zap-mint/zap-settings.tsx:114
+#: src/components/zap-mint/zap-settings.tsx:115
 msgid "Deep liquidity search"
 msgstr ""
 
@@ -93,14 +93,14 @@ msgid "During periods of high volatility it can take multiple attempts to find a
 msgstr ""
 
 #: src/components/zap-mint/zap-settings.tsx:141
-msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
-msgstr ""
+#~ msgid "Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee."
+#~ msgstr ""
 
 #: src/components/zap-mint/subscribe-updates.tsx:35
 #~ msgid "Email"
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-settings.tsx:108
+#: src/components/zap-mint/zap-settings.tsx:109
 msgid "Enable Deep liquidity search?"
 msgstr ""
 
@@ -116,15 +116,19 @@ msgstr ""
 msgid "Exchange Rate"
 msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:122
+#: src/components/zap-mint/zap-error-msg.tsx:134
 msgid "Failed to send. Try again."
 msgstr ""
 
-#: src/components/zap-mint/zap-settings.tsx:124
+#: src/components/zap-mint/submit-zap.tsx:456
+msgid "Fetching quote..."
+msgstr ""
+
+#: src/components/zap-mint/zap-settings.tsx:127
 msgid "Force DTF mint?"
 msgstr ""
 
-#: src/components/zap-mint/zap-settings.tsx:130
+#: src/components/zap-mint/zap-settings.tsx:133
 msgid "Force minting DTF"
 msgstr ""
 
@@ -132,7 +136,7 @@ msgstr ""
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:76
+#: src/components/zap-mint/submit-zap.tsx:77
 msgid "Get started"
 msgstr ""
 
@@ -140,7 +144,7 @@ msgstr ""
 msgid "Governance role changes"
 msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:170
+#: src/components/zap-mint/zap-error-msg.tsx:182
 msgid "Having issues minting? (Zaps are in beta)"
 msgstr ""
 
@@ -159,7 +163,7 @@ msgstr ""
 msgid "High price impact: {0}"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:100
+#: src/components/zap-mint/submit-zap.tsx:101
 msgid "Insufficient balance"
 msgstr ""
 
@@ -171,8 +175,8 @@ msgstr ""
 msgid "Loading DTF"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:76
-#: src/components/zap-mint/submit-zap.tsx:98
+#: src/components/zap-mint/submit-zap.tsx:77
+#: src/components/zap-mint/submit-zap.tsx:99
 msgid "Loading..."
 msgstr ""
 
@@ -180,7 +184,7 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: src/components/ui/swap.tsx:468
+#: src/components/ui/swap.tsx:461
 msgid "Max slippage"
 msgstr ""
 
@@ -197,10 +201,10 @@ msgid "Min Amount Out"
 msgstr ""
 
 #: src/components/zap-mint/zap-success-view.tsx:276
-msgid "No thanks"
-msgstr ""
+#~ msgid "No thanks"
+#~ msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:212
+#: src/components/zap-mint/zap-error-msg.tsx:224
 msgid "Please report this to help us improve"
 msgstr ""
 
@@ -212,7 +216,7 @@ msgstr ""
 msgid "Price Impact"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:420
+#: src/components/zap-mint/submit-zap.tsx:454
 msgid "Quote expired"
 msgstr ""
 
@@ -236,11 +240,11 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:118
+#: src/components/zap-mint/zap-error-msg.tsx:109
 msgid "Report"
 msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:118
+#: src/components/zap-mint/zap-error-msg.tsx:109
 msgid "Reported"
 msgstr ""
 
@@ -261,15 +265,15 @@ msgid "Sell"
 msgstr ""
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/sell/index.tsx:239
+#: src/components/zap-mint/sell/index.tsx:240
 msgid "Sell {0}"
 msgstr ""
 
 #: src/components/zap-mint/zap-settings.tsx:150
-msgid "Send dust back to wallet"
-msgstr ""
+#~ msgid "Send dust back to wallet"
+#~ msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:118
+#: src/components/zap-mint/zap-error-msg.tsx:109
 msgid "Sending..."
 msgstr ""
 
@@ -277,11 +281,11 @@ msgstr ""
 msgid "Show details"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:422
+#: src/components/zap-mint/submit-zap.tsx:458
 msgid "Simulation failed - Refetching quote"
 msgstr ""
 
-#: src/components/ui/swap.tsx:465
+#: src/components/ui/swap.tsx:458
 msgid "Slippage"
 msgstr ""
 
@@ -301,11 +305,11 @@ msgstr ""
 msgid "Stay informed about this DTF"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:426
+#: src/components/zap-mint/submit-zap.tsx:462
 msgid "Step 1. "
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:425
+#: src/components/zap-mint/submit-zap.tsx:461
 msgid "Step 2. "
 msgstr ""
 
@@ -365,7 +369,7 @@ msgstr ""
 msgid "This DTF contains assets with relatively low DEX liquidity"
 msgstr ""
 
-#: src/components/zap-mint/zap-settings.tsx:125
+#: src/components/zap-mint/zap-settings.tsx:128
 msgid "This is useful if you want to mint the DTF without trading."
 msgstr ""
 
@@ -374,7 +378,7 @@ msgstr ""
 msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
 msgstr ""
 
-#: src/components/ui/swap.tsx:484
+#: src/components/ui/swap.tsx:477
 msgid "Toggle {option}"
 msgstr ""
 
@@ -394,11 +398,11 @@ msgstr ""
 msgid "Via"
 msgstr ""
 
-#: src/components/zap-mint/zap-error-msg.tsx:173
+#: src/components/zap-mint/zap-error-msg.tsx:185
 msgid "Wait and try again or consider using manual mode"
 msgstr ""
 
-#: src/components/ui/swap.tsx:361
+#: src/components/ui/swap.tsx:354
 msgid "You receive:"
 msgstr ""
 

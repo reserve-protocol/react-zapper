@@ -1,3 +1,15 @@
+## [2.5.0] - 2026-07-08
+
+### Changed
+
+- In `best` mode, candidate quotes are now simulated before selection and quotes whose transaction reverts are excluded, so aggregator quotes that would fail on-chain are no longer offered. If every candidate reverts, selection falls back to the raw best. Simulation is skipped when the user's balance is insufficient.
+- While a quote is being fetched, the submit CTA now reads "Fetching quote..." instead of keeping the previous step label. Sub-second refreshes don't blink the button: the fetching state only shows when it lasts, and stays up long enough to be readable.
+
+### Fixed
+
+- After a rejected or reverted transaction the submit CTA no longer cycles rapidly between disabled/refetching/simulating; recovery is now bounded to the regular quote refresh cadence.
+- The submit CTA no longer flashes "Simulation failed" on transient RPC errors (rate limits, timeouts): only an actual on-chain revert of the quoted transaction disables the button, and while a new quote is being fetched the fetching label takes precedence.
+
 ## [2.4.2] - 2026-07-08
 
 ### Changed

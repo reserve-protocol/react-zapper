@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useMemo } from 'react'
 import { Address } from 'viem'
+import { useConfig } from 'wagmi'
 import {
   zapperDebugAtom,
   zapSwapEndpointAtom,
@@ -26,6 +27,7 @@ import {
   fetchBestZapQuote,
   type ProviderQuote,
 } from './zap-quote-providers'
+import { makeWagmiSimulator } from './zap-quote-simulation'
 import {
   generateQuoteId,
   generateRetryId,
@@ -61,6 +63,7 @@ const useZapSwapQuery = ({
   dtfTicker,
   type,
   inputValue,
+  insufficientBalance,
 }: {
   tokenIn?: Address
   tokenOut?: Address
@@ -71,7 +74,9 @@ const useZapSwapQuery = ({
   dtfTicker: string
   type: 'buy' | 'sell'
   inputValue: number
+  insufficientBalance: boolean
 }) => {
+  const wagmiConfig = useConfig()
   const zapperApi = useAtomValue(zapperApiUrlAtom)
   const reserveApi = useAtomValue(apiUrlAtom)
   const chainId = useAtomValue(chainIdAtom)
@@ -167,9 +172,23 @@ const useZapSwapQuery = ({
       setRetryId(newRetryId)
       mixpanelRegister('retryId', newRetryId)
 
+      // Pre-select simulation only makes sense when the account could
+      // actually execute the tx: with insufficient funds every estimate
+      // reverts for reasons unrelated to the quotes. Skip too when the host
+      // wagmi config doesn't know the target chain.
+      const chainConfigured = wagmiConfig.chains.some((c) => c.id === chainId)
+      const simulate =
+        !insufficientBalance && chainConfigured
+          ? makeWagmiSimulator(wagmiConfig, {
+              chainId,
+              account: account as Address,
+            })
+          : undefined
+
       const { selected } = await fetchBestZapQuote({
         providers: availableProviders,
         quoteSource,
+        simulate,
         endpointParams: {
           chainId,
           tokenIn,
