@@ -268,18 +268,18 @@ const SLOW_LOADING_TEXTS: MessageDescriptor[] = [
 
 const SlowLoading = ({ enabled }: { enabled: boolean }) => {
   const { t } = useLingui()
-  const [countdown, setCountdown] = useState(60)
+  const [elapsed, setElapsed] = useState(1)
   const [textIndex, setTextIndex] = useState(0)
 
   useEffect(() => {
     if (!enabled) {
-      setCountdown(60)
+      setElapsed(1)
       setTextIndex(0)
       return
     }
 
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0))
+    const elapsedInterval = setInterval(() => {
+      setElapsed((prev) => prev + 1)
     }, 1000)
 
     const textInterval = setInterval(() => {
@@ -287,7 +287,7 @@ const SlowLoading = ({ enabled }: { enabled: boolean }) => {
     }, 5000)
 
     return () => {
-      clearInterval(countdownInterval)
+      clearInterval(elapsedInterval)
       clearInterval(textInterval)
     }
   }, [enabled])
@@ -305,14 +305,7 @@ const SlowLoading = ({ enabled }: { enabled: boolean }) => {
           <Loader size={16} className="animate-spin-slow" />
           {t(SLOW_LOADING_TEXTS[textIndex])}
         </div>
-        <div
-          className={cn(
-            'text-muted-foreground',
-            countdown > 0 ? 'min-w-4' : ''
-          )}
-        >
-          {countdown > 0 && `${countdown}s`}
-        </div>
+        <div className="text-muted-foreground min-w-4">{`${elapsed}s`}</div>
       </div>
     </div>
   )

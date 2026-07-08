@@ -209,22 +209,25 @@ const SubmitZapButton = ({
     )
   }, [gas, chainId])
 
-  const { error: simulationError, failureReason: simulationFailureReason } =
-    useEstimateGas({
-      to: tx?.to as Address,
-      data: tx?.data as Hex,
-      value: BigInt(tx?.value || 0),
-      gas: gasLimit,
-      chainId,
-      query: {
-        // Stop simulating once a tx is in flight/done — a failed simulation
-        // would force a quote refetch and overwrite the frozen result.
-        enabled: readyToSubmit && !!tx && !ongoingTx,
-        refetchIntervalInBackground: true,
-        refetchOnWindowFocus: true,
-        refetchInterval: 2_000,
-      },
-    })
+  const {
+    error: simulationError,
+    failureReason: simulationFailureReason,
+    refetch: refetchSimulation,
+  } = useEstimateGas({
+    to: tx?.to as Address,
+    data: tx?.data as Hex,
+    value: BigInt(tx?.value || 0),
+    gas: gasLimit,
+    chainId,
+    query: {
+      // Stop simulating once a tx is in flight/done — a failed simulation
+      // would force a quote refetch and overwrite the frozen result.
+      enabled: readyToSubmit && !!tx && !ongoingTx,
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: true,
+      refetchInterval: 2_000,
+    },
+  })
 
   const simulationFailed = useMemo(
     () => Boolean(simulationError || simulationFailureReason),
@@ -234,11 +237,27 @@ const SubmitZapButton = ({
   const queryClient = useQueryClient()
   useEffect(() => {
     if (simulationFailed) {
-      queryClient.setQueriesData({ queryKey: ['zapDeploy'] }, () => undefined)
       queryClient.invalidateQueries({ queryKey: ['zapDeploy'] })
       refetchQuote.fn?.()
     }
   }, [simulationFailed, refetchQuote, queryClient])
+
+  // Once its retries are exhausted, an errored estimateGas query never runs
+  // again on its own, and a refreshed quote can carry identical tx bytes
+  // (same queryKey). Re-arm the simulation whenever a quote lands while the
+  // last simulation failed, so a failed attempt can't leave the CTA disabled
+  // forever.
+  useEffect(() => {
+    if (ongoingTx || !readyToSubmit || !tx || !simulationFailed) return
+    refetchSimulation()
+  }, [
+    tx,
+    validUntil,
+    ongoingTx,
+    readyToSubmit,
+    simulationFailed,
+    refetchSimulation,
+  ])
 
   const {
     data: receipt,
@@ -356,6 +375,12 @@ const SubmitZapButton = ({
     ) {
       setOngoingTx(false)
     }
+    // The quote was frozen while the tx was in flight, so after a failure it
+    // is stale (often already expired) — replace it right away instead of
+    // waiting for the next refresh tick.
+    if (approvalTxError || txError || isErrorApproval || isErrorSend) {
+      refetchQuote.fn?.()
+    }
   }, [
     receipt,
     approvalReceipt,
@@ -364,6 +389,7 @@ const SubmitZapButton = ({
     isErrorApproval,
     isErrorSend,
     setOngoingTx,
+    refetchQuote,
   ])
 
   useTrackIndexDTFZapError({
