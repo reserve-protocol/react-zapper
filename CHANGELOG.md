@@ -1,3 +1,9 @@
+## [2.4.1] - 2026-07-08
+
+### Fixed
+
+- The submit CTA no longer stays disabled/loading indefinitely after a transaction reverts or is rejected in the wallet. The quote is now refreshed immediately on failure (instead of resuming from the stale, often expired, frozen quote), and the gas-estimate simulation is re-run whenever a new quote lands — previously an errored simulation query could never recover when the refreshed quote carried identical tx bytes, leaving the button stuck on "Simulation failed - Refetching quote".
+
 ## [2.4.0] - 2026-07-08
 
 ### Added

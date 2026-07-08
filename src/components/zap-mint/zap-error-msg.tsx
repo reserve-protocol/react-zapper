@@ -106,6 +106,9 @@ const ReportButton = ({ error }: { error?: string }) => {
     }
   }
 
+  const labels = [t`Sending...`, t`Reported`, t`Report`]
+  const label = isLoading ? labels[0] : hasReported ? labels[1] : labels[2]
+
   return (
     <div className="flex flex-col items-end gap-0.5">
       <Button
@@ -115,7 +118,16 @@ const ReportButton = ({ error }: { error?: string }) => {
           isLoading || hasReported || !sessionId || !quoteId || !retryId
         }
       >
-        {isLoading ? t`Sending...` : hasReported ? t`Reported` : t`Report`}
+        {/* Overlay every state's label so the button keeps the width of the
+            widest one and doesn't resize/overflow when the state changes */}
+        <span className="grid text-center">
+          {labels.map((l) => (
+            <span key={l} className="col-start-1 row-start-1 invisible">
+              {l}
+            </span>
+          ))}
+          <span className="col-start-1 row-start-1">{label}</span>
+        </span>
       </Button>
       {reportFailed && (
         <span className="text-red-500 text-[10px]">
