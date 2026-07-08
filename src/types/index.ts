@@ -29,9 +29,9 @@ export interface ScheduleCallConfig {
 }
 
 export interface DisabledSettingsConfig {
-  /** Freeze the "Deep liquidity search" checkbox unchecked and force the behavior off. */
+  /** Hide the "Deep liquidity search" setting and force the behavior off. */
   deepLiquidity?: boolean
-  /** Freeze the "Force minting DTF" checkbox unchecked and force the behavior off. */
+  /** Hide the "Force minting DTF" setting and force the behavior off. */
   forceMint?: boolean
 }
 
@@ -50,7 +50,7 @@ export interface ZapperProps {
   showContactInfo?: boolean
   /** Offer a "schedule an intro call" panel after a large purchase. Omit to disable. */
   scheduleCall?: ScheduleCallConfig
-  /** Disable individual zap settings. Disabled options render frozen unchecked. */
+  /** Disable individual zap settings. Disabled options are hidden from the settings panel. */
   disabledSettings?: DisabledSettingsConfig
   /** UI language. Defaults to 'en'. Falls back to English for any untranslated string. */
   locale?: SupportedLocale

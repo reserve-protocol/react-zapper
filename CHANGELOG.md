@@ -1,3 +1,17 @@
+## [2.4.2] - 2026-07-08
+
+### Changed
+
+- Options disabled via `disabledSettings` are now hidden from the zap settings panel instead of rendered as frozen unchecked checkboxes.
+
+### Removed
+
+- "Send dust back to wallet" row from the zap settings panel. Dust is always collected; behavior is unchanged.
+
+### Fixed
+
+- Help tooltips no longer get clipped by the dialog edge — tooltip content now renders in a portal.
+
 ## [2.4.1] - 2026-07-08
 
 ### Fixed

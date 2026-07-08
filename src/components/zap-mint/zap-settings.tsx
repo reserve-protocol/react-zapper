@@ -1,7 +1,6 @@
-import { broom } from '@lucide/lab'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtom, useAtomValue } from 'jotai'
-import { Anvil, Icon, Route, Search } from 'lucide-react'
+import { Anvil, Route, Search } from 'lucide-react'
 import {
   chainIdAtom,
   deepLiquidityAtom,
@@ -104,57 +103,42 @@ const ZapSettings = () => {
           hideTitle
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <ZapSettingsRowTitle
-          title={t`Enable Deep liquidity search?`}
-          help={t`Can improve price impact but it will take more time to get quotes.`}
-        />
-        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
-          <div className="flex items-center gap-1">
-            <Search size={16} className="text-muted-foreground" />
-            <div><Trans>Deep liquidity search</Trans></div>
-          </div>
-          <Checkbox
-            checked={deepLiquidity}
-            onCheckedChange={handleDeepLiquidityChange}
-            disabled={disabledSettings?.deepLiquidity}
+      {!disabledSettings?.deepLiquidity && (
+        <div className="flex flex-col gap-2">
+          <ZapSettingsRowTitle
+            title={t`Enable Deep liquidity search?`}
+            help={t`Can improve price impact but it will take more time to get quotes.`}
           />
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <ZapSettingsRowTitle
-          title={t`Force DTF mint?`}
-          help={t`This is useful if you want to mint the DTF without trading.`}
-        />
-        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
-          <div className="flex items-center gap-1">
-            <Anvil size={16} className="text-muted-foreground" />
-            <div><Trans>Force minting DTF</Trans></div>
-          </div>
-          <Checkbox
-            checked={forceMint}
-            onCheckedChange={handleForceMintChange}
-            disabled={disabledSettings?.forceMint}
-          />
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <ZapSettingsRowTitle
-          title={t`Collect dust?`}
-          help={t`Dust is the leftover amount of tokens that cannot be exchanged. If you choose to collect dust, it will be sent back to your wallet. Sending dust back to the wallet will increase transaction fee.`}
-        />
-        <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
-          <div className="flex items-center gap-1">
-            <Icon
-              iconNode={broom}
-              size={16}
-              className="text-muted-foreground"
+          <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
+            <div className="flex items-center gap-1">
+              <Search size={16} className="text-muted-foreground" />
+              <div><Trans>Deep liquidity search</Trans></div>
+            </div>
+            <Checkbox
+              checked={deepLiquidity}
+              onCheckedChange={handleDeepLiquidityChange}
             />
-            <div><Trans>Send dust back to wallet</Trans></div>
           </div>
-          <Checkbox checked disabled />
         </div>
-      </div>
+      )}
+      {!disabledSettings?.forceMint && (
+        <div className="flex flex-col gap-2">
+          <ZapSettingsRowTitle
+            title={t`Force DTF mint?`}
+            help={t`This is useful if you want to mint the DTF without trading.`}
+          />
+          <div className="rounded-xl border border-border px-3 py-3 flex items-center gap-1 justify-between">
+            <div className="flex items-center gap-1">
+              <Anvil size={16} className="text-muted-foreground" />
+              <div><Trans>Force minting DTF</Trans></div>
+            </div>
+            <Checkbox
+              checked={forceMint}
+              onCheckedChange={handleForceMintChange}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
