@@ -1,6 +1,6 @@
 import { AvailableChain } from '@/utils/chains'
 import { useQuery } from '@tanstack/react-query'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom, useStore } from 'jotai'
 import React, { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { useIndexBasket } from '../hooks/use-index-basket'
@@ -160,11 +160,13 @@ const ApiUrlUpdater = ({ apiUrl, zapperApiUrl }: { apiUrl?: string; zapperApiUrl
 }
 
 const ChainIdUpdater: React.FC<{ chainId: AvailableChain }> = ({ chainId }) => {
-  const setChainId = useSetAtom(chainIdAtom)
+  const store = useStore()
 
-  useEffect(() => {
-    setChainId(chainId)
-  }, [chainId, setChainId])
+  // Seed synchronously (not in an effect) so the DTF/basket updaters read this
+  // chain on their first render, not a wrong-chain query against mainnet.
+  if (store.get(chainIdAtom) !== chainId) {
+    store.set(chainIdAtom, chainId)
+  }
 
   return null
 }

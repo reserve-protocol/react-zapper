@@ -1,3 +1,13 @@
+## [2.6.0] - 2026-07-13
+
+### Fixed
+
+- Cross-chain navigation no longer fires a wrong-chain request on first render. `ChainIdUpdater` synced its `chain` prop into the widget's internal chain atom in an effect that lagged the first render, so the DTF and basket updaters briefly queried the default (mainnet) subgraph/price endpoint for a Base/BSC DTF before the prop applied. The chain is now seeded synchronously during render, so the first read already targets the correct chain.
+
+### Changed
+
+- Upgraded `jotai` from v1 to v2 (`^2.19.1`). No changes to the public component API.
+
 ## [2.5.1] - 2026-07-08
 
 ### Changed
