@@ -6,7 +6,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { connect } from 'wagmi/actions'
-import { Provider as JotaiProvider, useAtomValue } from 'jotai'
+import { createStore, Provider as JotaiProvider, useAtomValue } from 'jotai'
 import { createServer, type Server } from 'node:http'
 import React from 'react'
 import { ethAddress } from 'viem'
@@ -410,18 +410,17 @@ export const setup = async ({
   const queryClient = new QueryClient()
   lastQueryClient = queryClient
 
+  const store = createStore()
+  store.set(chainIdAtom, 1)
+  store.set(walletAtom, ACCOUNT)
+  store.set(indexDTFAtom, dtf)
+  store.set(quoteSourceAtom, quoteSource)
+  store.set(balancesAtom, { [ethAddress]: ethBalance })
+
   const utils = render(
     <WagmiProvider config={config} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>
-        <JotaiProvider
-          initialValues={[
-            [chainIdAtom, 1],
-            [walletAtom, ACCOUNT],
-            [indexDTFAtom, dtf],
-            [quoteSourceAtom, quoteSource],
-            [balancesAtom, { [ethAddress]: ethBalance }],
-          ] as const}
-        >
+        <JotaiProvider store={store}>
           <ZapperI18nProvider>
             <Probe />
             <Buy mode="modal" />
