@@ -241,6 +241,8 @@ const useZapSwapQuery = ({
     refetchInterval: refreshRate,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * Math.pow(2, attempt), 10000),
+    // quotes carry short-lived signed calldata — never re-serve an old one
+    gcTime: 0,
   })
 }
 

@@ -1,3 +1,10 @@
+## [2.6.1] - 2026-07-17
+
+### Fixed
+
+- Expired quotes can no longer be submitted. Some quotes carry short-lived signed calldata (BSC Ondo GM attestations live ~15s), and sending one past its `validUntil` is a guaranteed on-chain revert surfaced as an opaque "Unknown" error. The submit handler now checks `validUntil` at send time and refetches a fresh quote instead of handing dead calldata to the wallet.
+- The quote query no longer re-serves a previously cached quote when the swap parameters change back to an earlier value (or the widget remounts). The cached quote appeared instantly with the submit button armed while its calldata was already expired; a fresh quote is now always fetched.
+
 ## [2.6.0] - 2026-07-13
 
 ### Fixed

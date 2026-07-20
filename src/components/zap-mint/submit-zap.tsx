@@ -290,6 +290,12 @@ const SubmitZapButton = ({
 
   const execute = useCallback(() => {
     if (!tx || !readyToSubmit) return
+    // expired calldata is a guaranteed revert — refetch instead of sending
+    if (validUntil != null && Date.now() >= validUntil) {
+      setOngoingTx(false)
+      refetchQuote.fn?.()
+      return
+    }
     setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Hex,
@@ -301,6 +307,9 @@ const SubmitZapButton = ({
   }, [
     tx,
     readyToSubmit,
+    validUntil,
+    setOngoingTx,
+    refetchQuote,
     setInputAmountCached,
     inputAmount,
     sendTransaction,
