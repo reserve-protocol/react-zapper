@@ -9,6 +9,7 @@ import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
   chainIdAtom,
   indexDTFAtom,
+  indexDTFPriceAtom,
   tokenSelectorLoadingAtom,
   walletAtom,
 } from '../../../state/atoms'
@@ -68,6 +69,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
+  const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
   const inputValue = (selectedTokenPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(selectedTokenBalance?.balance || '0')
 
@@ -91,6 +93,8 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
       type: 'buy',
       inputValue,
       insufficientBalance,
+      tokenOutPrice: indexDTFPrice,
+      tokenOutDecimals: indexDTF?.token.decimals ?? 18,
     })
 
   const zapperErrorMessage = isFetching

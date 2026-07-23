@@ -199,15 +199,31 @@ import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zappe
 
 ### Quote Providers
 
-The zapper supports four quote providers: the Reserve-native `zap` and three external aggregators — `odos`, `velora`, and `enso`. In `best` mode (the default), every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount. Individual provider failures are tolerated as long as at least one provider responds.
+The zapper supports six quote providers: the Reserve-native `zap`, three external aggregators — `odos`, `velora`, and `enso` — and two RFQ/intent venues, `cowswap` and `pcsx` (PancakeSwap X, BSC only). In `best` mode (the default), every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
+
+#### RFQ (intent) providers — CoW Swap and PancakeSwap X
+
+`cowswap` is an RFQ source: instead of an atomic transaction, the user places an order that CoW Protocol solvers fill off-chain. The flow differs from the aggregators only after the submit click:
+
+1. Quote and approval work exactly like any other source (the approval spender is CoW's Vault Relayer).
+2. On submit, for ERC-20 inputs the wallet asks for a gasless EIP-712 typed-data signature and the order is posted to CoW's order book with a 2-minute validity.
+3. The button shows "Waiting for order to fill..." while the fill status is polled.
+4. On fill, the regular success view is shown (with a link to the order on CoW Explorer). If the order expires or is cancelled without filling, the flow resets and a fresh quote is fetched.
+
+Native inputs (ETH/BNB) go through CoW's **eth-flow** instead: a single `createOrder` transaction to the EthFlow contract carrying the native amount — no approval and no signature. The order has a 10-minute validity; if it expires without filling, CoW's refunder returns the funds automatically within a few minutes (the UI explains this) and a fresh quote is fetched.
+
+`pcsx` (PancakeSwap X, **BSC only**) works the same way as CoW's gasless flow but is proxied through the Reserve API (`{apiUrl}pcsx/*`): the quote response carries a ready-to-sign Permit2 Dutch order (`PermitWitnessTransferFrom` typed data), the approval spender is the Permit2 contract, and the signed order is submitted and polled through the same API. Native BNB inputs are not supported by PCSX (Permit2 requires an ERC-20 input).
+
+Notes:
+- `cowswap` is enabled on all supported chains (Ethereum, Base, Arbitrum, and BSC); `pcsx` only on BSC.
+- The architecture is adapter-based (`RfqAdapter`) so more intent venues can be added without touching the pipeline.
 
 Provider availability per chain is controlled by the `PROVIDER_ENABLED` matrix exported from the package:
 
 ```ts
 import { PROVIDER_ENABLED } from '@reserve-protocol/react-zapper'
 
-// All four providers are enabled on every supported chain by default.
-// To disable one on a specific chain, set it to false:
+// To disable a provider on a specific chain, set it to false:
 PROVIDER_ENABLED[56 /* BSC */].odos = false
 ```
 
@@ -218,6 +234,7 @@ Other helpers exported for host apps that want to build custom provider UI:
 - `getEnabledProviders(chainId)` — enabled providers for a given chain
 - `getEnabledAggregators(chainId)` — same, excluding the native zap provider
 - `isProviderEnabled(chainId, id)` — boolean check
+- `RFQ_ADAPTERS` / `isRfqProvider(id)` — RFQ adapter registry (plus the `RfqAdapter`, `RfqOrder`, and `RfqOrderStatus` types)
 
 ### useZapperModal Hook
 

@@ -4,8 +4,10 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
 import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
+import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
+  chainIdAtom,
   indexDTFAtom,
   indexDTFPriceAtom,
   tokenSelectorLoadingAtom,
@@ -47,6 +49,7 @@ interface SellProps {
 const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const { t } = useLingui()
   const account = useAtomValue(walletAtom)
+  const chainId = useAtomValue(chainIdAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
   const [inputAmount, setInputAmount] = useAtom(zapMintInputAtom)
@@ -68,6 +71,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
+  const selectedTokenPrice = usePrice(chainId, selectedToken.address)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
   const onMax = () => setInputAmount(indxDTFParsedBalance)
 
@@ -89,6 +93,8 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
       type: 'sell',
       inputValue,
       insufficientBalance,
+      tokenOutPrice: selectedTokenPrice,
+      tokenOutDecimals: selectedToken.decimals,
     })
 
   const zapperErrorMessage = isFetching

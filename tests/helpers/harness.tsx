@@ -11,14 +11,16 @@ import { createServer, type Server } from 'node:http'
 import React from 'react'
 import { ethAddress } from 'viem'
 import { http, WagmiProvider, createConfig } from 'wagmi'
-import { mainnet } from 'wagmi/chains'
+import { bsc, mainnet } from 'wagmi/chains'
 import { mock } from 'wagmi/connectors'
 import { expect } from 'vitest'
 
 import Buy from '../../src/components/zap-mint/buy'
 import {
+  selectedTokenAtom,
   zapFetchingAtom,
   zapOngoingTxAtom,
+  zapSuccessAtom,
   zapSwapEndpointAtom,
 } from '../../src/components/zap-mint/atom'
 import { ZapperI18nProvider } from '../../src/i18n/provider'
@@ -30,14 +32,27 @@ import {
   quoteSourceAtom,
   walletAtom,
 } from '../../src/state/atoms'
+import { reducedZappableTokens } from '../../src/utils/constants'
 
 export const ACCOUNT = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 export const DTF = '0x1000000000000000000000000000000000000001'
 export const ZAP_ROUTER = '0x2000000000000000000000000000000000000002'
 export const TX_HASH =
   '0x9999999999999999999999999999999999999999999999999999999999999999'
+export const COW_UID = `0x${'cd'.repeat(56)}`
+export const PCSX_ORDER_HASH = `0x${'ef'.repeat(32)}`
+export const PCSX_PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+export const PCSX_ENCODED_ORDER = `0x${'aa'.repeat(64)}`
+export const WETH_TOKEN = reducedZappableTokens[1].find(
+  (t) => t.symbol === 'WETH'
+)!
+export const WBNB_TOKEN = reducedZappableTokens[56].find(
+  (t) => t.symbol === 'WBNB'
+)!
 const BLOOM = `0x${'0'.repeat(512)}`
 const APPROVE_SELECTOR = '0x095ea7b3'
+const ALLOWANCE_SELECTOR = '0xdd62ed3e'
+const MAX_UINT256 = 2n ** 256n - 1n
 
 export type Scenario = {
   // how eth_sendTransaction behaves
@@ -63,11 +78,36 @@ export type Scenario = {
   quoteFetches: number
   // log of rpc methods, for debugging and assertions
   calls: string[]
+  // allowance returned by the erc20 allowance eth_call (atoms, decimal string)
+  allowance: string
+  // CoW order status sequence served per GET orders/{uid}; last entry repeats
+  cowStatuses: string[]
+  cowExecutedBuyAmount: string
+  // recorded POST /orders bodies (the signed order creation payloads)
+  cowPostedOrders: Record<string, unknown>[]
+  // count of CoW quote requests served by the fetch mock
+  cowQuoteFetches: number
+  // recorded CoW quote request bodies
+  cowQuoteBodies: Record<string, unknown>[]
+  // GET orders/{uid} 404s until an order was placed (POST /orders or an
+  // eth-flow createOrder tx) — mirrors the real order book and keeps the
+  // eth-flow uid-collision precheck from seeing a phantom order
+  cowOrderPlaced: boolean
+  // recorded eth_sendTransaction params (eth-flow createOrder calls land here)
+  sentTransactions: Record<string, unknown>[]
+  // chain the harness rpc reports (setup() sets it to the selected chain)
+  chainId: number
+  // PCSX order status sequence served per GET pcsx/order; last entry repeats
+  pcsxStatuses: string[]
+  // recorded POST pcsx/order bodies
+  pcsxSubmittedOrders: Record<string, unknown>[]
+  pcsxQuoteFetches: number
 }
 
 export let scenario: Scenario
 let server: Server
 let rpcUrl: string
+export const getRpcUrl = () => rpcUrl
 let blockNumber = 0x1000
 let lastQueryClient: QueryClient
 
@@ -84,6 +124,18 @@ const defaultScenario = (): Scenario => ({
   estimateFailTransient: 0,
   quoteFetches: 0,
   calls: [],
+  allowance: MAX_UINT256.toString(),
+  cowStatuses: ['open', 'fulfilled'],
+  cowExecutedBuyAmount: '1000000000000000000000',
+  cowPostedOrders: [],
+  cowQuoteFetches: 0,
+  cowQuoteBodies: [],
+  cowOrderPlaced: false,
+  sentTransactions: [],
+  chainId: 1,
+  pcsxStatuses: ['OPEN', 'FILLED'],
+  pcsxSubmittedOrders: [],
+  pcsxQuoteFetches: 0,
 })
 
 export const queryStates = () => {
@@ -122,7 +174,7 @@ const rpcHandler = async (
 ): Promise<unknown> => {
   switch (method) {
     case 'eth_chainId':
-      return '0x1'
+      return `0x${scenario.chainId.toString(16)}`
     case 'eth_accounts':
     case 'eth_requestAccounts':
       return [ACCOUNT]
@@ -188,10 +240,15 @@ const rpcHandler = async (
     case 'eth_sendTransaction':
       scenario.sendAttempted = true
       scenario.sendAttemptedAt = Date.now()
+      scenario.sentTransactions.push(
+        (params?.[0] as Record<string, unknown>) ?? {}
+      )
       if (scenario.sendDelayMs) await sleep(scenario.sendDelayMs)
       if (scenario.send === 'reject') {
         throw { code: 4001, message: 'User rejected the request.' }
       }
+      // an eth-flow createOrder tx counts as order placement
+      scenario.cowOrderPlaced = true
       return TX_HASH
     case 'eth_getTransactionReceipt':
       return {
@@ -233,12 +290,19 @@ const rpcHandler = async (
         v: '0x1',
         yParity: '0x1',
       }
+    case 'eth_signTypedData_v4':
+      // the mock connector forwards signing to the transport — serve a canned
+      // 65-byte ECDSA signature (r + s + v)
+      return `0x${'ab'.repeat(64)}1c`
     case 'eth_call': {
       // approve simulation (useSimulateContract) must succeed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const callData = String((params?.[0] as any)?.data)
       if (callData.startsWith(APPROVE_SELECTOR)) {
         return `0x${'0'.repeat(63)}1`
+      }
+      if (callData.startsWith(ALLOWANCE_SELECTOR)) {
+        return `0x${BigInt(scenario.allowance).toString(16).padStart(64, '0')}`
       }
       // replaying a reverted tx for the revert reason
       throw { code: 3, message: 'execution reverted: SLIPPAGE', data: '0x' }
@@ -335,11 +399,169 @@ export const setQuoteBuilder = (builder: QuoteBuilder) => {
   quoteBuilder = builder
 }
 
+const jsonResponse = (payload: unknown, status = 200) =>
+  new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+// Mocked CoW order-book API: quote -> order placement -> status polls -> trades.
+const handleCowFetch = async (
+  url: string,
+  init?: RequestInit
+): Promise<Response> => {
+  const method = (init?.method ?? 'GET').toUpperCase()
+  const body = init?.body ? JSON.parse(String(init.body)) : {}
+
+  if (url.includes('/app_data/') && method === 'PUT') {
+    return jsonResponse({ fullAppData: body.fullAppData ?? '' }, 201)
+  }
+  if (url.includes('/quote') && method === 'POST') {
+    scenario.cowQuoteFetches++
+    scenario.cowQuoteBodies.push(body)
+    if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
+    return jsonResponse({
+      quote: {
+        sellToken: body.sellToken ?? WETH_TOKEN.address,
+        buyToken: body.buyToken ?? DTF,
+        receiver: ACCOUNT,
+        sellAmount: '990000000000000000',
+        buyAmount: '1000000000000000000000',
+        validTo: 0,
+        appData: `0x${'00'.repeat(32)}`,
+        feeAmount: '10000000000000000',
+        kind: 'sell',
+        partiallyFillable: false,
+        sellTokenBalance: 'erc20',
+        buyTokenBalance: 'erc20',
+        gasAmount: '0',
+        gasPrice: '0',
+        sellTokenPrice: '0',
+      },
+      from: ACCOUNT,
+      expiration: new Date(Date.now() + scenario.quoteTtlMs).toISOString(),
+      id: 12345,
+      verified: true,
+    })
+  }
+  if (url.includes('/orders') && method === 'POST') {
+    scenario.cowPostedOrders.push(body)
+    scenario.cowOrderPlaced = true
+    return jsonResponse(COW_UID, 201)
+  }
+  if (url.includes(`/orders/`)) {
+    if (!scenario.cowOrderPlaced) {
+      return jsonResponse({ errorType: 'NoSuchOrder', description: '' }, 404)
+    }
+    const status =
+      scenario.cowStatuses.length > 1
+        ? scenario.cowStatuses.shift()!
+        : scenario.cowStatuses[0]
+    const posted = scenario.cowPostedOrders[0] ?? {}
+    return jsonResponse({
+      ...posted,
+      uid: COW_UID,
+      status,
+      creationDate: new Date().toISOString(),
+      owner: ACCOUNT,
+      executedSellAmount: '0',
+      executedSellAmountBeforeFees: '0',
+      executedFeeAmount: '0',
+      executedBuyAmount:
+        status === 'fulfilled' ? scenario.cowExecutedBuyAmount : '0',
+      invalidated: false,
+    })
+  }
+  if (url.includes('/trades')) {
+    return jsonResponse([{ orderUid: COW_UID, txHash: TX_HASH }])
+  }
+  return jsonResponse({})
+}
+
+// Mocked reserve-api PCSX endpoints: quote (with signable order) -> submit ->
+// status polls. Scriptable via scenario.pcsxStatuses / setPcsxQuoteBuilder.
+export const makePcsxQuote = (
+  overrides: Record<string, unknown> = {}
+): Record<string, unknown> => ({
+  available: true,
+  tokenIn: WBNB_TOKEN.address,
+  tokenOut: DTF,
+  amountIn: '1000000000000000000',
+  amountOut: '1000000000000000000000',
+  minAmountOut: '990000000000000000000',
+  validUntil: Math.floor(Date.now() / 1000) + 120,
+  order: {
+    amountOut: '1000000000000000000000',
+    minAmountOut: '990000000000000000000',
+    deadline: Math.floor(Date.now() / 1000) + 120,
+    encodedOrder: PCSX_ENCODED_ORDER,
+    permitData: {
+      domain: {
+        name: 'Permit2',
+        chainId: 56,
+        verifyingContract: PCSX_PERMIT2,
+      },
+      types: {
+        PermitWitnessTransferFrom: [
+          { name: 'spender', type: 'address' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+      values: { spender: PCSX_PERMIT2, nonce: '1', deadline: '9999999999' },
+    },
+    quoteId: 'pcsx-quote-1',
+  },
+  ...overrides,
+})
+
+type PcsxQuoteBuilder = (url: string) => Record<string, unknown>
+let pcsxQuoteBuilder: PcsxQuoteBuilder = () => makePcsxQuote()
+export const setPcsxQuoteBuilder = (builder: PcsxQuoteBuilder) => {
+  pcsxQuoteBuilder = builder
+}
+
+const handlePcsxFetch = async (
+  url: string,
+  init?: RequestInit
+): Promise<Response> => {
+  const method = (init?.method ?? 'GET').toUpperCase()
+
+  if (url.includes('pcsx/quote')) {
+    scenario.pcsxQuoteFetches++
+    if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
+    return jsonResponse({ status: 'success', result: pcsxQuoteBuilder(url) })
+  }
+  if (url.includes('pcsx/order') && method === 'POST') {
+    scenario.pcsxSubmittedOrders.push(
+      init?.body ? JSON.parse(String(init.body)) : {}
+    )
+    return jsonResponse({ status: 'success', result: { hash: PCSX_ORDER_HASH } })
+  }
+  if (url.includes('pcsx/order/')) {
+    const status =
+      scenario.pcsxStatuses.length > 1
+        ? scenario.pcsxStatuses.shift()!
+        : scenario.pcsxStatuses[0]
+    return jsonResponse({
+      status: 'success',
+      result: {
+        status,
+        transactionHash: status === 'FILLED' ? TX_HASH : null,
+        deadline: null,
+      },
+    })
+  }
+  return jsonResponse({ status: 'error', error: 'unhandled pcsx route' }, 404)
+}
+
 const realFetch = globalThis.fetch.bind(globalThis)
 const installFetchMock = () => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     if (url.startsWith('http://127.0.0.1')) return realFetch(input, init)
+    if (url.includes('api.cow.fi')) return handleCowFetch(url, init)
+    if (url.includes('pcsx/')) return handlePcsxFetch(url, init)
     if (url.includes('tokenIn=')) {
       scenario.quoteFetches++
       if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
@@ -359,17 +581,27 @@ const Probe = () => {
   const ongoingTx = useAtomValue(zapOngoingTxAtom)
   const fetching = useAtomValue(zapFetchingAtom)
   const endpoint = useAtomValue(zapSwapEndpointAtom)
+  const zapSuccess = useAtomValue(zapSuccessAtom)
   return (
     <>
-      <div data-testid="probe">{JSON.stringify({ ongoingTx, fetching })}</div>
+      <div data-testid="probe">
+        {JSON.stringify({
+          ongoingTx,
+          fetching,
+          success: !!zapSuccess,
+          receivedAmount: zapSuccess?.receivedAmount,
+          txHash: zapSuccess?.txHash,
+          orderExplorerUrl: zapSuccess?.orderExplorerUrl,
+        })}
+      </div>
       <div data-testid="probe-endpoint">{endpoint}</div>
     </>
   )
 }
 
-const dtf = {
+const makeDtf = (chainId: number) => ({
   id: DTF,
-  chainId: 1,
+  chainId,
   mintingFee: 0.003,
   tvlFee: 0.01,
   token: {
@@ -379,7 +611,7 @@ const dtf = {
     decimals: 18,
     totalSupply: '1000000000000000000000000',
   },
-}
+})
 
 const ethBalance = {
   value: 10n * 10n ** 18n,
@@ -390,18 +622,25 @@ const ethBalance = {
 export const setup = async ({
   quoteSource = 'zap',
   inputAmount = '1',
+  inputToken,
+  chain: chainName = 'mainnet',
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
+  // an ERC-20 input instead of the native default (RFQ gasless flows need it)
+  inputToken?: 'eth' | 'weth' | 'wbnb'
+  chain?: 'mainnet' | 'bsc'
 } = {}) => {
+  const baseChain = chainName === 'bsc' ? bsc : mainnet
+  scenario.chainId = baseChain.id
   const chain = {
-    ...mainnet,
+    ...baseChain,
     rpcUrls: { default: { http: [rpcUrl] } },
   }
   const config = createConfig({
     chains: [chain],
     connectors: [mock({ accounts: [ACCOUNT], features: { reconnect: true } })],
-    transports: { [mainnet.id]: http(rpcUrl) },
+    transports: { [baseChain.id]: http(rpcUrl) },
     pollingInterval: 100,
     storage: null,
     batch: { multicall: false },
@@ -411,11 +650,21 @@ export const setup = async ({
   lastQueryClient = queryClient
 
   const store = createStore()
-  store.set(chainIdAtom, 1)
+  store.set(chainIdAtom, baseChain.id)
   store.set(walletAtom, ACCOUNT)
-  store.set(indexDTFAtom, dtf)
+  store.set(indexDTFAtom, makeDtf(baseChain.id))
   store.set(quoteSourceAtom, quoteSource)
-  store.set(balancesAtom, { [ethAddress]: ethBalance })
+  const erc20Input =
+    inputToken === 'weth' ? WETH_TOKEN : inputToken === 'wbnb' ? WBNB_TOKEN : null
+  if (erc20Input) {
+    store.set(selectedTokenAtom, erc20Input)
+    store.set(balancesAtom, {
+      [ethAddress]: ethBalance,
+      [erc20Input.address]: ethBalance,
+    })
+  } else {
+    store.set(balancesAtom, { [ethAddress]: ethBalance })
+  }
 
   const utils = render(
     <WagmiProvider config={config} reconnectOnMount={false}>
@@ -439,7 +688,7 @@ export const setup = async ({
 }
 
 const ctaMatcher =
-  /Buy TEST|Quote expired|Simulation failed|Fetching quote|Loading|Insufficient|Approve use of/i
+  /Buy TEST|Quote expired|Simulation failed|Fetching quote|Loading|Insufficient|Approve use of|Waiting for order/i
 
 export const getCta = () => {
   const buttons = screen.getAllByRole('button')
@@ -481,6 +730,7 @@ export const harnessBeforeEach = async (): Promise<Scenario> => {
   blockNumber = 0x1000
   scenario = defaultScenario()
   quoteBuilder = () => makeQuote()
+  pcsxQuoteBuilder = () => makePcsxQuote()
   installFetchMock()
   await startRpcServer()
   return scenario

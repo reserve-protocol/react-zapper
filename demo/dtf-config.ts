@@ -32,5 +32,9 @@ export const DTF_BY_CHAIN: Record<number, DTFConfig[]> = {
       address: '0x2f8a339b5889ffac4c5a956787cda593b3c36867',
       symbol: 'CMC20',
     },
+    {
+      address: '0xa0Fe4e0aEca5479705ce996615B2EACB6b6a10Fb',
+      symbol: 'PHOTON',
+    },
   ],
 }

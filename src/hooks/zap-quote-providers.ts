@@ -11,6 +11,7 @@ import {
   trackIndexDTFQuoteRequested,
 } from '../utils/tracking'
 import type { ProviderConfig, ProviderId } from '../utils/providers'
+import type { RfqAvailability } from '../utils/rfq/types'
 import {
   filterQuotesBySimulation,
   type SimulateQuote,
@@ -32,6 +33,22 @@ export type EndpointContext = Omit<ZapPayload, 'url'> & {
   zapperApiUrl: string
 }
 
+/**
+ * Extra context RFQ adapters need beyond the endpoint params: a chain read
+ * for the allowance check and client-side USD pricing (RFQ APIs don't price
+ * in USD). When absent, RFQ providers are skipped.
+ */
+export type RfqFetchContext = {
+  readAllowance: (
+    token: Address,
+    owner: Address,
+    spender: Address
+  ) => Promise<bigint>
+  amountInValue: number | null
+  tokenOutPrice: number | null
+  tokenOutDecimals: number | null
+}
+
 export type FetchQuoteContext = {
   providers: ProviderConfig[]
   quoteSource: Source | 'best'
@@ -51,6 +68,7 @@ export type FetchQuoteContext = {
    * selection.
    */
   simulate?: SimulateQuote
+  rfq?: RfqFetchContext
 }
 
 export type FetchQuoteResult = {
@@ -100,10 +118,107 @@ const normalizeValidUntil = (value: unknown): number | null => {
   return n < 1e12 ? n * 1000 : n
 }
 
+const rfqAvailability = (ctx: FetchQuoteContext): RfqAvailability => ({
+  chainId: ctx.endpointParams.chainId,
+  tokenIn: ctx.endpointParams.tokenIn,
+  tokenOut: ctx.endpointParams.tokenOut,
+})
+
+const fetchRfqOne = async (
+  provider: ProviderConfig,
+  ctx: FetchQuoteContext
+): Promise<ProviderQuote> => {
+  const adapter = provider.rfq
+  if (!adapter || !ctx.rfq) {
+    throw new Error(`${provider.label} is not configured for this trade`)
+  }
+  const reason = adapter.unavailableReason(rfqAvailability(ctx))
+  if (reason) throw new Error(reason)
+
+  const { endpointParams } = ctx
+  const endpoint = appendTrackingParams(
+    adapter.describeEndpoint(endpointParams.chainId, endpointParams.apiUrl),
+    provider.id,
+    ctx.tracking
+  )
+
+  trackIndexDTFQuoteRequested({
+    account: ctx.analytics.account,
+    tokenIn: ctx.analytics.tokenIn,
+    tokenOut: ctx.analytics.tokenOut,
+    dtfTicker: ctx.analytics.dtfTicker,
+    chainId: ctx.analytics.chainId,
+    type: ctx.analytics.type,
+    endpoint,
+    source: provider.id,
+  })
+
+  try {
+    const result = await adapter.fetchQuote({
+      chainId: endpointParams.chainId,
+      account: endpointParams.signer,
+      tokenIn: endpointParams.tokenIn,
+      tokenOut: endpointParams.tokenOut,
+      amountIn: endpointParams.amountIn,
+      slippage: endpointParams.slippage,
+      apiUrl: endpointParams.apiUrl,
+      amountInValue: ctx.rfq.amountInValue,
+      tokenOutPrice: ctx.rfq.tokenOutPrice,
+      tokenOutDecimals: ctx.rfq.tokenOutDecimals,
+      readAllowance: ctx.rfq.readAllowance,
+    })
+
+    trackIndexDTFQuote({
+      account: ctx.analytics.account,
+      tokenIn: ctx.analytics.tokenIn,
+      tokenOut: ctx.analytics.tokenOut,
+      dtfTicker: ctx.analytics.dtfTicker,
+      chainId: ctx.analytics.chainId,
+      type: ctx.analytics.type,
+      endpoint,
+      status: 'success',
+      amountInValue: result.amountInValue,
+      amountOutValue: result.amountOutValue,
+      dustValue: result.dustValue,
+      truePriceImpact: result.truePriceImpact,
+      source: provider.id,
+    })
+
+    return {
+      status: 'success',
+      result: {
+        ...result,
+        validUntil:
+          normalizeValidUntil(result.validUntil) ??
+          Date.now() + DEFAULT_QUOTE_TTL,
+      },
+      source: provider.id,
+      endpoint,
+    }
+  } catch (error) {
+    trackIndexDTFQuoteError({
+      account: ctx.analytics.account,
+      tokenIn: ctx.analytics.tokenIn,
+      tokenOut: ctx.analytics.tokenOut,
+      dtfTicker: ctx.analytics.dtfTicker,
+      chainId: ctx.analytics.chainId,
+      type: ctx.analytics.type,
+      endpoint,
+      status: 'error',
+      error:
+        (error as { response?: { status?: number } })?.response?.status ?? 0,
+      source: provider.id,
+    })
+    throw error
+  }
+}
+
 const fetchOne = async (
   provider: ProviderConfig,
   ctx: FetchQuoteContext
 ): Promise<ProviderQuote> => {
+  if (provider.kind === 'rfq') return fetchRfqOne(provider, ctx)
+
   const baseUrl = buildProviderUrl(provider, ctx.endpointParams)
   if (!baseUrl) throw new Error(`No ${provider.id} endpoint available`)
 
@@ -243,9 +358,16 @@ export const fetchBestZapQuote = async (
 ): Promise<FetchQuoteResult> => {
   const { providers, quoteSource } = ctx
 
+  // In `best` mode, unavailable RFQ providers (native input, unsupported
+  // chain, missing rfq context) drop out of the pool silently; an explicit
+  // selection instead surfaces the adapter's reason via fetchRfqOne's throw.
+  const rfqUsable = (p: ProviderConfig): boolean =>
+    p.kind !== 'rfq' ||
+    (!!p.rfq && !!ctx.rfq && p.rfq.isAvailable(rfqAvailability(ctx)))
+
   const candidates =
     quoteSource === 'best'
-      ? providers
+      ? providers.filter(rfqUsable)
       : providers.filter((p) => p.id === quoteSource)
 
   if (candidates.length === 0) {

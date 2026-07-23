@@ -203,6 +203,63 @@ export const trackIndexDTFQuote = ({
   })
 }
 
+export type RfqOrderTrackingStatus =
+  | 'order_submitted'
+  | 'order_filled'
+  | 'order_expired'
+  | 'order_cancelled'
+  | 'order_timeout'
+  | 'order_sign_rejected'
+  | 'order_failed'
+
+// Lifecycle of an RFQ/intent order (sign -> submit -> wait for fill), emitted
+// on the same event stream as the rest of the zap flow.
+export const trackRfqOrder = ({
+  status,
+  source,
+  orderUid,
+  chainId,
+  dtfTicker,
+  type,
+  account,
+  tokenIn,
+  tokenOut,
+  waitMs,
+  error,
+  txHash,
+}: {
+  status: RfqOrderTrackingStatus
+  source: ProviderId
+  chainId: number
+  dtfTicker: string
+  type: string
+  orderUid?: string
+  account?: string
+  tokenIn?: string
+  tokenOut?: string
+  waitMs?: number
+  error?: string
+  /** Placement tx hash for on-chain-placed orders (eth-flow). */
+  txHash?: string
+}) => {
+  mixpanelTrack('index-dtf-zap-swap', {
+    event: 'index-dtf-zap-swap',
+    wa: account,
+    ca: tokenIn,
+    ticker: dtfTicker,
+    chainId,
+    type,
+    status,
+    tokenIn,
+    tokenOut,
+    source,
+    orderUid,
+    waitMs,
+    error,
+    txHash,
+  })
+}
+
 export const useTrackIndexDTFZap = (
   event: string,
   page: string,

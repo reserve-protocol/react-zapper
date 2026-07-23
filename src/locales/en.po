@@ -14,24 +14,24 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
-#: src/components/zap-mint/buy/index.tsx:215
-#: src/components/zap-mint/sell/index.tsx:219
+#: src/components/zap-mint/buy/index.tsx:226
+#: src/components/zap-mint/sell/index.tsx:227
 msgid " + ${0} in dust "
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:182
+#: src/components/zap-mint/zap-success-view.tsx:197
 msgid "A direct line to the team"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:462
+#: src/components/zap-mint/submit-zap.tsx:574
 msgid "Approve use of {inputSymbol}"
 msgstr ""
 
-#: src/components/ui/swap.tsx:263
+#: src/components/ui/swap.tsx:285
 msgid "Assembling different routes"
 msgstr ""
 
-#: src/components/ui/swap.tsx:210
+#: src/components/ui/swap.tsx:227
 msgid "Balance"
 msgstr ""
 
@@ -44,7 +44,7 @@ msgid "Buy"
 msgstr ""
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/buy/index.tsx:233
+#: src/components/zap-mint/buy/index.tsx:244
 msgid "Buy {0}"
 msgstr ""
 
@@ -64,7 +64,7 @@ msgstr ""
 #~ msgid "Collect dust?"
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:185
+#: src/components/zap-mint/zap-success-view.tsx:200
 msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
 msgstr ""
 
@@ -80,7 +80,7 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/components/ui/swap.tsx:488
+#: src/components/ui/swap.tsx:510
 msgid "Custom"
 msgstr ""
 
@@ -108,7 +108,7 @@ msgstr ""
 msgid "Enter your email"
 msgstr ""
 
-#: src/components/ui/swap.tsx:264
+#: src/components/ui/swap.tsx:286
 msgid "Evaluating slippage"
 msgstr ""
 
@@ -120,7 +120,7 @@ msgstr ""
 msgid "Failed to send. Try again."
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:456
+#: src/components/zap-mint/submit-zap.tsx:566
 msgid "Fetching quote..."
 msgstr ""
 
@@ -132,11 +132,11 @@ msgstr ""
 msgid "Force minting DTF"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:214
+#: src/components/zap-mint/zap-success-view.tsx:229
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:77
+#: src/components/zap-mint/submit-zap.tsx:80
 msgid "Get started"
 msgstr ""
 
@@ -148,7 +148,7 @@ msgstr ""
 msgid "Having issues minting? (Zaps are in beta)"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:127
+#: src/components/zap-mint/zap-success-view.tsx:128
 msgid "Hide details"
 msgstr ""
 
@@ -163,7 +163,7 @@ msgstr ""
 msgid "High price impact: {0}"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:101
+#: src/components/zap-mint/submit-zap.tsx:104
 msgid "Insufficient balance"
 msgstr ""
 
@@ -171,20 +171,20 @@ msgstr ""
 msgid "Insufficient gas balance"
 msgstr ""
 
-#: src/components/ui/swap.tsx:266
+#: src/components/ui/swap.tsx:288
 msgid "Loading DTF"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:77
-#: src/components/zap-mint/submit-zap.tsx:99
+#: src/components/zap-mint/submit-zap.tsx:80
+#: src/components/zap-mint/submit-zap.tsx:102
 msgid "Loading..."
 msgstr ""
 
-#: src/components/ui/swap.tsx:220
+#: src/components/ui/swap.tsx:241
 msgid "Max"
 msgstr ""
 
-#: src/components/ui/swap.tsx:461
+#: src/components/ui/swap.tsx:483
 msgid "Max slippage"
 msgstr ""
 
@@ -204,6 +204,10 @@ msgstr ""
 #~ msgid "No thanks"
 #~ msgstr ""
 
+#: src/components/zap-mint/zap-success-view.tsx:177
+msgid "Order:"
+msgstr ""
+
 #: src/components/zap-mint/zap-error-msg.tsx:224
 msgid "Please report this to help us improve"
 msgstr ""
@@ -216,7 +220,7 @@ msgstr ""
 msgid "Price Impact"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:454
+#: src/components/zap-mint/submit-zap.tsx:564
 msgid "Quote expired"
 msgstr ""
 
@@ -228,11 +232,11 @@ msgstr ""
 msgid "Quote Source"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:137
+#: src/components/zap-mint/zap-success-view.tsx:138
 msgid "Received:"
 msgstr ""
 
-#: src/components/ui/swap.tsx:265
+#: src/components/ui/swap.tsx:287
 msgid "Reducing potential dust"
 msgstr ""
 
@@ -248,11 +252,11 @@ msgstr ""
 msgid "Reported"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:201
+#: src/components/zap-mint/zap-success-view.tsx:216
 msgid "Schedule an intro call"
 msgstr ""
 
-#: src/components/ui/swap.tsx:262
+#: src/components/ui/swap.tsx:284
 msgid "Searching DEX Liquidity"
 msgstr ""
 
@@ -265,7 +269,7 @@ msgid "Sell"
 msgstr ""
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/sell/index.tsx:240
+#: src/components/zap-mint/sell/index.tsx:249
 msgid "Sell {0}"
 msgstr ""
 
@@ -277,19 +281,19 @@ msgstr ""
 msgid "Sending..."
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:127
+#: src/components/zap-mint/zap-success-view.tsx:128
 msgid "Show details"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:458
+#: src/components/zap-mint/submit-zap.tsx:568
 msgid "Simulation failed - Refetching quote"
 msgstr ""
 
-#: src/components/ui/swap.tsx:458
+#: src/components/ui/swap.tsx:480
 msgid "Slippage"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:251
+#: src/components/zap-mint/zap-success-view.tsx:266
 msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
 msgstr ""
 
@@ -301,15 +305,15 @@ msgstr ""
 msgid "Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit."
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:211
+#: src/components/zap-mint/zap-success-view.tsx:226
 msgid "Stay informed about this DTF"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:462
+#: src/components/zap-mint/submit-zap.tsx:574
 msgid "Step 1. "
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:461
+#: src/components/zap-mint/submit-zap.tsx:573
 msgid "Step 2. "
 msgstr ""
 
@@ -317,11 +321,11 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:120
+#: src/components/zap-mint/zap-success-view.tsx:121
 msgid "Successful Purchase"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:120
+#: src/components/zap-mint/zap-success-view.tsx:121
 msgid "Successful Redemption"
 msgstr ""
 
@@ -337,7 +341,7 @@ msgstr ""
 #~ msgid "Telegram username"
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:235
+#: src/components/zap-mint/zap-success-view.tsx:250
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr ""
 
@@ -378,7 +382,7 @@ msgstr ""
 msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
 msgstr ""
 
-#: src/components/ui/swap.tsx:477
+#: src/components/ui/swap.tsx:499
 msgid "Toggle {option}"
 msgstr ""
 
@@ -386,11 +390,11 @@ msgstr ""
 msgid "Transaction successful"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:163
+#: src/components/zap-mint/zap-success-view.tsx:165
 msgid "Transaction:"
 msgstr ""
 
-#: src/components/zap-mint/zap-success-view.tsx:150
+#: src/components/zap-mint/zap-success-view.tsx:151
 msgid "Used:"
 msgstr ""
 
@@ -398,15 +402,23 @@ msgstr ""
 msgid "Via"
 msgstr ""
 
+#: src/components/zap-mint/zap-success-view.tsx:184
+msgid "View order"
+msgstr ""
+
 #: src/components/zap-mint/zap-error-msg.tsx:185
 msgid "Wait and try again or consider using manual mode"
 msgstr ""
 
-#: src/components/ui/swap.tsx:354
+#: src/components/zap-mint/submit-zap.tsx:570
+msgid "Waiting for order to fill..."
+msgstr ""
+
+#: src/components/ui/swap.tsx:376
 msgid "You receive:"
 msgstr ""
 
-#: src/components/ui/swap.tsx:238
+#: src/components/ui/swap.tsx:259
 msgid "You use:"
 msgstr ""
 

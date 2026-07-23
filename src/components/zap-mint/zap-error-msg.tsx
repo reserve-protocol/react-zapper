@@ -201,16 +201,16 @@ const ErrorMessage = ({
 
   return (
     <div className="p-1 py-2 sm:p-4 sm:py-2">
-      <div className="flex items-center gap-0 justify-start font-light">
-        <div className="flex flex-col items-start flex-1">
+      <div className="flex items-center gap-2 justify-start font-light">
+        <div className="flex flex-col items-start flex-1 min-w-0">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="text-red-500 text-xs text-start truncate w-[180px] sm:w-[280px] cursor-help">
-                  <span className="block sm:hidden">
+                <div className="text-red-500 text-xs text-start w-full cursor-help">
+                  <span className="block sm:hidden truncate">
                     {displayedError.substring(0, 32)}...
                   </span>
-                  <span className="hidden sm:block">
+                  <span className="hidden sm:block truncate">
                     {displayedError.substring(0, 50)}...
                   </span>
                 </div>
@@ -224,7 +224,7 @@ const ErrorMessage = ({
             <Trans>Please report this to help us improve</Trans>
           </div>
         </div>
-        <div>
+        <div className="shrink-0">
           <CopySwapButton errorMsg={error} errorMsgDisplayed={displayedError} />
         </div>
       </div>
