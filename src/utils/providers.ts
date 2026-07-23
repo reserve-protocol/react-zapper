@@ -3,13 +3,15 @@ import { Zap } from 'lucide-react'
 import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
 import OdosIcon from '../components/icons/odos'
+import PancakeSwapIcon from '../components/icons/pancakeswap'
 import VeloraIcon from '../components/icons/velora'
 import zapper, { ZapPayload } from '../types/api'
 import { cowswapAdapter } from './rfq/cowswap'
+import { pcsxAdapter } from './rfq/pcsx'
 import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
 
-export type ProviderId = 'zap' | 'odos' | 'velora' | 'enso' | 'cowswap'
+export type ProviderId = 'zap' | 'odos' | 'velora' | 'enso' | 'cowswap' | 'pcsx'
 
 export type ProviderKind = 'native' | 'aggregator' | 'rfq'
 
@@ -60,6 +62,7 @@ export const PROVIDER_ENABLED: Partial<
     velora: true,
     enso: true,
     cowswap: true,
+    pcsx: false,
   },
   [ChainId.Base]: {
     zap: true,
@@ -67,6 +70,7 @@ export const PROVIDER_ENABLED: Partial<
     velora: true,
     enso: true,
     cowswap: true,
+    pcsx: false,
   },
   [ChainId.Arbitrum]: {
     zap: true,
@@ -74,13 +78,16 @@ export const PROVIDER_ENABLED: Partial<
     velora: true,
     enso: true,
     cowswap: true,
+    pcsx: false,
   },
+  // PCSX only prices BSC pairs (and only those including an RWA-program token)
   [ChainId.BSC]: {
     zap: true,
     odos: true,
     velora: true,
     enso: true,
     cowswap: true,
+    pcsx: true,
   },
 }
 
@@ -152,6 +159,14 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     buildEndpoint: () => null,
     rfq: cowswapAdapter,
   },
+  pcsx: {
+    id: 'pcsx',
+    label: 'PancakeSwap X',
+    kind: 'rfq',
+    Icon: PancakeSwapIcon,
+    buildEndpoint: () => null,
+    rfq: pcsxAdapter,
+  },
 }
 
 export const ALL_PROVIDER_IDS: ProviderId[] = [
@@ -160,6 +175,7 @@ export const ALL_PROVIDER_IDS: ProviderId[] = [
   'velora',
   'enso',
   'cowswap',
+  'pcsx',
 ]
 
 export const isProviderEnabled = (

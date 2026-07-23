@@ -418,10 +418,10 @@ export const cowswapAdapter: RfqAdapter = {
     })
   },
 
-  getOrderStatus: async (chainId, orderUid) => {
-    const api = getOrderBookApi(chainId)
-    const order = await api.getOrder(orderUid)
-    if (order.status === OrderStatus.FULFILLED) {
+  getOrderStatus: async (order, orderUid) => {
+    const api = getOrderBookApi(order.chainId)
+    const cowOrder = await api.getOrder(orderUid)
+    if (cowOrder.status === OrderStatus.FULFILLED) {
       let txHash: string | undefined
       try {
         const trades = await api.getTrades({ orderUid })
@@ -431,12 +431,12 @@ export const cowswapAdapter: RfqAdapter = {
       }
       return {
         state: 'fulfilled',
-        executedBuyAmount: BigInt(order.executedBuyAmount || 0),
+        executedBuyAmount: BigInt(cowOrder.executedBuyAmount || 0),
         txHash,
       }
     }
-    if (order.status === OrderStatus.EXPIRED) return { state: 'expired' }
-    if (order.status === OrderStatus.CANCELLED) return { state: 'cancelled' }
+    if (cowOrder.status === OrderStatus.EXPIRED) return { state: 'expired' }
+    if (cowOrder.status === OrderStatus.CANCELLED) return { state: 'cancelled' }
     return { state: 'open' }
   },
 

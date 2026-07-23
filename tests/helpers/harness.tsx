@@ -11,7 +11,7 @@ import { createServer, type Server } from 'node:http'
 import React from 'react'
 import { ethAddress } from 'viem'
 import { http, WagmiProvider, createConfig } from 'wagmi'
-import { mainnet } from 'wagmi/chains'
+import { bsc, mainnet } from 'wagmi/chains'
 import { mock } from 'wagmi/connectors'
 import { expect } from 'vitest'
 
@@ -40,8 +40,14 @@ export const ZAP_ROUTER = '0x2000000000000000000000000000000000000002'
 export const TX_HASH =
   '0x9999999999999999999999999999999999999999999999999999999999999999'
 export const COW_UID = `0x${'cd'.repeat(56)}`
+export const PCSX_ORDER_HASH = `0x${'ef'.repeat(32)}`
+export const PCSX_PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+export const PCSX_ENCODED_ORDER = `0x${'aa'.repeat(64)}`
 export const WETH_TOKEN = reducedZappableTokens[1].find(
   (t) => t.symbol === 'WETH'
+)!
+export const WBNB_TOKEN = reducedZappableTokens[56].find(
+  (t) => t.symbol === 'WBNB'
 )!
 const BLOOM = `0x${'0'.repeat(512)}`
 const APPROVE_SELECTOR = '0x095ea7b3'
@@ -89,6 +95,13 @@ export type Scenario = {
   cowOrderPlaced: boolean
   // recorded eth_sendTransaction params (eth-flow createOrder calls land here)
   sentTransactions: Record<string, unknown>[]
+  // chain the harness rpc reports (setup() sets it to the selected chain)
+  chainId: number
+  // PCSX order status sequence served per GET pcsx/order; last entry repeats
+  pcsxStatuses: string[]
+  // recorded POST pcsx/order bodies
+  pcsxSubmittedOrders: Record<string, unknown>[]
+  pcsxQuoteFetches: number
 }
 
 export let scenario: Scenario
@@ -119,6 +132,10 @@ const defaultScenario = (): Scenario => ({
   cowQuoteBodies: [],
   cowOrderPlaced: false,
   sentTransactions: [],
+  chainId: 1,
+  pcsxStatuses: ['OPEN', 'FILLED'],
+  pcsxSubmittedOrders: [],
+  pcsxQuoteFetches: 0,
 })
 
 export const queryStates = () => {
@@ -157,7 +174,7 @@ const rpcHandler = async (
 ): Promise<unknown> => {
   switch (method) {
     case 'eth_chainId':
-      return '0x1'
+      return `0x${scenario.chainId.toString(16)}`
     case 'eth_accounts':
     case 'eth_requestAccounts':
       return [ACCOUNT]
@@ -461,12 +478,90 @@ const handleCowFetch = async (
   return jsonResponse({})
 }
 
+// Mocked reserve-api PCSX endpoints: quote (with signable order) -> submit ->
+// status polls. Scriptable via scenario.pcsxStatuses / setPcsxQuoteBuilder.
+export const makePcsxQuote = (
+  overrides: Record<string, unknown> = {}
+): Record<string, unknown> => ({
+  available: true,
+  tokenIn: WBNB_TOKEN.address,
+  tokenOut: DTF,
+  amountIn: '1000000000000000000',
+  amountOut: '1000000000000000000000',
+  minAmountOut: '990000000000000000000',
+  validUntil: Math.floor(Date.now() / 1000) + 120,
+  order: {
+    amountOut: '1000000000000000000000',
+    minAmountOut: '990000000000000000000',
+    deadline: Math.floor(Date.now() / 1000) + 120,
+    encodedOrder: PCSX_ENCODED_ORDER,
+    permitData: {
+      domain: {
+        name: 'Permit2',
+        chainId: 56,
+        verifyingContract: PCSX_PERMIT2,
+      },
+      types: {
+        PermitWitnessTransferFrom: [
+          { name: 'spender', type: 'address' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+      values: { spender: PCSX_PERMIT2, nonce: '1', deadline: '9999999999' },
+    },
+    quoteId: 'pcsx-quote-1',
+  },
+  ...overrides,
+})
+
+type PcsxQuoteBuilder = (url: string) => Record<string, unknown>
+let pcsxQuoteBuilder: PcsxQuoteBuilder = () => makePcsxQuote()
+export const setPcsxQuoteBuilder = (builder: PcsxQuoteBuilder) => {
+  pcsxQuoteBuilder = builder
+}
+
+const handlePcsxFetch = async (
+  url: string,
+  init?: RequestInit
+): Promise<Response> => {
+  const method = (init?.method ?? 'GET').toUpperCase()
+
+  if (url.includes('pcsx/quote')) {
+    scenario.pcsxQuoteFetches++
+    if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
+    return jsonResponse({ status: 'success', result: pcsxQuoteBuilder(url) })
+  }
+  if (url.includes('pcsx/order') && method === 'POST') {
+    scenario.pcsxSubmittedOrders.push(
+      init?.body ? JSON.parse(String(init.body)) : {}
+    )
+    return jsonResponse({ status: 'success', result: { hash: PCSX_ORDER_HASH } })
+  }
+  if (url.includes('pcsx/order/')) {
+    const status =
+      scenario.pcsxStatuses.length > 1
+        ? scenario.pcsxStatuses.shift()!
+        : scenario.pcsxStatuses[0]
+    return jsonResponse({
+      status: 'success',
+      result: {
+        status,
+        transactionHash: status === 'FILLED' ? TX_HASH : null,
+        deadline: null,
+      },
+    })
+  }
+  return jsonResponse({ status: 'error', error: 'unhandled pcsx route' }, 404)
+}
+
 const realFetch = globalThis.fetch.bind(globalThis)
 const installFetchMock = () => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     if (url.startsWith('http://127.0.0.1')) return realFetch(input, init)
     if (url.includes('api.cow.fi')) return handleCowFetch(url, init)
+    if (url.includes('pcsx/')) return handlePcsxFetch(url, init)
     if (url.includes('tokenIn=')) {
       scenario.quoteFetches++
       if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
@@ -504,9 +599,9 @@ const Probe = () => {
   )
 }
 
-const dtf = {
+const makeDtf = (chainId: number) => ({
   id: DTF,
-  chainId: 1,
+  chainId,
   mintingFee: 0.003,
   tvlFee: 0.01,
   token: {
@@ -516,7 +611,7 @@ const dtf = {
     decimals: 18,
     totalSupply: '1000000000000000000000000',
   },
-}
+})
 
 const ethBalance = {
   value: 10n * 10n ** 18n,
@@ -528,20 +623,24 @@ export const setup = async ({
   quoteSource = 'zap',
   inputAmount = '1',
   inputToken,
+  chain: chainName = 'mainnet',
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
-  // 'weth' switches the input to an ERC-20 (RFQ sources skip native inputs)
-  inputToken?: 'eth' | 'weth'
+  // an ERC-20 input instead of the native default (RFQ gasless flows need it)
+  inputToken?: 'eth' | 'weth' | 'wbnb'
+  chain?: 'mainnet' | 'bsc'
 } = {}) => {
+  const baseChain = chainName === 'bsc' ? bsc : mainnet
+  scenario.chainId = baseChain.id
   const chain = {
-    ...mainnet,
+    ...baseChain,
     rpcUrls: { default: { http: [rpcUrl] } },
   }
   const config = createConfig({
     chains: [chain],
     connectors: [mock({ accounts: [ACCOUNT], features: { reconnect: true } })],
-    transports: { [mainnet.id]: http(rpcUrl) },
+    transports: { [baseChain.id]: http(rpcUrl) },
     pollingInterval: 100,
     storage: null,
     batch: { multicall: false },
@@ -551,15 +650,17 @@ export const setup = async ({
   lastQueryClient = queryClient
 
   const store = createStore()
-  store.set(chainIdAtom, 1)
+  store.set(chainIdAtom, baseChain.id)
   store.set(walletAtom, ACCOUNT)
-  store.set(indexDTFAtom, dtf)
+  store.set(indexDTFAtom, makeDtf(baseChain.id))
   store.set(quoteSourceAtom, quoteSource)
-  if (inputToken === 'weth') {
-    store.set(selectedTokenAtom, WETH_TOKEN)
+  const erc20Input =
+    inputToken === 'weth' ? WETH_TOKEN : inputToken === 'wbnb' ? WBNB_TOKEN : null
+  if (erc20Input) {
+    store.set(selectedTokenAtom, erc20Input)
     store.set(balancesAtom, {
       [ethAddress]: ethBalance,
-      [WETH_TOKEN.address]: ethBalance,
+      [erc20Input.address]: ethBalance,
     })
   } else {
     store.set(balancesAtom, { [ethAddress]: ethBalance })
@@ -629,6 +730,7 @@ export const harnessBeforeEach = async (): Promise<Scenario> => {
   blockNumber = 0x1000
   scenario = defaultScenario()
   quoteBuilder = () => makeQuote()
+  pcsxQuoteBuilder = () => makePcsxQuote()
   installFetchMock()
   await startRpcServer()
   return scenario

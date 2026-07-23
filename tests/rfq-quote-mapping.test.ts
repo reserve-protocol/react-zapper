@@ -12,6 +12,7 @@ import {
   computeEthFlowOrderUid,
   cowswapAdapter,
   mapCowQuoteToZapResult,
+  pcsxAdapter,
   type CowRfqOrder,
 } from '../src/utils/rfq'
 import type { RfqQuoteContext } from '../src/utils/rfq/types'
@@ -196,6 +197,23 @@ describe('eth-flow order uid', () => {
     const a = computeEthFlowOrderUid(order, 1000n, ETH_FLOW as Address)
     const b = computeEthFlowOrderUid(order, 999n, ETH_FLOW as Address)
     expect(a).not.toBe(b)
+  })
+})
+
+describe('pcsx availability', () => {
+  it('accepts ERC-20 sells on BSC only', () => {
+    expect(
+      pcsxAdapter.isAvailable({ chainId: 56, tokenIn: WETH, tokenOut: DTF })
+    ).toBe(true)
+    const mainnetCtx = { chainId: 1, tokenIn: WETH, tokenOut: DTF }
+    expect(pcsxAdapter.isAvailable(mainnetCtx)).toBe(false)
+    expect(pcsxAdapter.unavailableReason(mainnetCtx)).toMatch(/BNB Chain/i)
+  })
+
+  it('rejects native sells (Permit2 requires an ERC-20 input)', () => {
+    const ctx = { chainId: 56, tokenIn: ethAddress, tokenOut: DTF }
+    expect(pcsxAdapter.isAvailable(ctx)).toBe(false)
+    expect(pcsxAdapter.unavailableReason(ctx)).toMatch(/WBNB/)
   })
 })
 

@@ -159,7 +159,7 @@ const useRfqOrderExecution = ({
       const deadline = prepared.validTo * 1000 + POLL_GRACE_MS
       while (active()) {
         try {
-          const status = await adapter.getOrderStatus(order.chainId, uid)
+          const status = await adapter.getOrderStatus(order, uid)
           if (!active()) return
           if (status.state === 'fulfilled') {
             trackRfqOrder({

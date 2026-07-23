@@ -1,5 +1,6 @@
 import type { ProviderId } from '../providers'
 import { cowswapAdapter } from './cowswap'
+import { pcsxAdapter } from './pcsx'
 import type { RfqAdapter } from './types'
 
 export * from './types'
@@ -14,9 +15,15 @@ export {
   mapCowQuoteToZapResult,
   type CowRfqOrder,
 } from './cowswap'
+export {
+  pcsxAdapter,
+  type PcsxPermitData,
+  type PcsxRfqOrder,
+} from './pcsx'
 
 export const RFQ_ADAPTERS: Partial<Record<ProviderId, RfqAdapter>> = {
   cowswap: cowswapAdapter,
+  pcsx: pcsxAdapter,
 }
 
 export const isRfqProvider = (id: ProviderId): boolean => id in RFQ_ADAPTERS

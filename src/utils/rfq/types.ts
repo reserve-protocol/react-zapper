@@ -17,6 +17,8 @@ export type RfqQuoteContext = {
   amountIn: string
   /** Reserve slippage convention: a value S means a fraction of 1/S (100 => 1%). */
   slippage: number
+  /** Reserve API base URL — for adapters whose venue is proxied through it. */
+  apiUrl: string
   /** USD value of the input, estimated client-side (RFQ APIs don't price in USD). */
   amountInValue: number | null
   tokenOutPrice: number | null
@@ -81,7 +83,7 @@ export interface RfqAdapter {
   /** User-facing reason why `isAvailable` is false (explicit source selection). */
   unavailableReason(ctx: RfqAvailability): string | null
   /** Stable pseudo-endpoint used for tracking and the endpoint atom. */
-  describeEndpoint(chainId: number): string
+  describeEndpoint(chainId: number, apiUrl?: string): string
   /** Fetches a quote normalized to `ZapResult` (`tx: null`, `rfq` payload set). */
   fetchQuote(ctx: RfqQuoteContext): Promise<ZapResult>
   /**
@@ -96,7 +98,7 @@ export interface RfqAdapter {
     signature: Hex,
     account: Address
   ): Promise<string>
-  getOrderStatus(chainId: number, orderUid: string): Promise<RfqOrderStatus>
+  getOrderStatus(order: RfqOrder, orderUid: string): Promise<RfqOrderStatus>
   orderExplorerUrl(chainId: number, orderUid: string): string
   /**
    * Message to surface when the order dies unfilled (expired/timeout) — e.g.

@@ -7,6 +7,7 @@
 - New dependency: `@cowprotocol/cow-sdk` (order-book client, EIP-712 order types, CoW contract addresses).
 
 - Native-token inputs (ETH/BNB) are supported through CoW's eth-flow: a single `createOrder` transaction to the EthFlow contract carrying the native amount — no approval, no signature. Eth-flow orders have a 10-minute validity; if one expires unfilled, the UI explains that CoW's refunder returns the funds automatically within a few minutes.
+- PancakeSwap X (`pcsx`) as a second RFQ source, on BSC only, proxied through the Reserve API: the quote returns a ready-to-sign Permit2 Dutch order, the user signs gasless `PermitWitnessTransferFrom` typed data (approval spender = Permit2), and the order is submitted and polled via `{apiUrl}pcsx/order`. Requires the matching Reserve API endpoints (extended `/pcsx/quote` with `signer`, new `/pcsx/order` submit/status).
 
 ### Notes
 

@@ -137,7 +137,7 @@ const fetchRfqOne = async (
 
   const { endpointParams } = ctx
   const endpoint = appendTrackingParams(
-    adapter.describeEndpoint(endpointParams.chainId),
+    adapter.describeEndpoint(endpointParams.chainId, endpointParams.apiUrl),
     provider.id,
     ctx.tracking
   )
@@ -161,6 +161,7 @@ const fetchRfqOne = async (
       tokenOut: endpointParams.tokenOut,
       amountIn: endpointParams.amountIn,
       slippage: endpointParams.slippage,
+      apiUrl: endpointParams.apiUrl,
       amountInValue: ctx.rfq.amountInValue,
       tokenOutPrice: ctx.rfq.tokenOutPrice,
       tokenOutDecimals: ctx.rfq.tokenOutDecimals,
