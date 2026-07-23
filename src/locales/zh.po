@@ -14,24 +14,24 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
-#: src/components/zap-mint/buy/index.tsx:215
-#: src/components/zap-mint/sell/index.tsx:219
+#: src/components/zap-mint/buy/index.tsx:226
+#: src/components/zap-mint/sell/index.tsx:227
 msgid " + ${0} in dust "
 msgstr " + ${0} 碎屑 "
 
-#: src/components/zap-mint/zap-success-view.tsx:182
+#: src/components/zap-mint/zap-success-view.tsx:197
 msgid "A direct line to the team"
 msgstr "与团队直接联系"
 
-#: src/components/zap-mint/submit-zap.tsx:462
+#: src/components/zap-mint/submit-zap.tsx:574
 msgid "Approve use of {inputSymbol}"
 msgstr "授权使用 {inputSymbol}"
 
-#: src/components/ui/swap.tsx:263
+#: src/components/ui/swap.tsx:285
 msgid "Assembling different routes"
 msgstr "正在组合不同路由"
 
-#: src/components/ui/swap.tsx:210
+#: src/components/ui/swap.tsx:227
 msgid "Balance"
 msgstr "余额"
 
@@ -44,7 +44,7 @@ msgid "Buy"
 msgstr "买入"
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/buy/index.tsx:233
+#: src/components/zap-mint/buy/index.tsx:244
 msgid "Buy {0}"
 msgstr "购买 {0}"
 
@@ -64,7 +64,7 @@ msgstr "此 DTF 内资产的变更"
 #~ msgid "Collect dust?"
 #~ msgstr "收集碎屑？"
 
-#: src/components/zap-mint/zap-success-view.tsx:185
+#: src/components/zap-mint/zap-success-view.tsx:200
 msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
 msgstr "恭喜您购买了相当数量的此 DTF。大额持有者可与 Reserve 背后的团队直接联系。预约一次介绍通话，认识我们、在未来获得所需的任何帮助，并在我们持续建设与成长的过程中分享您的想法。"
 
@@ -80,7 +80,7 @@ msgstr "已复制到剪贴板！"
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
-#: src/components/ui/swap.tsx:488
+#: src/components/ui/swap.tsx:510
 msgid "Custom"
 msgstr "自定义"
 
@@ -108,7 +108,7 @@ msgstr "启用深度流动性搜索？"
 msgid "Enter your email"
 msgstr "输入你的电子邮件"
 
-#: src/components/ui/swap.tsx:264
+#: src/components/ui/swap.tsx:286
 msgid "Evaluating slippage"
 msgstr "正在评估滑点"
 
@@ -120,7 +120,7 @@ msgstr "兑换率"
 msgid "Failed to send. Try again."
 msgstr "发送失败。请重试。"
 
-#: src/components/zap-mint/submit-zap.tsx:456
+#: src/components/zap-mint/submit-zap.tsx:566
 msgid "Fetching quote..."
 msgstr "正在获取报价..."
 
@@ -132,11 +132,11 @@ msgstr "强制 Mint DTF？"
 msgid "Force minting DTF"
 msgstr "强制 Mint DTF"
 
-#: src/components/zap-mint/zap-success-view.tsx:214
+#: src/components/zap-mint/zap-success-view.tsx:229
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "获取可能影响此 DTF 的相关变更通知。"
 
-#: src/components/zap-mint/submit-zap.tsx:77
+#: src/components/zap-mint/submit-zap.tsx:80
 msgid "Get started"
 msgstr "开始"
 
@@ -148,7 +148,7 @@ msgstr "治理角色变更"
 msgid "Having issues minting? (Zaps are in beta)"
 msgstr "Mint 遇到问题？（Zap 处于测试阶段）"
 
-#: src/components/zap-mint/zap-success-view.tsx:127
+#: src/components/zap-mint/zap-success-view.tsx:128
 msgid "Hide details"
 msgstr "隐藏详情"
 
@@ -163,7 +163,7 @@ msgstr "碎屑价值较高：${0}（占输出价值的 {1}）"
 msgid "High price impact: {0}"
 msgstr "价格影响较高：{0}"
 
-#: src/components/zap-mint/submit-zap.tsx:101
+#: src/components/zap-mint/submit-zap.tsx:104
 msgid "Insufficient balance"
 msgstr "余额不足"
 
@@ -171,20 +171,20 @@ msgstr "余额不足"
 msgid "Insufficient gas balance"
 msgstr "Gas 余额不足"
 
-#: src/components/ui/swap.tsx:266
+#: src/components/ui/swap.tsx:288
 msgid "Loading DTF"
 msgstr "正在加载 DTF"
 
-#: src/components/zap-mint/submit-zap.tsx:77
-#: src/components/zap-mint/submit-zap.tsx:99
+#: src/components/zap-mint/submit-zap.tsx:80
+#: src/components/zap-mint/submit-zap.tsx:102
 msgid "Loading..."
 msgstr "加载中..."
 
-#: src/components/ui/swap.tsx:220
+#: src/components/ui/swap.tsx:241
 msgid "Max"
 msgstr "最大"
 
-#: src/components/ui/swap.tsx:461
+#: src/components/ui/swap.tsx:483
 msgid "Max slippage"
 msgstr "最大滑点"
 
@@ -204,6 +204,10 @@ msgstr "最小输出数量"
 #~ msgid "No thanks"
 #~ msgstr "不用了"
 
+#: src/components/zap-mint/zap-success-view.tsx:177
+msgid "Order:"
+msgstr "订单："
+
 #: src/components/zap-mint/zap-error-msg.tsx:224
 msgid "Please report this to help us improve"
 msgstr "请报告此问题以帮助我们改进"
@@ -216,7 +220,7 @@ msgstr "请尝试刷新，或切换到手动 Mint。"
 msgid "Price Impact"
 msgstr "价格影响"
 
-#: src/components/zap-mint/submit-zap.tsx:454
+#: src/components/zap-mint/submit-zap.tsx:564
 msgid "Quote expired"
 msgstr "报价已过期"
 
@@ -228,11 +232,11 @@ msgstr "报价包含费用"
 msgid "Quote Source"
 msgstr "报价来源"
 
-#: src/components/zap-mint/zap-success-view.tsx:137
+#: src/components/zap-mint/zap-success-view.tsx:138
 msgid "Received:"
 msgstr "已收到："
 
-#: src/components/ui/swap.tsx:265
+#: src/components/ui/swap.tsx:287
 msgid "Reducing potential dust"
 msgstr "正在减少潜在尘埃"
 
@@ -248,11 +252,11 @@ msgstr "报告"
 msgid "Reported"
 msgstr "已报告"
 
-#: src/components/zap-mint/zap-success-view.tsx:201
+#: src/components/zap-mint/zap-success-view.tsx:216
 msgid "Schedule an intro call"
 msgstr "预约介绍通话"
 
-#: src/components/ui/swap.tsx:262
+#: src/components/ui/swap.tsx:284
 msgid "Searching DEX Liquidity"
 msgstr "正在搜索 DEX 流动性"
 
@@ -265,7 +269,7 @@ msgid "Sell"
 msgstr "卖出"
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/sell/index.tsx:240
+#: src/components/zap-mint/sell/index.tsx:249
 msgid "Sell {0}"
 msgstr "卖出 {0}"
 
@@ -277,19 +281,19 @@ msgstr "卖出 {0}"
 msgid "Sending..."
 msgstr "正在发送……"
 
-#: src/components/zap-mint/zap-success-view.tsx:127
+#: src/components/zap-mint/zap-success-view.tsx:128
 msgid "Show details"
 msgstr "显示详情"
 
-#: src/components/zap-mint/submit-zap.tsx:458
+#: src/components/zap-mint/submit-zap.tsx:568
 msgid "Simulation failed - Refetching quote"
 msgstr "模拟失败 - 正在重新获取报价"
 
-#: src/components/ui/swap.tsx:458
+#: src/components/ui/swap.tsx:480
 msgid "Slippage"
 msgstr "滑点"
 
-#: src/components/zap-mint/zap-success-view.tsx:251
+#: src/components/zap-mint/zap-success-view.tsx:266
 msgid "Something went wrong. Please try again. If the problem persists, please <0>submit a help request</0>."
 msgstr "出了点问题。请重试。如果问题仍然存在，请<0>提交帮助请求</0>。"
 
@@ -301,15 +305,15 @@ msgstr "抱歉，当前市场波动较大。请在设置中提高滑点。"
 msgid "Sorry, we’re having a hard time finding a route that makes sense for you. Please try again in a bit."
 msgstr "抱歉，我们暂时难以为你找到合适的路径。请稍后重试。"
 
-#: src/components/zap-mint/zap-success-view.tsx:211
+#: src/components/zap-mint/zap-success-view.tsx:226
 msgid "Stay informed about this DTF"
 msgstr "关注此 DTF 的动态"
 
-#: src/components/zap-mint/submit-zap.tsx:462
+#: src/components/zap-mint/submit-zap.tsx:574
 msgid "Step 1. "
 msgstr "步骤 1. "
 
-#: src/components/zap-mint/submit-zap.tsx:461
+#: src/components/zap-mint/submit-zap.tsx:573
 msgid "Step 2. "
 msgstr "步骤 2. "
 
@@ -317,11 +321,11 @@ msgstr "步骤 2. "
 msgid "Subscribe"
 msgstr "订阅"
 
-#: src/components/zap-mint/zap-success-view.tsx:120
+#: src/components/zap-mint/zap-success-view.tsx:121
 msgid "Successful Purchase"
 msgstr "购买成功"
 
-#: src/components/zap-mint/zap-success-view.tsx:120
+#: src/components/zap-mint/zap-success-view.tsx:121
 msgid "Successful Redemption"
 msgstr "赎回成功"
 
@@ -337,7 +341,7 @@ msgstr "切换到 {chainName}"
 #~ msgid "Telegram username"
 #~ msgstr "Telegram 用户名"
 
-#: src/components/zap-mint/zap-success-view.tsx:235
+#: src/components/zap-mint/zap-success-view.tsx:250
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "感谢您的参与，我们很高兴有您加入！我们会就此 DTF 的任何重要更新与您联系。"
 
@@ -378,7 +382,7 @@ msgstr "如果你想在不进行交易的情况下 Mint 该 DTF，这会很有�
 msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
 msgstr "此交易会产生大量碎屑，这意味着你将以单项资产形式收到 {0} 的价值，其余以 {tokenOutSymbol} 形式收到。"
 
-#: src/components/ui/swap.tsx:477
+#: src/components/ui/swap.tsx:499
 msgid "Toggle {option}"
 msgstr "切换 {option}"
 
@@ -386,11 +390,11 @@ msgstr "切换 {option}"
 msgid "Transaction successful"
 msgstr "交易成功"
 
-#: src/components/zap-mint/zap-success-view.tsx:163
+#: src/components/zap-mint/zap-success-view.tsx:165
 msgid "Transaction:"
 msgstr "交易："
 
-#: src/components/zap-mint/zap-success-view.tsx:150
+#: src/components/zap-mint/zap-success-view.tsx:151
 msgid "Used:"
 msgstr "已使用："
 
@@ -398,15 +402,23 @@ msgstr "已使用："
 msgid "Via"
 msgstr "通过"
 
+#: src/components/zap-mint/zap-success-view.tsx:184
+msgid "View order"
+msgstr "查看订单"
+
 #: src/components/zap-mint/zap-error-msg.tsx:185
 msgid "Wait and try again or consider using manual mode"
 msgstr "请稍候重试，或考虑使用手动模式"
 
-#: src/components/ui/swap.tsx:354
+#: src/components/zap-mint/submit-zap.tsx:570
+msgid "Waiting for order to fill..."
+msgstr "等待订单成交..."
+
+#: src/components/ui/swap.tsx:376
 msgid "You receive:"
 msgstr "你收到："
 
-#: src/components/ui/swap.tsx:238
+#: src/components/ui/swap.tsx:259
 msgid "You use:"
 msgstr "你支付："
 

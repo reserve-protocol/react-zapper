@@ -1,5 +1,29 @@
 import { vi } from 'vitest'
 
+// Node's undici fetch/Request reject AbortSignals created in jsdom's realm
+// ("RequestInit: Expected signal to be an instance of AbortSignal"), which
+// silently fails every viem http-transport request in tests (viem passes a
+// timeout signal and pre-builds a Request). Strip the foreign signal from
+// both entry points — tests don't rely on request aborts.
+const stripSignal = (init?: RequestInit): RequestInit | undefined => {
+  if (!init?.signal) return init
+  const { signal: _signal, ...rest } = init
+  return rest
+}
+const nativeFetch = globalThis.fetch?.bind(globalThis)
+if (nativeFetch) {
+  globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
+    nativeFetch(input, stripSignal(init))) as typeof fetch
+}
+const NativeRequest = globalThis.Request
+if (NativeRequest) {
+  globalThis.Request = class Request extends NativeRequest {
+    constructor(input: RequestInfo | URL, init?: RequestInit) {
+      super(input, stripSignal(init))
+    }
+  } as typeof globalThis.Request
+}
+
 // mixpanel does real network I/O at init/track time — neutralize it entirely.
 vi.mock('mixpanel-browser/src/loaders/loader-module-core', () => ({
   default: {

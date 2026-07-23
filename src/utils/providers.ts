@@ -1,14 +1,17 @@
 import type { ComponentType } from 'react'
 import { Zap } from 'lucide-react'
+import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
 import OdosIcon from '../components/icons/odos'
 import VeloraIcon from '../components/icons/velora'
 import zapper, { ZapPayload } from '../types/api'
+import { cowswapAdapter } from './rfq/cowswap'
+import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
 
-export type ProviderId = 'zap' | 'odos' | 'velora' | 'enso'
+export type ProviderId = 'zap' | 'odos' | 'velora' | 'enso' | 'cowswap'
 
-export type ProviderKind = 'native' | 'aggregator'
+export type ProviderKind = 'native' | 'aggregator' | 'rfq'
 
 export type IconComponent = ComponentType<{
   size?: string | number
@@ -29,9 +32,15 @@ export interface ProviderConfig {
   apiSlug?: string
   /**
    * Builds the swap endpoint URL for the provider. Returns null when parameters
-   * are insufficient (the caller should skip the fetch).
+   * are insufficient (the caller should skip the fetch). Always null for RFQ
+   * providers — their adapter owns the quote request.
    */
   buildEndpoint: (params: EndpointParams) => string | null
+  /**
+   * Intent/RFQ adapter (quote -> sign order -> wait for fill). Only set when
+   * `kind === 'rfq'`.
+   */
+  rfq?: RfqAdapter
 }
 
 /**
@@ -45,10 +54,34 @@ export interface ProviderConfig {
 export const PROVIDER_ENABLED: Partial<
   Record<AvailableChain, Record<ProviderId, boolean>>
 > = {
-  [ChainId.Mainnet]: { zap: true, odos: true, velora: true, enso: true },
-  [ChainId.Base]: { zap: true, odos: true, velora: true, enso: true },
-  [ChainId.Arbitrum]: { zap: true, odos: true, velora: true, enso: true },
-  [ChainId.BSC]: { zap: true, odos: true, velora: true, enso: true },
+  [ChainId.Mainnet]: {
+    zap: true,
+    odos: true,
+    velora: true,
+    enso: true,
+    cowswap: true,
+  },
+  [ChainId.Base]: {
+    zap: true,
+    odos: true,
+    velora: true,
+    enso: true,
+    cowswap: true,
+  },
+  [ChainId.Arbitrum]: {
+    zap: true,
+    odos: true,
+    velora: true,
+    enso: true,
+    cowswap: true,
+  },
+  [ChainId.BSC]: {
+    zap: true,
+    odos: true,
+    velora: true,
+    enso: true,
+    cowswap: true,
+  },
 }
 
 const buildAggregatorEndpoint =
@@ -111,6 +144,14 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     Icon: EnsoIcon,
     buildEndpoint: buildAggregatorEndpoint('enso'),
   },
+  cowswap: {
+    id: 'cowswap',
+    label: 'CoW Swap',
+    kind: 'rfq',
+    Icon: CowSwapIcon,
+    buildEndpoint: () => null,
+    rfq: cowswapAdapter,
+  },
 }
 
 export const ALL_PROVIDER_IDS: ProviderId[] = [
@@ -118,6 +159,7 @@ export const ALL_PROVIDER_IDS: ProviderId[] = [
   'odos',
   'velora',
   'enso',
+  'cowswap',
 ]
 
 export const isProviderEnabled = (

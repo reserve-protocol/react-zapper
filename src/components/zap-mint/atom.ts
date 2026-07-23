@@ -48,6 +48,9 @@ export type ZapSuccessData = {
   outputAddress: string
   receivedAmount: string
   receivedValue: number
+  // RFQ fills: link to the order on the venue's explorer. Shown when the
+  // settlement tx hash isn't available (txHash may be empty then).
+  orderExplorerUrl?: string
 }
 export const zapSuccessAtom = atom<ZapSuccessData | undefined>(undefined)
 

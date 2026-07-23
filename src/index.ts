@@ -21,7 +21,15 @@ export {
 export type {
   ProviderId,
   ProviderConfig,
+  ProviderKind,
 } from './utils/providers'
+export { RFQ_ADAPTERS, isRfqProvider } from './utils/rfq'
+export type {
+  RfqAdapter,
+  RfqOrder,
+  RfqOrderStatus,
+  RfqQuoteContext,
+} from './utils/rfq/types'
 export type { QuoteSource } from './state/atoms'
 export type {
   ZapperProps,

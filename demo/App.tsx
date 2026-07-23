@@ -280,9 +280,7 @@ function App() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="best">Best Quote</SelectItem>
-                    {(
-                      ['zap', 'odos', 'velora', 'enso'] as ProviderId[]
-                    ).map((id) => (
+                    {(Object.keys(PROVIDERS) as ProviderId[]).map((id) => (
                       <SelectItem key={id} value={id}>
                         {PROVIDERS[id].label} Quote
                       </SelectItem>

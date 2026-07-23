@@ -17,8 +17,10 @@ import { expect } from 'vitest'
 
 import Buy from '../../src/components/zap-mint/buy'
 import {
+  selectedTokenAtom,
   zapFetchingAtom,
   zapOngoingTxAtom,
+  zapSuccessAtom,
   zapSwapEndpointAtom,
 } from '../../src/components/zap-mint/atom'
 import { ZapperI18nProvider } from '../../src/i18n/provider'
@@ -30,14 +32,21 @@ import {
   quoteSourceAtom,
   walletAtom,
 } from '../../src/state/atoms'
+import { reducedZappableTokens } from '../../src/utils/constants'
 
 export const ACCOUNT = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 export const DTF = '0x1000000000000000000000000000000000000001'
 export const ZAP_ROUTER = '0x2000000000000000000000000000000000000002'
 export const TX_HASH =
   '0x9999999999999999999999999999999999999999999999999999999999999999'
+export const COW_UID = `0x${'cd'.repeat(56)}`
+export const WETH_TOKEN = reducedZappableTokens[1].find(
+  (t) => t.symbol === 'WETH'
+)!
 const BLOOM = `0x${'0'.repeat(512)}`
 const APPROVE_SELECTOR = '0x095ea7b3'
+const ALLOWANCE_SELECTOR = '0xdd62ed3e'
+const MAX_UINT256 = 2n ** 256n - 1n
 
 export type Scenario = {
   // how eth_sendTransaction behaves
@@ -63,11 +72,29 @@ export type Scenario = {
   quoteFetches: number
   // log of rpc methods, for debugging and assertions
   calls: string[]
+  // allowance returned by the erc20 allowance eth_call (atoms, decimal string)
+  allowance: string
+  // CoW order status sequence served per GET orders/{uid}; last entry repeats
+  cowStatuses: string[]
+  cowExecutedBuyAmount: string
+  // recorded POST /orders bodies (the signed order creation payloads)
+  cowPostedOrders: Record<string, unknown>[]
+  // count of CoW quote requests served by the fetch mock
+  cowQuoteFetches: number
+  // recorded CoW quote request bodies
+  cowQuoteBodies: Record<string, unknown>[]
+  // GET orders/{uid} 404s until an order was placed (POST /orders or an
+  // eth-flow createOrder tx) — mirrors the real order book and keeps the
+  // eth-flow uid-collision precheck from seeing a phantom order
+  cowOrderPlaced: boolean
+  // recorded eth_sendTransaction params (eth-flow createOrder calls land here)
+  sentTransactions: Record<string, unknown>[]
 }
 
 export let scenario: Scenario
 let server: Server
 let rpcUrl: string
+export const getRpcUrl = () => rpcUrl
 let blockNumber = 0x1000
 let lastQueryClient: QueryClient
 
@@ -84,6 +111,14 @@ const defaultScenario = (): Scenario => ({
   estimateFailTransient: 0,
   quoteFetches: 0,
   calls: [],
+  allowance: MAX_UINT256.toString(),
+  cowStatuses: ['open', 'fulfilled'],
+  cowExecutedBuyAmount: '1000000000000000000000',
+  cowPostedOrders: [],
+  cowQuoteFetches: 0,
+  cowQuoteBodies: [],
+  cowOrderPlaced: false,
+  sentTransactions: [],
 })
 
 export const queryStates = () => {
@@ -188,10 +223,15 @@ const rpcHandler = async (
     case 'eth_sendTransaction':
       scenario.sendAttempted = true
       scenario.sendAttemptedAt = Date.now()
+      scenario.sentTransactions.push(
+        (params?.[0] as Record<string, unknown>) ?? {}
+      )
       if (scenario.sendDelayMs) await sleep(scenario.sendDelayMs)
       if (scenario.send === 'reject') {
         throw { code: 4001, message: 'User rejected the request.' }
       }
+      // an eth-flow createOrder tx counts as order placement
+      scenario.cowOrderPlaced = true
       return TX_HASH
     case 'eth_getTransactionReceipt':
       return {
@@ -233,12 +273,19 @@ const rpcHandler = async (
         v: '0x1',
         yParity: '0x1',
       }
+    case 'eth_signTypedData_v4':
+      // the mock connector forwards signing to the transport — serve a canned
+      // 65-byte ECDSA signature (r + s + v)
+      return `0x${'ab'.repeat(64)}1c`
     case 'eth_call': {
       // approve simulation (useSimulateContract) must succeed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const callData = String((params?.[0] as any)?.data)
       if (callData.startsWith(APPROVE_SELECTOR)) {
         return `0x${'0'.repeat(63)}1`
+      }
+      if (callData.startsWith(ALLOWANCE_SELECTOR)) {
+        return `0x${BigInt(scenario.allowance).toString(16).padStart(64, '0')}`
       }
       // replaying a reverted tx for the revert reason
       throw { code: 3, message: 'execution reverted: SLIPPAGE', data: '0x' }
@@ -335,11 +382,91 @@ export const setQuoteBuilder = (builder: QuoteBuilder) => {
   quoteBuilder = builder
 }
 
+const jsonResponse = (payload: unknown, status = 200) =>
+  new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+// Mocked CoW order-book API: quote -> order placement -> status polls -> trades.
+const handleCowFetch = async (
+  url: string,
+  init?: RequestInit
+): Promise<Response> => {
+  const method = (init?.method ?? 'GET').toUpperCase()
+  const body = init?.body ? JSON.parse(String(init.body)) : {}
+
+  if (url.includes('/app_data/') && method === 'PUT') {
+    return jsonResponse({ fullAppData: body.fullAppData ?? '' }, 201)
+  }
+  if (url.includes('/quote') && method === 'POST') {
+    scenario.cowQuoteFetches++
+    scenario.cowQuoteBodies.push(body)
+    if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
+    return jsonResponse({
+      quote: {
+        sellToken: body.sellToken ?? WETH_TOKEN.address,
+        buyToken: body.buyToken ?? DTF,
+        receiver: ACCOUNT,
+        sellAmount: '990000000000000000',
+        buyAmount: '1000000000000000000000',
+        validTo: 0,
+        appData: `0x${'00'.repeat(32)}`,
+        feeAmount: '10000000000000000',
+        kind: 'sell',
+        partiallyFillable: false,
+        sellTokenBalance: 'erc20',
+        buyTokenBalance: 'erc20',
+        gasAmount: '0',
+        gasPrice: '0',
+        sellTokenPrice: '0',
+      },
+      from: ACCOUNT,
+      expiration: new Date(Date.now() + scenario.quoteTtlMs).toISOString(),
+      id: 12345,
+      verified: true,
+    })
+  }
+  if (url.includes('/orders') && method === 'POST') {
+    scenario.cowPostedOrders.push(body)
+    scenario.cowOrderPlaced = true
+    return jsonResponse(COW_UID, 201)
+  }
+  if (url.includes(`/orders/`)) {
+    if (!scenario.cowOrderPlaced) {
+      return jsonResponse({ errorType: 'NoSuchOrder', description: '' }, 404)
+    }
+    const status =
+      scenario.cowStatuses.length > 1
+        ? scenario.cowStatuses.shift()!
+        : scenario.cowStatuses[0]
+    const posted = scenario.cowPostedOrders[0] ?? {}
+    return jsonResponse({
+      ...posted,
+      uid: COW_UID,
+      status,
+      creationDate: new Date().toISOString(),
+      owner: ACCOUNT,
+      executedSellAmount: '0',
+      executedSellAmountBeforeFees: '0',
+      executedFeeAmount: '0',
+      executedBuyAmount:
+        status === 'fulfilled' ? scenario.cowExecutedBuyAmount : '0',
+      invalidated: false,
+    })
+  }
+  if (url.includes('/trades')) {
+    return jsonResponse([{ orderUid: COW_UID, txHash: TX_HASH }])
+  }
+  return jsonResponse({})
+}
+
 const realFetch = globalThis.fetch.bind(globalThis)
 const installFetchMock = () => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     if (url.startsWith('http://127.0.0.1')) return realFetch(input, init)
+    if (url.includes('api.cow.fi')) return handleCowFetch(url, init)
     if (url.includes('tokenIn=')) {
       scenario.quoteFetches++
       if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
@@ -359,9 +486,19 @@ const Probe = () => {
   const ongoingTx = useAtomValue(zapOngoingTxAtom)
   const fetching = useAtomValue(zapFetchingAtom)
   const endpoint = useAtomValue(zapSwapEndpointAtom)
+  const zapSuccess = useAtomValue(zapSuccessAtom)
   return (
     <>
-      <div data-testid="probe">{JSON.stringify({ ongoingTx, fetching })}</div>
+      <div data-testid="probe">
+        {JSON.stringify({
+          ongoingTx,
+          fetching,
+          success: !!zapSuccess,
+          receivedAmount: zapSuccess?.receivedAmount,
+          txHash: zapSuccess?.txHash,
+          orderExplorerUrl: zapSuccess?.orderExplorerUrl,
+        })}
+      </div>
       <div data-testid="probe-endpoint">{endpoint}</div>
     </>
   )
@@ -390,9 +527,12 @@ const ethBalance = {
 export const setup = async ({
   quoteSource = 'zap',
   inputAmount = '1',
+  inputToken,
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
+  // 'weth' switches the input to an ERC-20 (RFQ sources skip native inputs)
+  inputToken?: 'eth' | 'weth'
 } = {}) => {
   const chain = {
     ...mainnet,
@@ -415,7 +555,15 @@ export const setup = async ({
   store.set(walletAtom, ACCOUNT)
   store.set(indexDTFAtom, dtf)
   store.set(quoteSourceAtom, quoteSource)
-  store.set(balancesAtom, { [ethAddress]: ethBalance })
+  if (inputToken === 'weth') {
+    store.set(selectedTokenAtom, WETH_TOKEN)
+    store.set(balancesAtom, {
+      [ethAddress]: ethBalance,
+      [WETH_TOKEN.address]: ethBalance,
+    })
+  } else {
+    store.set(balancesAtom, { [ethAddress]: ethBalance })
+  }
 
   const utils = render(
     <WagmiProvider config={config} reconnectOnMount={false}>
@@ -439,7 +587,7 @@ export const setup = async ({
 }
 
 const ctaMatcher =
-  /Buy TEST|Quote expired|Simulation failed|Fetching quote|Loading|Insufficient|Approve use of/i
+  /Buy TEST|Quote expired|Simulation failed|Fetching quote|Loading|Insufficient|Approve use of|Waiting for order/i
 
 export const getCta = () => {
   const buttons = screen.getAllByRole('button')

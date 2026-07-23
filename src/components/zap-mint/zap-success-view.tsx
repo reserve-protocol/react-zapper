@@ -76,6 +76,7 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
     outputSymbol,
     outputAddress,
     receivedAmount,
+    orderExplorerUrl,
   } = success
 
   // Intro-call offer: large *purchases* only, once per wallet (consumer-tracked
@@ -160,17 +161,31 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
                   ${formatCurrency(inputValue)}
                 </span>
               </DetailRow>
-              <DetailRow label={t`Transaction:`}>
-                <a
-                  href={transactionUrl(chainId as AvailableChain, txHash)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1 text-primary hover:opacity-80"
-                >
-                  {formatShortAddress(txHash)}
-                  <ArrowUpRight size={16} />
-                </a>
-              </DetailRow>
+              {txHash ? (
+                <DetailRow label={t`Transaction:`}>
+                  <a
+                    href={transactionUrl(chainId as AvailableChain, txHash)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-primary hover:opacity-80"
+                  >
+                    {formatShortAddress(txHash)}
+                    <ArrowUpRight size={16} />
+                  </a>
+                </DetailRow>
+              ) : orderExplorerUrl ? (
+                <DetailRow label={t`Order:`}>
+                  <a
+                    href={orderExplorerUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-primary hover:opacity-80"
+                  >
+                    {t`View order`}
+                    <ArrowUpRight size={16} />
+                  </a>
+                </DetailRow>
+              ) : null}
             </div>
           )}
         </div>

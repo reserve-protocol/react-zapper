@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useMemo } from 'react'
-import { Address } from 'viem'
+import { Address, erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
+import { readContract } from 'wagmi/actions'
 import {
   zapperDebugAtom,
   zapSwapEndpointAtom,
@@ -64,6 +65,8 @@ const useZapSwapQuery = ({
   type,
   inputValue,
   insufficientBalance,
+  tokenOutPrice,
+  tokenOutDecimals,
 }: {
   tokenIn?: Address
   tokenOut?: Address
@@ -75,6 +78,10 @@ const useZapSwapQuery = ({
   type: 'buy' | 'sell'
   inputValue: number
   insufficientBalance: boolean
+  // Client-side USD pricing for the output token — RFQ sources use it to fill
+  // amountOutValue/priceImpact since their APIs don't price in USD.
+  tokenOutPrice?: number | null
+  tokenOutDecimals?: number
 }) => {
   const wagmiConfig = useConfig()
   const zapperApi = useAtomValue(zapperApiUrlAtom)
@@ -185,10 +192,29 @@ const useZapSwapQuery = ({
             })
           : undefined
 
+      // RFQ adapters need a chain read for the allowance check; without a
+      // configured chain they are skipped (rfq ctx absent).
+      const rfq = chainConfigured
+        ? {
+            readAllowance: (token: Address, owner: Address, spender: Address) =>
+              readContract(wagmiConfig, {
+                chainId: chainId as (typeof wagmiConfig)['chains'][number]['id'],
+                address: token,
+                abi: erc20Abi,
+                functionName: 'allowance',
+                args: [owner, spender],
+              }),
+            amountInValue: inputValue || null,
+            tokenOutPrice: tokenOutPrice ?? null,
+            tokenOutDecimals: tokenOutDecimals ?? null,
+          }
+        : undefined
+
       const { selected } = await fetchBestZapQuote({
         providers: availableProviders,
         quoteSource,
         simulate,
+        rfq,
         endpointParams: {
           chainId,
           tokenIn,

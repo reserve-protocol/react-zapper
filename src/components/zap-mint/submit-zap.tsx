@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Address, erc20Abi, formatUnits, Hex } from 'viem'
 import { mainnet } from 'viem/chains'
 import {
@@ -11,6 +11,9 @@ import {
 import useContractWrite from '../../hooks/useContractWrite'
 import useDeferredLoading from '../../hooks/useDeferredLoading'
 import useQuoteCountdown from '../../hooks/useQuoteCountdown'
+import useRfqOrderExecution, {
+  type RfqFillResult,
+} from '../../hooks/use-rfq-order-execution'
 import { classifyEstimateGasError } from '../../hooks/zap-quote-simulation'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { walletAtom } from '../../state/atoms'
@@ -49,6 +52,10 @@ import { minBigInt } from '@/utils'
 
 // EIP-7825: Transaction Gas Limit Cap
 const FUSAKA_GAS_LIMIT = 2n ** 24n
+
+// The countdown suffix only shows when expiry is imminent — long-lived quotes
+// (CoW's can be valid for hours) would read as noise.
+const COUNTDOWN_VISIBLE_UNDER_SECONDS = 60
 
 const GetStartedButton = ({
   fetchingZapper,
@@ -123,6 +130,7 @@ const SubmitZapButton = ({
     dustValue,
     amountOutValue,
     validUntil,
+    rfq,
   },
   source,
   chainId,
@@ -276,10 +284,93 @@ const SubmitZapButton = ({
     label: `Swapped ${inputSymbol} for ${outputSymbol}`,
   })
 
+  // `track` changes identity each render, so guard with a ref to handle success
+  // exactly once per tx (otherwise it re-sets the snapshot after a close reset).
+  const successHandledRef = useRef(false)
+
+  // RFQ success mirrors the receipt path: the fill amount comes from the order
+  // book instead of tx logs, and the tx hash may lag the fill (explorer link
+  // covers it meanwhile).
+  const handleRfqFilled = useCallback(
+    (fill: RfqFillResult) => {
+      if (successHandledRef.current) return
+      successHandledRef.current = true
+      track('zap_success_notification', inputSymbol, outputSymbol, source)
+
+      const outputDecimals = currentTab === 'buy' ? 18 : selectedToken.decimals
+      const receivedAmount =
+        fill.executedBuyAmount > 0n
+          ? formatUnits(fill.executedBuyAmount, outputDecimals)
+          : formatUnits(BigInt(amountOut || 0), outputDecimals)
+      const quotedOut = Number(
+        formatUnits(BigInt(amountOut || 0), outputDecimals)
+      )
+      const unitPrice =
+        amountOutValue && quotedOut ? amountOutValue / quotedOut : 0
+
+      setZapSuccess({
+        isMint: currentTab === 'buy',
+        chainId,
+        txHash: fill.txHash ?? '',
+        orderExplorerUrl: fill.explorerUrl,
+        inputSymbol,
+        inputAddress: tokenIn,
+        inputValue: amountInValue ?? 0,
+        outputSymbol,
+        outputAddress: tokenOut,
+        receivedAmount,
+        receivedValue: Number(receivedAmount) * unitPrice,
+      })
+      onSuccess?.()
+    },
+    [
+      track,
+      inputSymbol,
+      outputSymbol,
+      source,
+      currentTab,
+      selectedToken,
+      amountOut,
+      amountOutValue,
+      amountInValue,
+      chainId,
+      tokenIn,
+      tokenOut,
+      setZapSuccess,
+      onSuccess,
+    ]
+  )
+
+  // Informative (non-error) outcome of an unfilled order — e.g. eth-flow's
+  // "your funds will be refunded automatically". Cleared on the next attempt.
+  const [rfqNotice, setRfqNotice] = useState<string | null>(null)
+
+  const rfqOrder = useRfqOrderExecution({
+    order: rfq,
+    tokenIn,
+    tokenOut,
+    onFilled: handleRfqFilled,
+    // Not filled (expired/cancelled/timeout): same recovery as a failed tx —
+    // unfreeze the flow and replace the stale quote right away.
+    onTerminal: (_reason, notice) => {
+      setOngoingTx(false)
+      refetchQuote.fn?.()
+      setRfqNotice(notice)
+    },
+  })
+  const { execute: rfqExecute } = rfqOrder
+  const rfqWaitingFill =
+    rfqOrder.phase === 'submitting' || rfqOrder.phase === 'filling'
+
   // While the CTA is clicked and the quote refresh is paused (signing in the
   // wallet or waiting for the approval to mine), count down to quote expiry.
+  // Once an RFQ order is posted the quote no longer matters — no countdown.
   const countdownActive =
-    ongoingTx && !receipt && !validatingTx && !simulationFailed
+    ongoingTx &&
+    !receipt &&
+    !validatingTx &&
+    !simulationFailed &&
+    !rfqWaitingFill
   const secondsLeft = useQuoteCountdown(validUntil, countdownActive)
   const quoteExpired = countdownActive && secondsLeft === 0
   const heartbeat =
@@ -289,13 +380,20 @@ const SubmitZapButton = ({
     secondsLeft <= 5
 
   const execute = useCallback(() => {
-    if (!tx || !readyToSubmit) return
-    // expired calldata is a guaranteed revert — refetch instead of sending
+    if (!readyToSubmit) return
+    // an expired quote is a guaranteed revert (or an unfillable order) —
+    // refetch instead of submitting
     if (validUntil != null && Date.now() >= validUntil) {
       setOngoingTx(false)
       refetchQuote.fn?.()
       return
     }
+    if (rfq) {
+      setInputAmountCached(inputAmount)
+      rfqExecute()
+      return
+    }
+    if (!tx) return
     setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Hex,
@@ -306,6 +404,8 @@ const SubmitZapButton = ({
     })
   }, [
     tx,
+    rfq,
+    rfqExecute,
     readyToSubmit,
     validUntil,
     setOngoingTx,
@@ -317,16 +417,16 @@ const SubmitZapButton = ({
     chainId,
   ])
 
+  const rfqError = rfqOrder.error ?? undefined
+
   const error =
     approvalError ||
     approvalValidationError ||
     approvalTxError ||
     sendError ||
+    rfqError ||
     (txError ? Error(txError) : undefined)
 
-  // `track` changes identity each render, so guard with a ref to handle success
-  // exactly once per tx (otherwise it re-sets the snapshot after a close reset).
-  const successHandledRef = useRef(false)
   useEffect(() => {
     if (receipt?.status !== 'success' || successHandledRef.current) return
     successHandledRef.current = true
@@ -378,24 +478,32 @@ const SubmitZapButton = ({
   ])
 
   useEffect(() => {
-    // Keep ongoingTx set after a successful swap so the success screen stays
-    // mounted and the quote stays frozen (a balance refresh would otherwise mark
-    // the kept input "insufficient" and tear the button down).
-    if (receipt?.status === 'success') return
+    // Keep ongoingTx set after a successful swap (tx receipt or filled RFQ
+    // order) so the success screen stays mounted and the quote stays frozen (a
+    // balance refresh would otherwise mark the kept input "insufficient" and
+    // tear the button down).
+    if (receipt?.status === 'success' || successHandledRef.current) return
     if (
       approvalReceipt ||
       approvalTxError ||
       receipt ||
       txError ||
       isErrorApproval ||
-      isErrorSend
+      isErrorSend ||
+      rfqError
     ) {
       setOngoingTx(false)
     }
     // The quote was frozen while the tx was in flight, so after a failure it
     // is stale (often already expired) — replace it right away instead of
     // waiting for the next refresh tick.
-    if (approvalTxError || txError || isErrorApproval || isErrorSend) {
+    if (
+      approvalTxError ||
+      txError ||
+      isErrorApproval ||
+      isErrorSend ||
+      rfqError
+    ) {
       refetchQuote.fn?.()
     }
   }, [
@@ -405,6 +513,7 @@ const SubmitZapButton = ({
     txError,
     isErrorApproval,
     isErrorSend,
+    rfqError,
     setOngoingTx,
     refetchQuote,
   ])
@@ -435,20 +544,22 @@ const SubmitZapButton = ({
           (mode !== 'simple' && highDustValue && !dustWarningAccepted) ||
           (approvalNeeded
             ? !approvalReady || confirmingApproval || approving
-            : !readyToSubmit || loadingTx || validatingTx)
+            : !readyToSubmit || loadingTx || validatingTx || rfqOrder.busy)
         }
         loading={
           showFetching ||
           approving ||
           loadingTx ||
           validatingTx ||
-          confirmingApproval
+          confirmingApproval ||
+          rfqOrder.busy
         }
         gas={readyToSubmit ? gasLimit : undefined}
         onClick={() => {
           if (disabled) return
           setOngoingTx(true)
           setZapSuccess(undefined)
+          setRfqNotice(null)
           if (readyToSubmit) {
             trackClick(`zap_${currentTab}`, inputSymbol, outputSymbol, source)
             execute()
@@ -465,13 +576,24 @@ const SubmitZapButton = ({
           ? t`Fetching quote...`
           : simulationFailed
           ? t`Simulation failed - Refetching quote`
+          : rfqWaitingFill
+          ? t`Waiting for order to fill...`
           : `${
               readyToSubmit
                 ? `${addStepTwoLabel ? t`Step 2. ` : ''}${buttonLabel}`
                 : `${addStepOneLabel ? t`Step 1. ` : ''}${t`Approve use of ${inputSymbol}`}`
-            }${secondsLeft !== null && secondsLeft > 0 ? ` (${secondsLeft}s)` : ''}`}
+            }${
+              secondsLeft !== null &&
+              secondsLeft > 0 &&
+              secondsLeft < COUNTDOWN_VISIBLE_UNDER_SECONDS
+                ? ` (${secondsLeft}s)`
+                : ''
+            }`}
       </TransactionButton>
       {mode !== 'simple' && <ZapTxErrorMsg error={error} />}
+      {mode !== 'simple' && rfqNotice && (
+        <p className="p-2 text-sm font-semibold text-primary">{rfqNotice}</p>
+      )}
     </div>
   )
 }

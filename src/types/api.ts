@@ -1,4 +1,5 @@
 import { Address } from 'viem'
+import type { RfqOrder } from '../utils/rfq/types'
 
 // Default API URL - can be overridden via config
 export const DEFAULT_API_URL = 'https://api.reserve.org/'
@@ -51,6 +52,9 @@ export type ZapResult = {
   // Quote expiration as epoch ms, normalized client-side. When the provider
   // doesn't report one, it defaults to 1 minute from fetch time.
   validUntil?: number | null
+  // Present only on RFQ/intent quotes (tx is null): the payload needed to
+  // sign and submit the order at click time.
+  rfq?: RfqOrder
   debug?: Debug
 }
 

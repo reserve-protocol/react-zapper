@@ -1,3 +1,17 @@
+## [2.7.0] - 2026-07-22
+
+### Added
+
+- CoW Swap as a new RFQ/intent quote source (`cowswap`). Instead of an atomic transaction, the user signs a gasless EIP-712 order that CoW solvers fill off-chain: quote and approval flow through the existing pipeline (spender = CoW Vault Relayer), the quote competes in `best` mode by `minAmountOut`, and after submit the button shows "Waiting for order to fill..." while the order status is polled (2-minute order validity). On fill the regular success view is shown with a link to the order on CoW Explorer; if the order expires or is cancelled without filling, the flow resets and a fresh quote is fetched. Enabled on Ethereum, Base, Arbitrum, and BSC.
+- Extensible RFQ adapter seam (`RfqAdapter`, `RFQ_ADAPTERS`, `isRfqProvider`) so more intent venues (e.g. PancakeSwap X on BSC) can be added as additional adapters without touching the quote/submit pipeline.
+- New dependency: `@cowprotocol/cow-sdk` (order-book client, EIP-712 order types, CoW contract addresses).
+
+- Native-token inputs (ETH/BNB) are supported through CoW's eth-flow: a single `createOrder` transaction to the EthFlow contract carrying the native amount — no approval, no signature. Eth-flow orders have a 10-minute validity; if one expires unfilled, the UI explains that CoW's refunder returns the funds automatically within a few minutes.
+
+### Notes
+
+- RFQ quotes carry no transaction, so the pre-selection simulation filter and gas estimation don't apply to them.
+
 ## [2.6.1] - 2026-07-17
 
 ### Fixed
