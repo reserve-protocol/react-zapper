@@ -1,3 +1,9 @@
+## [2.7.1] - 2026-07-24
+
+### Changed
+
+- USD values (`amountInValue`/`amountOutValue`) and the derived price impact (`priceImpact`/`truePriceImpact`) are now computed uniformly for every quote source using Reserve API token prices, instead of trusting each provider's own valuation. Providers price with different methodologies (the native zapper vs the aggregators vs RFQ venues), so the displayed price impact used to jump when the winning source changed even for near-identical quotes. Provider-reported values remain as fallbacks when a Reserve price is unavailable; `truePriceImpact` keeps its dust-adjusted semantics.
+
 ## [2.7.0] - 2026-07-22
 
 ### Added

@@ -53,9 +53,7 @@ const makeCtx = (overrides: Partial<RfqQuoteContext> = {}): RfqQuoteContext => (
   tokenOut: DTF,
   amountIn: '1000000000000000000',
   slippage: 100,
-  amountInValue: 3000,
-  tokenOutPrice: 3,
-  tokenOutDecimals: 18,
+  apiUrl: 'https://api.reserve.org/',
   readAllowance: async () => 0n,
   ...overrides,
 })
@@ -125,22 +123,15 @@ describe('mapCowQuoteToZapResult', () => {
     expect((result.rfq as CowRfqOrder).sellToken).toBe(WETH)
   })
 
-  it('fills USD values from the client context, impact 0 when missing', () => {
-    const priced = mapCowQuoteToZapResult(makeResponse(), makeCtx(), {
+  it('leaves USD values empty — the pipeline fills them with Reserve prices', () => {
+    const result = mapCowQuoteToZapResult(makeResponse(), makeCtx(), {
       approvalNeeded: false,
       flow: 'gasless',
     })
-    expect(priced.amountInValue).toBe(3000)
-    expect(priced.amountOutValue).toBe(3000) // 1000 tokens * $3
-    expect(priced.priceImpact).toBeCloseTo(0)
-
-    const unpriced = mapCowQuoteToZapResult(
-      makeResponse(),
-      makeCtx({ tokenOutPrice: null }),
-      { approvalNeeded: false, flow: 'gasless' }
-    )
-    expect(unpriced.amountOutValue).toBeNull()
-    expect(unpriced.priceImpact).toBe(0)
+    expect(result.amountInValue).toBeNull()
+    expect(result.amountOutValue).toBeNull()
+    expect(result.priceImpact).toBe(0)
+    expect(result.truePriceImpact).toBe(0)
   })
 })
 

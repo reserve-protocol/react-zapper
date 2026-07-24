@@ -93,6 +93,8 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
       type: 'sell',
       inputValue,
       insufficientBalance,
+      tokenInPrice: indexDTFPrice,
+      tokenInDecimals: indexDTF?.token.decimals ?? 18,
       tokenOutPrice: selectedTokenPrice,
       tokenOutDecimals: selectedToken.decimals,
     })

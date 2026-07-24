@@ -93,6 +93,8 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
       type: 'buy',
       inputValue,
       insufficientBalance,
+      tokenInPrice: selectedTokenPrice,
+      tokenInDecimals: selectedToken.decimals,
       tokenOutPrice: indexDTFPrice,
       tokenOutDecimals: indexDTF?.token.decimals ?? 18,
     })

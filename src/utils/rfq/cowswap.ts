@@ -22,7 +22,6 @@ import {
   encodeFunctionData,
   encodePacked,
   ethAddress,
-  formatUnits,
   hashTypedData,
   keccak256,
   stringToBytes,
@@ -154,18 +153,6 @@ export const mapCowQuoteToZapResult = (
   const buyAmount = BigInt(quote.buyAmount)
   const minAmountOut = applySlippage(buyAmount, ctx.slippage)
 
-  const amountOutValue =
-    ctx.tokenOutPrice != null && ctx.tokenOutDecimals != null
-      ? ctx.tokenOutPrice * Number(formatUnits(buyAmount, ctx.tokenOutDecimals))
-      : null
-  const amountInValue = ctx.amountInValue
-  // USD values are client-estimated; when either is missing the impact is
-  // unknown and reported as 0 (no high-impact warning for this source then).
-  const priceImpact =
-    amountInValue != null && amountOutValue != null && amountInValue > 0
-      ? ((amountInValue - amountOutValue) / amountInValue) * 100
-      : 0
-
   const rfq: CowRfqOrder = {
     adapter: 'cowswap',
     chainId: ctx.chainId,
@@ -179,13 +166,15 @@ export const mapCowQuoteToZapResult = (
     quoteId: response.id ?? null,
   }
 
+  // USD values and price impact are filled in centrally by the quote
+  // pipeline (`applyReservePricing`) using Reserve prices.
   return {
     tokenIn: ctx.tokenIn,
     amountIn: ctx.amountIn,
-    amountInValue,
+    amountInValue: null,
     tokenOut: ctx.tokenOut,
     amountOut: quote.buyAmount,
-    amountOutValue,
+    amountOutValue: null,
     minAmountOut: minAmountOut.toString(),
     approvalAddress: (opts.flow === 'ethflow'
       ? ETH_FLOW_ADDRESSES[ctx.chainId as SupportedChainId]
@@ -197,8 +186,8 @@ export const mapCowQuoteToZapResult = (
     dust: [],
     dustValue: null,
     gas: null,
-    priceImpact,
-    truePriceImpact: priceImpact,
+    priceImpact: 0,
+    truePriceImpact: 0,
     tx: null,
     validUntil: Date.parse(response.expiration) || null,
     rfq,

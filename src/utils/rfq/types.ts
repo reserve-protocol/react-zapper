@@ -19,10 +19,6 @@ export type RfqQuoteContext = {
   slippage: number
   /** Reserve API base URL — for adapters whose venue is proxied through it. */
   apiUrl: string
-  /** USD value of the input, estimated client-side (RFQ APIs don't price in USD). */
-  amountInValue: number | null
-  tokenOutPrice: number | null
-  tokenOutDecimals: number | null
   readAllowance: (
     token: Address,
     owner: Address,
