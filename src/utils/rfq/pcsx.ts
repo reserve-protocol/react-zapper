@@ -1,4 +1,4 @@
-import { ethAddress, formatUnits, type Address, type Hex } from 'viem'
+import { ethAddress, type Address, type Hex } from 'viem'
 import type { ZapResult } from '../../types/api'
 import { ChainId } from '../chains'
 import { applySlippage } from './cowswap'
@@ -117,17 +117,6 @@ export const pcsxAdapter: RfqAdapter = {
       ? BigInt(order.minAmountOut)
       : applySlippage(buyAmount, ctx.slippage)
 
-    const amountOutValue =
-      ctx.tokenOutPrice != null && ctx.tokenOutDecimals != null
-        ? ctx.tokenOutPrice *
-          Number(formatUnits(buyAmount, ctx.tokenOutDecimals))
-        : null
-    const amountInValue = ctx.amountInValue
-    const priceImpact =
-      amountInValue != null && amountOutValue != null && amountInValue > 0
-        ? ((amountInValue - amountOutValue) / amountInValue) * 100
-        : 0
-
     const rfq: PcsxRfqOrder = {
       adapter: 'pcsx',
       chainId: ctx.chainId,
@@ -138,13 +127,15 @@ export const pcsxAdapter: RfqAdapter = {
       quoteId: order.quoteId ?? null,
     }
 
+    // USD values and price impact are filled in centrally by the quote
+    // pipeline (`applyReservePricing`) using Reserve prices.
     return {
       tokenIn: ctx.tokenIn,
       amountIn: ctx.amountIn,
-      amountInValue,
+      amountInValue: null,
       tokenOut: ctx.tokenOut,
       amountOut: order.amountOut,
-      amountOutValue,
+      amountOutValue: null,
       minAmountOut: minAmountOut.toString(),
       approvalAddress: permit2,
       approvalNeeded: allowance < BigInt(ctx.amountIn),
@@ -152,8 +143,8 @@ export const pcsxAdapter: RfqAdapter = {
       dust: [],
       dustValue: null,
       gas: null,
-      priceImpact,
-      truePriceImpact: priceImpact,
+      priceImpact: 0,
+      truePriceImpact: 0,
       tx: null,
       validUntil: rfq.deadline,
       rfq,

@@ -218,6 +218,8 @@ Notes:
 - `cowswap` is enabled on all supported chains (Ethereum, Base, Arbitrum, and BSC); `pcsx` only on BSC.
 - The architecture is adapter-based (`RfqAdapter`) so more intent venues can be added without touching the pipeline.
 
+USD values and price impact are computed uniformly across all sources from Reserve API token prices (each provider's own valuation is only a fallback when a Reserve price is missing), so the displayed impact doesn't jump when the winning source changes.
+
 Provider availability per chain is controlled by the `PROVIDER_ENABLED` matrix exported from the package:
 
 ```ts

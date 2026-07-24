@@ -1,5 +1,5 @@
-import { Address } from 'viem'
-import type { ZapPayload, ZapResponse } from '../types/api'
+import { Address, formatUnits } from 'viem'
+import type { ZapPayload, ZapResponse, ZapResult } from '../types/api'
 import {
   generateSourceId,
   type Source,
@@ -35,8 +35,7 @@ export type EndpointContext = Omit<ZapPayload, 'url'> & {
 
 /**
  * Extra context RFQ adapters need beyond the endpoint params: a chain read
- * for the allowance check and client-side USD pricing (RFQ APIs don't price
- * in USD). When absent, RFQ providers are skipped.
+ * for the allowance check. When absent, RFQ providers are skipped.
  */
 export type RfqFetchContext = {
   readAllowance: (
@@ -44,9 +43,64 @@ export type RfqFetchContext = {
     owner: Address,
     spender: Address
   ) => Promise<bigint>
-  amountInValue: number | null
+}
+
+/**
+ * Reserve token prices used to value every quote uniformly. Providers price
+ * with different methodologies, so their USD values (and thus the shown price
+ * impact) jump when the winning source changes; valuing all quotes with the
+ * same Reserve prices removes that noise. Provider values stay as fallbacks.
+ */
+export type QuotePricing = {
+  tokenInPrice: number | null
+  tokenInDecimals: number
   tokenOutPrice: number | null
-  tokenOutDecimals: number | null
+  tokenOutDecimals: number
+}
+
+export const applyReservePricing = (
+  result: ZapResult,
+  pricing?: QuotePricing
+): ZapResult => {
+  if (!pricing) return result
+
+  const amountInValue =
+    pricing.tokenInPrice != null
+      ? pricing.tokenInPrice *
+        Number(formatUnits(BigInt(result.amountIn || 0), pricing.tokenInDecimals))
+      : result.amountInValue
+  const amountOutValue =
+    pricing.tokenOutPrice != null
+      ? pricing.tokenOutPrice *
+        Number(
+          formatUnits(BigInt(result.amountOut || 0), pricing.tokenOutDecimals)
+        )
+      : result.amountOutValue
+
+  // Impacts only make sense when both sides share the same price source —
+  // with either Reserve price missing, keep the provider's own numbers.
+  const bothPriced =
+    pricing.tokenInPrice != null &&
+    pricing.tokenOutPrice != null &&
+    amountInValue != null &&
+    amountInValue > 0 &&
+    amountOutValue != null
+  const priceImpact = bothPriced
+    ? ((amountInValue - amountOutValue) / amountInValue) * 100
+    : result.priceImpact
+  const truePriceImpact = bothPriced
+    ? ((amountInValue - amountOutValue - (result.dustValue ?? 0)) /
+        amountInValue) *
+      100
+    : result.truePriceImpact
+
+  return {
+    ...result,
+    amountInValue,
+    amountOutValue,
+    priceImpact,
+    truePriceImpact,
+  }
 }
 
 export type FetchQuoteContext = {
@@ -69,6 +123,7 @@ export type FetchQuoteContext = {
    */
   simulate?: SimulateQuote
   rfq?: RfqFetchContext
+  pricing?: QuotePricing
 }
 
 export type FetchQuoteResult = {
@@ -154,7 +209,7 @@ const fetchRfqOne = async (
   })
 
   try {
-    const result = await adapter.fetchQuote({
+    const quote = await adapter.fetchQuote({
       chainId: endpointParams.chainId,
       account: endpointParams.signer,
       tokenIn: endpointParams.tokenIn,
@@ -162,11 +217,18 @@ const fetchRfqOne = async (
       amountIn: endpointParams.amountIn,
       slippage: endpointParams.slippage,
       apiUrl: endpointParams.apiUrl,
-      amountInValue: ctx.rfq.amountInValue,
-      tokenOutPrice: ctx.rfq.tokenOutPrice,
-      tokenOutDecimals: ctx.rfq.tokenOutDecimals,
       readAllowance: ctx.rfq.readAllowance,
     })
+
+    const result = applyReservePricing(
+      {
+        ...quote,
+        validUntil:
+          normalizeValidUntil(quote.validUntil) ??
+          Date.now() + DEFAULT_QUOTE_TTL,
+      },
+      ctx.pricing
+    )
 
     trackIndexDTFQuote({
       account: ctx.analytics.account,
@@ -186,12 +248,7 @@ const fetchRfqOne = async (
 
     return {
       status: 'success',
-      result: {
-        ...result,
-        validUntil:
-          normalizeValidUntil(result.validUntil) ??
-          Date.now() + DEFAULT_QUOTE_TTL,
-      },
+      result,
       source: provider.id,
       endpoint,
     }
@@ -255,6 +312,18 @@ const fetchOne = async (
 
   const data: ZapResponse = await response.json()
 
+  const result = data?.result
+    ? applyReservePricing(
+        {
+          ...data.result,
+          validUntil:
+            normalizeValidUntil(data.result.validUntil ?? data.validUntil) ??
+            Date.now() + DEFAULT_QUOTE_TTL,
+        },
+        ctx.pricing
+      )
+    : data?.result
+
   if (data) {
     trackIndexDTFQuote({
       account: ctx.analytics.account,
@@ -265,10 +334,10 @@ const fetchOne = async (
       type: ctx.analytics.type,
       endpoint,
       status: data.status,
-      amountInValue: data.result?.amountInValue,
-      amountOutValue: data.result?.amountOutValue,
-      dustValue: data.result?.dustValue,
-      truePriceImpact: data.result?.truePriceImpact,
+      amountInValue: result?.amountInValue,
+      amountOutValue: result?.amountOutValue,
+      dustValue: result?.dustValue,
+      truePriceImpact: result?.truePriceImpact,
       source: provider.id,
     })
   }
@@ -279,14 +348,7 @@ const fetchOne = async (
 
   return {
     ...data,
-    result: data.result
-      ? {
-          ...data.result,
-          validUntil:
-            normalizeValidUntil(data.result.validUntil ?? data.validUntil) ??
-            Date.now() + DEFAULT_QUOTE_TTL,
-        }
-      : data.result,
+    result,
     source: provider.id,
     endpoint,
   }

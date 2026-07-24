@@ -65,6 +65,8 @@ const useZapSwapQuery = ({
   type,
   inputValue,
   insufficientBalance,
+  tokenInPrice,
+  tokenInDecimals,
   tokenOutPrice,
   tokenOutDecimals,
 }: {
@@ -78,8 +80,11 @@ const useZapSwapQuery = ({
   type: 'buy' | 'sell'
   inputValue: number
   insufficientBalance: boolean
-  // Client-side USD pricing for the output token — RFQ sources use it to fill
-  // amountOutValue/priceImpact since their APIs don't price in USD.
+  // Reserve prices for both sides of the trade: every quote's USD values and
+  // price impact are computed from these (uniform across sources); the
+  // provider-reported values only remain as fallbacks.
+  tokenInPrice?: number | null
+  tokenInDecimals?: number
   tokenOutPrice?: number | null
   tokenOutDecimals?: number
 }) => {
@@ -204,17 +209,22 @@ const useZapSwapQuery = ({
                 functionName: 'allowance',
                 args: [owner, spender],
               }),
-            amountInValue: inputValue || null,
-            tokenOutPrice: tokenOutPrice ?? null,
-            tokenOutDecimals: tokenOutDecimals ?? null,
           }
         : undefined
+
+      const pricing = {
+        tokenInPrice: tokenInPrice ?? null,
+        tokenInDecimals: tokenInDecimals ?? 18,
+        tokenOutPrice: tokenOutPrice ?? null,
+        tokenOutDecimals: tokenOutDecimals ?? 18,
+      }
 
       const { selected } = await fetchBestZapQuote({
         providers: availableProviders,
         quoteSource,
         simulate,
         rfq,
+        pricing,
         endpointParams: {
           chainId,
           tokenIn,
