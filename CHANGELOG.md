@@ -1,3 +1,9 @@
+## [2.7.3] - 2026-07-24
+
+### Fixed
+
+- The DTF price (and the selected token's price) now refreshes on the same cadence as the quote (`refreshRate`, 9s by default). Both prices were fetched once on mount — the DTF price had no refresh at all and the token price ran on its own 30s timer — so with the widget open the USD value shown for the token being redeemed, and the price impact derived from it, could be computed from a price minutes old while the quote itself kept refreshing. Because both legs are now priced from the same moment, the impact no longer drifts as one side ages.
+
 ## [2.7.1] - 2026-07-24
 
 ### Changed
