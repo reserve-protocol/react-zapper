@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { Address } from 'viem'
 import { Token } from '../types'
-import { apiUrlAtom, refreshRateAtom } from '@/state/atoms'
+import { apiUrlAtom } from '@/state/atoms'
 
 type Response = {
   price: number
@@ -17,7 +17,6 @@ type Response = {
 
 const useIndexPrice = (token: string | undefined, chainId: number) => {
   const api = useAtomValue(apiUrlAtom)
-  const refreshRate = useAtomValue(refreshRateAtom)
   return useQuery({
     queryKey: ['index-price', token, chainId, api],
     queryFn: async (): Promise<Response> => {
@@ -36,10 +35,6 @@ const useIndexPrice = (token: string | undefined, chainId: number) => {
       return (await response.json()) as Response
     },
     enabled: !!token,
-    // The DTF price feeds the redeem input's USD value and the price impact of
-    // every quote, so it refreshes on the same cadence as the quote itself.
-    refetchInterval: refreshRate,
-    staleTime: refreshRate,
   })
 }
 

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'
 import { useAtomValue } from 'jotai'
-import { apiUrlAtom, refreshRateAtom } from '@/state/atoms'
+import { apiUrlAtom } from '@/state/atoms'
 
 /**
  * Hook to fetch price data for a token using Reserve API
@@ -12,7 +12,6 @@ export function usePrice(
   apiUrl?: string
 ): number | null {
   const atomUrl = useAtomValue(apiUrlAtom)
-  const refreshRate = useAtomValue(refreshRateAtom)
   const { data } = useQuery({
     queryKey: ['reserveAPIPrice', chainId, tokenAddress, apiUrl, atomUrl],
     queryFn: async () => {
@@ -42,11 +41,8 @@ export function usePrice(
       }
     },
     enabled: !!chainId && !!tokenAddress,
-    // Both sides of the trade are priced on the quote's own cadence, so the
-    // USD values and the price impact derived from them never mix a fresh
-    // price with a stale one.
-    refetchInterval: refreshRate,
-    staleTime: refreshRate,
+    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 15000, // Consider data stale after 15 seconds
     retry: 2,
   })
 
