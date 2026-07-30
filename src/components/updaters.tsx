@@ -30,6 +30,7 @@ import {
   ScheduleCallConfig,
   Token,
 } from '../types'
+import { PROVIDERS } from '../utils/providers'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
 import {
@@ -223,7 +224,10 @@ const QuoteSourceUpdater = ({
   const setQuoteSource = useSetAtom(quoteSourceAtom)
 
   useEffect(() => {
-    setQuoteSource(defaultSource ?? 'best')
+    // Guard against stale sources from host apps (e.g. a removed provider id)
+    const isValid =
+      defaultSource && (defaultSource === 'best' || defaultSource in PROVIDERS)
+    setQuoteSource(isValid ? defaultSource : 'best')
   }, [defaultSource, setQuoteSource])
 
   return null

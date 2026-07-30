@@ -17,7 +17,7 @@ export interface QuoteData {
   input: QuoteInput
   /** Winning provider quote result. `undefined` until a quote resolves. */
   quote: ZapResult | undefined
-  /** Winning provider id (e.g. `zap`, `odos`). `undefined` until a quote resolves. */
+  /** Winning provider id (e.g. `zap`, `velora`). `undefined` until a quote resolves. */
   source: ProviderId | undefined
 }
 

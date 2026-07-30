@@ -1,3 +1,9 @@
+## [2.8.0] - 2026-07-30
+
+### Removed
+
+- The Odos quote provider. Odos discontinued their API ("Service Ended", HTTP 410), so every Odos request failed and polluted `best`-mode quote races and analytics with dead 410 errors, and explicitly selecting Odos produced a permanent quote error. `ProviderId` and `QuoteSource` no longer include `'odos'`; hosts passing `defaultSource="odos"` get a compile error. At runtime an unknown or stale quote source now falls back to `'best'` instead of erroring, so host apps that persist a removed provider id keep working.
+
 ## [2.7.1] - 2026-07-24
 
 ### Changed

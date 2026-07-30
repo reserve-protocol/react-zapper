@@ -163,7 +163,7 @@ Simple mode features:
 | `showContactInfo`| `boolean`                       | ❌       | Show the "Stay informed" contact-capture panel after a successful mint (defaults to `true`) |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
-| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'odos'`, `'velora'`, or `'enso'` |
+| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'velora'`, or `'enso'` |
 | `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `9000`) |
 | `disabledSettings` | `DisabledSettingsConfig`      | ❌       | Disable individual zap settings (`deepLiquidity`, `forceMint`); disabled options render frozen unchecked and the behavior is forced off |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
@@ -199,7 +199,7 @@ import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zappe
 
 ### Quote Providers
 
-The zapper supports six quote providers: the Reserve-native `zap`, three external aggregators — `odos`, `velora`, and `enso` — and two RFQ/intent venues, `cowswap` and `pcsx` (PancakeSwap X, BSC only). In `best` mode (the default), every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
+The zapper supports five quote providers: the Reserve-native `zap`, two external aggregators — `velora` and `enso` — and two RFQ/intent venues, `cowswap` and `pcsx` (PancakeSwap X, BSC only). In `best` mode (the default), every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
 
 #### RFQ (intent) providers — CoW Swap and PancakeSwap X
 
@@ -226,7 +226,7 @@ Provider availability per chain is controlled by the `PROVIDER_ENABLED` matrix e
 import { PROVIDER_ENABLED } from '@reserve-protocol/react-zapper'
 
 // To disable a provider on a specific chain, set it to false:
-PROVIDER_ENABLED[56 /* BSC */].odos = false
+PROVIDER_ENABLED[56 /* BSC */].velora = false
 ```
 
 Note: as of v1.7.0 `PROVIDER_ENABLED` is a mutable module-level object — mutate it once at app startup (before the `<Zapper>` component renders a quote). A runtime prop-based configuration may be added in a later release.
