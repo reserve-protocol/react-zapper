@@ -2,7 +2,6 @@ import type { ComponentType } from 'react'
 import { Zap } from 'lucide-react'
 import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
-import OdosIcon from '../components/icons/odos'
 import PancakeSwapIcon from '../components/icons/pancakeswap'
 import VeloraIcon from '../components/icons/velora'
 import zapper, { ZapPayload } from '../types/api'
@@ -11,7 +10,7 @@ import { pcsxAdapter } from './rfq/pcsx'
 import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
 
-export type ProviderId = 'zap' | 'odos' | 'velora' | 'enso' | 'cowswap' | 'pcsx'
+export type ProviderId = 'zap' | 'velora' | 'enso' | 'cowswap' | 'pcsx'
 
 export type ProviderKind = 'native' | 'aggregator' | 'rfq'
 
@@ -29,7 +28,7 @@ export interface ProviderConfig {
   Icon: IconComponent
   /**
    * URL slug used by the reserve-api for aggregator providers
-   * (e.g. `odos` => `{apiUrl}odos/swap`). Undefined for the native zap provider.
+   * (e.g. `velora` => `{apiUrl}velora/swap`). Undefined for the native zap provider.
    */
   apiSlug?: string
   /**
@@ -49,8 +48,8 @@ export interface ProviderConfig {
  * Per-chain × per-provider enablement matrix.
  *
  * Flip a boolean to `false` to disable a source on a specific chain — e.g. if
- * Odos consistently underperforms on BSC we can set
- * `PROVIDER_ENABLED[ChainId.BSC].odos = false` and the zapper will skip it
+ * Velora consistently underperforms on BSC we can set
+ * `PROVIDER_ENABLED[ChainId.BSC].velora = false` and the zapper will skip it
  * automatically (both in `best` mode and as an option in the settings UI).
  */
 export const PROVIDER_ENABLED: Partial<
@@ -58,7 +57,6 @@ export const PROVIDER_ENABLED: Partial<
 > = {
   [ChainId.Mainnet]: {
     zap: true,
-    odos: true,
     velora: true,
     enso: true,
     cowswap: true,
@@ -66,7 +64,6 @@ export const PROVIDER_ENABLED: Partial<
   },
   [ChainId.Base]: {
     zap: true,
-    odos: true,
     velora: true,
     enso: true,
     cowswap: true,
@@ -74,7 +71,6 @@ export const PROVIDER_ENABLED: Partial<
   },
   [ChainId.Arbitrum]: {
     zap: true,
-    odos: true,
     velora: true,
     enso: true,
     cowswap: true,
@@ -83,7 +79,6 @@ export const PROVIDER_ENABLED: Partial<
   // PCSX only prices BSC pairs (and only those including an RWA-program token)
   [ChainId.BSC]: {
     zap: true,
-    odos: true,
     velora: true,
     enso: true,
     cowswap: true,
@@ -127,14 +122,6 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     Icon: Zap,
     buildEndpoint: buildZapEndpoint,
   },
-  odos: {
-    id: 'odos',
-    label: 'Odos',
-    kind: 'aggregator',
-    apiSlug: 'odos',
-    Icon: OdosIcon,
-    buildEndpoint: buildAggregatorEndpoint('odos'),
-  },
   velora: {
     id: 'velora',
     label: 'Velora',
@@ -171,7 +158,6 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 
 export const ALL_PROVIDER_IDS: ProviderId[] = [
   'zap',
-  'odos',
   'velora',
   'enso',
   'cowswap',

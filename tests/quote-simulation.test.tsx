@@ -48,7 +48,7 @@ describe('pre-selection quote simulation (best mode)', () => {
   beforeEach(async () => {
     await harnessBeforeEach()
     // reduce the pool to two providers so the fetch mock stays simple
-    PROVIDER_ENABLED[1] = { zap: true, odos: false, velora: false, enso: true }
+    PROVIDER_ENABLED[1] = { zap: true, velora: false, enso: true }
     providerQuotes()
   })
 

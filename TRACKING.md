@@ -19,7 +19,7 @@ The library tracks 5 main event types with the following distribution:
 2. **`Quote Source Winner`** - 4 events
 
    - `reason: 'only_zap_available'` - Only Zap provided valid quote
-   - `reason: 'only_odos_available'` - Only Odos provided valid quote
+   - `reason: 'only_aggregator_available'` - Only an aggregator provided valid quote
    - `reason: 'better_output'` - Winner had better minAmountOut
    - `reason: 'tie_prefer_zap'` - Equal outputs, Zap selected
 
@@ -60,7 +60,7 @@ Main event for tracking swap/zap operations.
   - `'user_tx_error'`: Transaction execution error on blockchain
 - `tokenIn`: Input token address
 - `tokenOut`: Output token address
-- `source`: 'zap' | 'odos'
+- `source`: winning provider id (e.g. 'zap', 'velora')
 - `error`: HTTP error code (only when status='error')
 - `userError`: Error message (only when status='user_error' or 'user_tx_error')
 - `amountInValue`: Input amount (when result available)
@@ -77,14 +77,14 @@ Main event for tracking swap/zap operations.
 
 ### 2. `Quote Source Winner` (4 total)
 
-Tracks which quote source (Zap or Odos) provided the best quote.
+Tracks which quote source (Zap or an aggregator) provided the best quote.
 
 #### Properties:
 
-- `source`: 'zap' | 'odos'
+- `source`: winning provider id (e.g. 'zap', 'velora')
 - `reason`: Why this source was selected (4 possible reasons)
-  - `'only_zap_available'`: Only Zap returned a valid quote (Odos failed or unavailable)
-  - `'only_odos_available'`: Only Odos returned a valid quote (Zap failed or unavailable)
+  - `'only_zap_available'`: Only Zap returned a valid quote (aggregators failed or unavailable)
+  - `'only_aggregator_available'`: Only an aggregator returned a valid quote (Zap failed or unavailable)
   - `'better_output'`: This source provided a better minAmountOut value
   - `'tie_prefer_zap'`: Both sources returned identical output amounts, Zap selected as default
 - `tokenIn`: Input token address
@@ -93,11 +93,11 @@ Tracks which quote source (Zap or Odos) provided the best quote.
 - `chainId`: Chain ID
 - `type`: 'buy' | 'sell'
 - `zapMinAmountOut`: Zap's minimum output amount (when both available)
-- `odosMinAmountOut`: Odos's minimum output amount (when both available)
+- `aggregatorMinAmountOut`: The aggregator's minimum output amount (when both available)
 
 #### When Emitted:
 
-- In `selectBestQuote()` when choosing between Zap and Odos quotes
+- In `selectBestQuote()` when choosing between provider quotes
 - Only emitted when `quoteSource` is set to 'best'
 
 ### 3. `transaction` (2 total)
@@ -132,7 +132,7 @@ Tracks important user notifications and alerts.
 - `chain`: Chain ID
 - `input`: Input token symbol
 - `output`: Output token symbol
-- `source`: 'zap' | 'odos' (optional)
+- `source`: provider id (optional)
 
 #### When Emitted:
 
@@ -157,7 +157,7 @@ Generic click tracking event for UI interactions.
 - `chain`: Chain ID
 - `input`: Input token symbol (for zap-related clicks)
 - `output`: Output token symbol (for zap-related clicks)
-- `source`: 'zap' | 'odos' (optional, for zap-related clicks)
+- `source`: provider id (optional, for zap-related clicks)
 
 #### When Emitted:
 
@@ -204,7 +204,7 @@ These properties are registered globally using `mixpanelRegister()` and automati
 ### Source
 
 - **Property**: `source`
-- **Values**: 'zap' | 'odos'
+- **Values**: provider id (e.g. 'zap', 'velora', 'enso')
 - **Generation Triggers**:
   - When calling and waiting for the response from each API source
   - When a quote source is selected as winner

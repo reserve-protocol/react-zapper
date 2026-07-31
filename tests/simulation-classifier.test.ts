@@ -89,17 +89,17 @@ describe('filterQuotesBySimulation', () => {
   it('splits reverting quotes from passing ones, preserving order', async () => {
     const quotes = [
       simulatable('zap', '0xaa'),
-      simulatable('odos', '0xbb'),
+      simulatable('velora', '0xbb'),
       simulatable('enso', '0xcc'),
     ]
     const { kept, filtered } = await filterQuotesBySimulation(
       quotes,
       async (q) => {
-        if (q.source === 'odos') throw estimateError(3, 'execution reverted')
+        if (q.source === 'velora') throw estimateError(3, 'execution reverted')
       }
     )
     expect(kept.map((q) => q.source)).toEqual(['zap', 'enso'])
-    expect(filtered.map((f) => f.quote.source)).toEqual(['odos'])
+    expect(filtered.map((f) => f.quote.source)).toEqual(['velora'])
   })
 
   it('keeps quotes that fail for infra reasons', async () => {
@@ -118,7 +118,7 @@ describe('filterQuotesBySimulation', () => {
     const { kept, filtered } = await filterQuotesBySimulation(
       [
         quote('zap', { approvalNeeded: true, tx: { data: '0xaa', to: '0x1', value: '0' } }),
-        quote('odos', { approvalNeeded: false, tx: null }),
+        quote('velora', { approvalNeeded: false, tx: null }),
         quote('enso', undefined),
       ],
       async () => {
