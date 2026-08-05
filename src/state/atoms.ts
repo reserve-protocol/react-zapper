@@ -102,9 +102,10 @@ export const indexDTFIconsAtom = atom<Record<number, Record<string, string>>>(
 )
 
 /**
- * Quote source preference atom - controls which quote source to use
- * 'best' = automatic selection based on minAmountOut across all enabled providers
- * Otherwise, a specific provider id to force a single source.
+ * Restricts which providers are fetched. Internal/test-only since the quote
+ * list shipped: production always fetches every enabled provider ('best') and
+ * the user picks from the list (`pickedSourceAtom`); the test harness still
+ * sets this to shrink the candidate pool to a single provider.
  */
 export type QuoteSource = 'best' | ProviderId
 export const quoteSourceAtom = atom<QuoteSource>('best')

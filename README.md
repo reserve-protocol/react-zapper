@@ -163,7 +163,7 @@ Simple mode features:
 | `showContactInfo`| `boolean`                       | ❌       | Show the "Stay informed" contact-capture panel after a successful mint (defaults to `true`) |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
-| `defaultSource`  | `QuoteSource`                   | ❌       | Default quote source: `'best'` (compare all enabled providers), `'zap'`, `'velora'`, or `'enso'` |
+| `defaultSource`  | `QuoteSource`                   | ❌       | Initial selection in the quote list. All enabled providers are always fetched; a provider id pre-selects that route, `'best'` (default) follows the best quote automatically |
 | `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `9000`) |
 | `disabledSettings` | `DisabledSettingsConfig`      | ❌       | Disable individual zap settings (`deepLiquidity`, `forceMint`); disabled options render frozen unchecked and the behavior is forced off |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
@@ -199,7 +199,13 @@ import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zappe
 
 ### Quote Providers
 
-The zapper supports five quote providers: the Reserve-native `zap`, two external aggregators — `velora` and `enso` — and two RFQ/intent venues, `cowswap` and `pcsx` (PancakeSwap X, BSC only). In `best` mode (the default), every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
+The zapper supports five quote providers: the Reserve-native `zap`, two external aggregators — `velora` and `enso` — and two RFQ/intent venues, `cowswap` and `pcsx` (PancakeSwap X, BSC only). Every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
+
+#### Route list
+
+All quotes are shown in a route list under the swap panel (modal and inline modes), streaming in as each provider responds and sorted best→worst once the comparison round settles. The best route is selected automatically; the user can pick any other route, and the pick is sticky across the auto-refresh cycles — if the picked provider fails or its quote expires, the widget falls back to the best route until the pick recovers. Each quote shows an expiry countdown; failed providers are hidden from the list (they reappear when they produce a quote again). Picking resets to automatic when the amount, token, or other swap settings change.
+
+Quotes refresh on the global interval (`refreshRate`, 9s by default) **and** whenever the earliest displayed quote expires — the API may cache a provider's quote until its `validUntil` (e.g. enso), so the widget refetches right after expiry instead of leaving a dead quote on screen until the next tick.
 
 #### RFQ (intent) providers — CoW Swap and PancakeSwap X
 
@@ -293,8 +299,8 @@ The returned `data` (type `QuoteData`, `undefined` when no flow is active):
     amount: string // human-readable amount the user typed
     value: number  // USD value of the input
   }
-  quote: ZapResult | undefined  // winning quote result, once it resolves
-  source: ProviderId | undefined // winning provider id, once it resolves
+  quote: ZapResult | undefined  // active quote (user's pick or best), once it resolves
+  source: ProviderId | undefined // active provider id, once it resolves
 }
 ```
 

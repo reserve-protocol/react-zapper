@@ -1,22 +1,9 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtom, useAtomValue } from 'jotai'
-import { Anvil, Route, Search } from 'lucide-react'
-import {
-  chainIdAtom,
-  deepLiquidityAtom,
-  quoteSourceAtom,
-  type QuoteSource,
-} from '../../state/atoms'
-import { getEnabledProviders } from '../../utils/providers'
+import { Anvil, Search } from 'lucide-react'
+import { deepLiquidityAtom } from '../../state/atoms'
 import { Checkbox } from '../ui/checkbox'
 import Help from '../ui/help'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select'
 import { SlippageSelector } from '../ui/swap'
 import { disabledSettingsAtom, forceMintAtom, slippageAtom } from './atom'
 
@@ -35,10 +22,8 @@ const ZapSettingsRowTitle = ({
 
 const ZapSettings = () => {
   const { t } = useLingui()
-  const chainId = useAtomValue(chainIdAtom)
   const [slippage, setSlippage] = useAtom(slippageAtom)
   const [forceMint, setForceMint] = useAtom(forceMintAtom)
-  const [quoteSource, setQuoteSource] = useAtom(quoteSourceAtom)
   const [deepLiquidity, setDeepLiquidity] = useAtom(deepLiquidityAtom)
   const disabledSettings = useAtomValue(disabledSettingsAtom)
 
@@ -51,46 +36,13 @@ const ZapSettings = () => {
     setForceMint(newValue)
   }
 
-  const handleQuoteSourceChange = (value: QuoteSource) => {
-    setQuoteSource(value)
-  }
-
   const handleDeepLiquidityChange = (value: boolean | 'indeterminate') => {
     const newValue = value === 'indeterminate' ? false : value
     setDeepLiquidity(newValue)
   }
 
-  const enabledProviders = getEnabledProviders(chainId)
-
   return (
     <div className="min-h-[306px] border-t border-border -mx-2 px-2 py-4 flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <ZapSettingsRowTitle
-          title={t`Quote Source`}
-          help={t`Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source.`}
-        />
-        <Select value={quoteSource} onValueChange={handleQuoteSourceChange}>
-          <SelectTrigger className="w-full bg-transparent rounded-xl border-border h-auto py-3 text-base">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="best" className="text-base">
-              <div className="flex items-center gap-2">
-                <Route size={14} />
-                <span><Trans>Best Quote</Trans></span>
-              </div>
-            </SelectItem>
-            {enabledProviders.map(({ id, label, Icon }) => (
-              <SelectItem key={id} value={id} className="text-base">
-                <div className="flex items-center gap-2">
-                  <Icon size={14} />
-                  <span>{label}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       <div className="flex flex-col gap-2">
         <ZapSettingsRowTitle
           title={t`Max. mint slippage`}

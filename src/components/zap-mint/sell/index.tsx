@@ -13,6 +13,7 @@ import {
   tokenSelectorLoadingAtom,
   walletAtom,
 } from '../../../state/atoms'
+import { resetQuoteListAtom } from '../../../state/quote-list-atoms'
 import { Token } from '../../../types'
 import {
   formatCurrency,
@@ -37,6 +38,7 @@ import {
   zapRefetchAtom,
 } from '../atom'
 import { Debug } from '../debug/debug'
+import QuoteList from '../quote-list'
 import SubmitZap from '../submit-zap'
 import ZapDetails, { ZapPriceImpact } from '../zap-details'
 
@@ -70,6 +72,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const setZapRefetch = useSetAtom(zapRefetchAtom)
   const setZapFetching = useSetAtom(zapFetchingAtom)
   const setZapQuoteState = useSetAtom(zapQuoteStateAtom)
+  const resetQuoteList = useSetAtom(resetQuoteListAtom)
   const setCurrentTab = useSetAtom(zapperCurrentTabAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
   const inputValue = (indexDTFPrice || 0) * Number(inputAmount)
@@ -81,7 +84,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
 
   const insufficientBalance = parseEther(inputAmount) > indexDTFBalance
 
-  const { data, isLoading, isFetching, refetch, failureReason } =
+  const { data, isLoading, isFetching, refetch, failureReason, roundData } =
     useZapSwapQuery({
       tokenIn: indexDTF?.id,
       tokenOut: selectedToken.address,
@@ -109,7 +112,9 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     zapError: zapperErrorMessage,
   })
 
-  const { loadingAfterRefetch } = useLoadingAfterRefetch(data)
+  // Keyed to the round result so a user pick (new active quote, same round)
+  // doesn't flash the output loader.
+  const { loadingAfterRefetch } = useLoadingAfterRefetch(roundData)
 
   const priceFrom = data?.result?.amountInValue
   const priceTo = data?.result?.amountOutValue
@@ -130,6 +135,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     setOutputToken(tokens[0])
     setInputAmount('')
     resetTempRegistrations()
+    resetQuoteList()
   }
 
   useEffect(() => {
@@ -175,9 +181,11 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   ])
 
   useEffect(
-    () => () =>
-      setZapQuoteState({ data: undefined, loading: false, error: undefined }),
-    [setZapQuoteState]
+    () => () => {
+      setZapQuoteState({ data: undefined, loading: false, error: undefined })
+      resetQuoteList()
+    },
+    [setZapQuoteState, resetQuoteList]
   )
 
   useEffect(() => {
@@ -241,9 +249,8 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
         loading={isLoading || loadingAfterRefetch}
         disabled={disabled || ongoingTx}
       />
-      {mode !== 'simple' && !!data?.result && (
-        <ZapDetails data={data.result} source={data.source} />
-      )}
+      {mode !== 'simple' && <QuoteList />}
+      {mode !== 'simple' && !!data?.result && <ZapDetails data={data.result} />}
       <SubmitZap
         data={data?.result}
         source={data?.source}

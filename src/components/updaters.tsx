@@ -19,18 +19,18 @@ import {
   indexDTFBrandAtom,
   indexDTFIconsAtom,
   QuoteSource,
-  quoteSourceAtom,
   refreshRateAtom,
   walletAtom,
   zapperApiUrlAtom,
 } from '../state/atoms'
+import { pickedSourceAtom } from '../state/quote-list-atoms'
 import {
   DEFAULT_API_URL,
   DisabledSettingsConfig,
   ScheduleCallConfig,
   Token,
 } from '../types'
-import { PROVIDERS } from '../utils/providers'
+import { PROVIDERS, type ProviderId } from '../utils/providers'
 import TokenBalancesUpdater from './updaters/token-balances-updater'
 import SessionTracker from './updaters/session-tracker'
 import {
@@ -221,14 +221,15 @@ const QuoteSourceUpdater = ({
 }: {
   defaultSource?: QuoteSource
 }) => {
-  const setQuoteSource = useSetAtom(quoteSourceAtom)
+  const setPickedSource = useSetAtom(pickedSourceAtom)
 
   useEffect(() => {
-    // Guard against stale sources from host apps (e.g. a removed provider id)
+    // Seeds the quote list's initial pick. All providers are always fetched;
+    // 'best' (or a stale id from a host app) means auto-follow the winner.
     const isValid =
-      defaultSource && (defaultSource === 'best' || defaultSource in PROVIDERS)
-    setQuoteSource(isValid ? defaultSource : 'best')
-  }, [defaultSource, setQuoteSource])
+      defaultSource && defaultSource !== 'best' && defaultSource in PROVIDERS
+    setPickedSource(isValid ? (defaultSource as ProviderId) : null)
+  }, [defaultSource, setPickedSource])
 
   return null
 }

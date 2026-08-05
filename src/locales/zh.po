@@ -14,8 +14,8 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
-#: src/components/zap-mint/buy/index.tsx:226
-#: src/components/zap-mint/sell/index.tsx:227
+#: src/components/zap-mint/buy/index.tsx:236
+#: src/components/zap-mint/sell/index.tsx:237
 msgid " + ${0} in dust "
 msgstr " + ${0} 碎屑 "
 
@@ -23,7 +23,7 @@ msgstr " + ${0} 碎屑 "
 msgid "A direct line to the team"
 msgstr "与团队直接联系"
 
-#: src/components/zap-mint/submit-zap.tsx:574
+#: src/components/zap-mint/submit-zap.tsx:623
 msgid "Approve use of {inputSymbol}"
 msgstr "授权使用 {inputSymbol}"
 
@@ -35,20 +35,24 @@ msgstr "正在组合不同路由"
 msgid "Balance"
 msgstr "余额"
 
+#: src/components/zap-mint/quote-list.tsx:175
+msgid "Best"
+msgstr "最优"
+
 #: src/components/zap-mint/zap-settings.tsx:80
-msgid "Best Quote"
-msgstr "最优报价"
+#~ msgid "Best Quote"
+#~ msgstr "最优报价"
 
 #: src/components/zapper.tsx:159
 msgid "Buy"
 msgstr "买入"
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/buy/index.tsx:244
+#: src/components/zap-mint/buy/index.tsx:253
 msgid "Buy {0}"
 msgstr "购买 {0}"
 
-#: src/components/zap-mint/zap-settings.tsx:110
+#: src/components/zap-mint/zap-settings.tsx:62
 msgid "Can improve price impact but it will take more time to get quotes."
 msgstr "可以改善价格影响，但获取报价会花费更长时间。"
 
@@ -84,7 +88,7 @@ msgstr "复制到剪贴板"
 msgid "Custom"
 msgstr "自定义"
 
-#: src/components/zap-mint/zap-settings.tsx:115
+#: src/components/zap-mint/zap-settings.tsx:67
 msgid "Deep liquidity search"
 msgstr "深度流动性搜索"
 
@@ -100,7 +104,7 @@ msgstr "在高波动期间，可能需要多次尝试才能找到定价合理的
 #~ msgid "Email"
 #~ msgstr "Email"
 
-#: src/components/zap-mint/zap-settings.tsx:109
+#: src/components/zap-mint/zap-settings.tsx:61
 msgid "Enable Deep liquidity search?"
 msgstr "启用深度流动性搜索？"
 
@@ -112,23 +116,37 @@ msgstr "输入你的电子邮件"
 msgid "Evaluating slippage"
 msgstr "正在评估滑点"
 
-#: src/components/zap-mint/zap-details.tsx:138
+#: src/components/zap-mint/zap-details.tsx:115
 msgid "Exchange Rate"
 msgstr "兑换率"
+
+#: src/components/zap-mint/quote-list.tsx:165
+msgid "Expired"
+msgstr "已过期"
+
+#: src/components/zap-mint/quote-list.tsx:167
+msgid "Expires in {countdown}"
+msgstr "{countdown}后过期"
+
+#: src/components/zap-mint/quote-list.tsx:128
+#: src/components/zap-mint/quote-list.tsx:139
+#: src/components/zap-mint/quote-list.tsx:204
+#~ msgid "Failed"
+#~ msgstr "失败"
 
 #: src/components/zap-mint/zap-error-msg.tsx:134
 msgid "Failed to send. Try again."
 msgstr "发送失败。请重试。"
 
-#: src/components/zap-mint/submit-zap.tsx:566
+#: src/components/zap-mint/submit-zap.tsx:615
 msgid "Fetching quote..."
 msgstr "正在获取报价..."
 
-#: src/components/zap-mint/zap-settings.tsx:127
+#: src/components/zap-mint/zap-settings.tsx:79
 msgid "Force DTF mint?"
 msgstr "强制 Mint DTF？"
 
-#: src/components/zap-mint/zap-settings.tsx:133
+#: src/components/zap-mint/zap-settings.tsx:85
 msgid "Force minting DTF"
 msgstr "强制 Mint DTF"
 
@@ -136,7 +154,7 @@ msgstr "强制 Mint DTF"
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "获取可能影响此 DTF 的相关变更通知。"
 
-#: src/components/zap-mint/submit-zap.tsx:80
+#: src/components/zap-mint/submit-zap.tsx:90
 msgid "Get started"
 msgstr "开始"
 
@@ -163,7 +181,7 @@ msgstr "碎屑价值较高：${0}（占输出价值的 {1}）"
 msgid "High price impact: {0}"
 msgstr "价格影响较高：{0}"
 
-#: src/components/zap-mint/submit-zap.tsx:104
+#: src/components/zap-mint/submit-zap.tsx:114
 msgid "Insufficient balance"
 msgstr "余额不足"
 
@@ -175,8 +193,8 @@ msgstr "Gas 余额不足"
 msgid "Loading DTF"
 msgstr "正在加载 DTF"
 
-#: src/components/zap-mint/submit-zap.tsx:80
-#: src/components/zap-mint/submit-zap.tsx:102
+#: src/components/zap-mint/submit-zap.tsx:90
+#: src/components/zap-mint/submit-zap.tsx:112
 msgid "Loading..."
 msgstr "加载中..."
 
@@ -188,7 +206,7 @@ msgstr "最大"
 msgid "Max slippage"
 msgstr "最大滑点"
 
-#: src/components/zap-mint/zap-settings.tsx:96
+#: src/components/zap-mint/zap-settings.tsx:48
 msgid "Max. mint slippage"
 msgstr "最大 Mint 滑点"
 
@@ -196,9 +214,13 @@ msgstr "最大 Mint 滑点"
 msgid "Methodology or mandate updates"
 msgstr "方法论或授权的更新"
 
-#: src/components/zap-mint/zap-details.tsx:174
+#: src/components/zap-mint/zap-details.tsx:151
 msgid "Min Amount Out"
 msgstr "最小输出数量"
+
+#: src/components/zap-mint/quote-list.tsx:142
+#~ msgid "No route available from this provider right now."
+#~ msgstr "该提供商目前没有可用路由。"
 
 #: src/components/zap-mint/zap-success-view.tsx:276
 #~ msgid "No thanks"
@@ -216,21 +238,21 @@ msgstr "请报告此问题以帮助我们改进"
 msgid "Please try refreshing, or switch to manual minting."
 msgstr "请尝试刷新，或切换到手动 Mint。"
 
-#: src/components/zap-mint/zap-details.tsx:163
+#: src/components/zap-mint/zap-details.tsx:140
 msgid "Price Impact"
 msgstr "价格影响"
 
-#: src/components/zap-mint/submit-zap.tsx:564
+#: src/components/zap-mint/submit-zap.tsx:613
 msgid "Quote expired"
 msgstr "报价已过期"
 
-#: src/components/zap-mint/zap-details.tsx:105
+#: src/components/zap-mint/zap-details.tsx:98
 msgid "Quote includes fees"
 msgstr "报价包含费用"
 
 #: src/components/zap-mint/zap-settings.tsx:69
-msgid "Quote Source"
-msgstr "报价来源"
+#~ msgid "Quote Source"
+#~ msgstr "报价来源"
 
 #: src/components/zap-mint/zap-success-view.tsx:138
 msgid "Received:"
@@ -252,6 +274,14 @@ msgstr "报告"
 msgid "Reported"
 msgstr "已报告"
 
+#: src/components/zap-mint/quote-list.tsx:262
+msgid "Route options"
+msgstr "路由选项"
+
+#: src/components/zap-mint/quote-list.tsx:253
+msgid "Routes"
+msgstr "路由"
+
 #: src/components/zap-mint/zap-success-view.tsx:216
 msgid "Schedule an intro call"
 msgstr "预约介绍通话"
@@ -261,15 +291,15 @@ msgid "Searching DEX Liquidity"
 msgstr "正在搜索 DEX 流动性"
 
 #: src/components/zap-mint/zap-settings.tsx:70
-msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
-msgstr "选择要使用的报价提供方。'Best' 会自动比较所有已启用的提供方并选择输出最高的。选择特定提供方则强制使用单一来源。"
+#~ msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
+#~ msgstr "选择要使用的报价提供方。'Best' 会自动比较所有已启用的提供方并选择输出最高的。选择特定提供方则强制使用单一来源。"
 
 #: src/components/zapper.tsx:162
 msgid "Sell"
 msgstr "卖出"
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/sell/index.tsx:249
+#: src/components/zap-mint/sell/index.tsx:258
 msgid "Sell {0}"
 msgstr "卖出 {0}"
 
@@ -285,7 +315,7 @@ msgstr "正在发送……"
 msgid "Show details"
 msgstr "显示详情"
 
-#: src/components/zap-mint/submit-zap.tsx:568
+#: src/components/zap-mint/submit-zap.tsx:617
 msgid "Simulation failed - Refetching quote"
 msgstr "模拟失败 - 正在重新获取报价"
 
@@ -309,11 +339,11 @@ msgstr "抱歉，我们暂时难以为你找到合适的路径。请稍后重试
 msgid "Stay informed about this DTF"
 msgstr "关注此 DTF 的动态"
 
-#: src/components/zap-mint/submit-zap.tsx:574
+#: src/components/zap-mint/submit-zap.tsx:623
 msgid "Step 1. "
 msgstr "步骤 1. "
 
-#: src/components/zap-mint/submit-zap.tsx:573
+#: src/components/zap-mint/submit-zap.tsx:622
 msgid "Step 2. "
 msgstr "步骤 2. "
 
@@ -345,23 +375,23 @@ msgstr "切换到 {chainName}"
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "感谢您的参与，我们很高兴有您加入！我们会就此 DTF 的任何重要更新与您联系。"
 
-#: src/components/zap-mint/zap-details.tsx:142
+#: src/components/zap-mint/zap-details.tsx:119
 msgid "The current exchange rate between the tokens."
 msgstr "代币之间的当前兑换率。"
 
-#: src/components/zap-mint/zap-details.tsx:109
+#: src/components/zap-mint/zap-details.tsx:102
 msgid "The displayed quote already includes all applicable fees and price impact."
 msgstr "显示的报价已包含所有适用费用和价格影响。"
 
-#: src/components/zap-mint/zap-details.tsx:167
+#: src/components/zap-mint/zap-details.tsx:144
 msgid "The impact your trade has on the market price."
 msgstr "你的交易对市场价格的影响。"
 
-#: src/components/zap-mint/zap-settings.tsx:97
+#: src/components/zap-mint/zap-settings.tsx:49
 msgid "The maximum amount of slippage you are willing to accept when minting. Higher slippage settings will make the transaction more likely to succeed, but may result in fewer tokens minted."
 msgstr "Mint 时你愿意接受的最大滑点。更高的滑点设置会使交易更有可能成功，但可能导致 Mint 出的代币更少。"
 
-#: src/components/zap-mint/zap-details.tsx:182
+#: src/components/zap-mint/zap-details.tsx:159
 msgid "The minimum amount of tokens you will receive."
 msgstr "你将收到的最少代币数量。"
 
@@ -373,9 +403,14 @@ msgstr "此交易的价格影响非常高。你获得的价值将远低于预期
 msgid "This DTF contains assets with relatively low DEX liquidity"
 msgstr "此 DTF 包含 DEX 流动性相对较低的资产"
 
-#: src/components/zap-mint/zap-settings.tsx:128
+#: src/components/zap-mint/zap-settings.tsx:80
 msgid "This is useful if you want to mint the DTF without trading."
 msgstr "如果你想在不进行交易的情况下 Mint 该 DTF，这会很有用。"
+
+#: src/components/zap-mint/quote-list.tsx:131
+#: src/components/zap-mint/quote-list.tsx:207
+#~ msgid "This route reverted in our transaction simulation."
+#~ msgstr "该路由在交易模拟中执行失败。"
 
 #. placeholder {0}: formatPercentage(Math.abs(dustPercentage))
 #: src/components/zap-mint/zap-dust-warning-checkbox.tsx:56
@@ -399,8 +434,8 @@ msgid "Used:"
 msgstr "已使用："
 
 #: src/components/zap-mint/zap-details.tsx:125
-msgid "Via"
-msgstr "通过"
+#~ msgid "Via"
+#~ msgstr "通过"
 
 #: src/components/zap-mint/zap-success-view.tsx:184
 msgid "View order"
@@ -410,7 +445,7 @@ msgstr "查看订单"
 msgid "Wait and try again or consider using manual mode"
 msgstr "请稍候重试，或考虑使用手动模式"
 
-#: src/components/zap-mint/submit-zap.tsx:570
+#: src/components/zap-mint/submit-zap.tsx:619
 msgid "Waiting for order to fill..."
 msgstr "等待订单成交..."
 

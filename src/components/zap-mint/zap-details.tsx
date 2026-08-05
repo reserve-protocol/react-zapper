@@ -9,7 +9,6 @@ import {
   formatPercentage,
   formatTokenAmount,
 } from '../../utils'
-import { PROVIDERS, type ProviderId } from '../../utils/providers'
 import Help from '../ui/help'
 import { SwapDetails } from '../ui/swap'
 import { selectedTokenOrDefaultAtom } from './atom'
@@ -45,13 +44,7 @@ export const ZapPriceImpact = ({
   )
 }
 
-const ZapDetails = ({
-  data,
-  source,
-}: {
-  data: ZapResult
-  source?: ProviderId
-}) => {
+const ZapDetails = ({ data }: { data: ZapResult }) => {
   const indexDTF = useAtomValue(indexDTFAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const dtfAsTokenIn =
@@ -114,22 +107,6 @@ const ZapDetails = ({
             />
           </div>
         ),
-        right: source
-          ? (() => {
-              const provider = PROVIDERS[source]
-              if (!provider) return undefined
-              const { Icon, label } = provider
-              return (
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">
-                    <Trans>Via</Trans>
-                  </span>
-                  <Icon size={14} />
-                  <span>{label}</span>
-                </div>
-              )
-            })()
-          : undefined,
       }}
       details={[
         {

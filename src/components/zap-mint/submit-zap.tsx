@@ -1,5 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Address, erc20Abi, formatUnits, Hex } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -16,11 +17,16 @@ import useRfqOrderExecution, {
 } from '../../hooks/use-rfq-order-execution'
 import { classifyEstimateGasError } from '../../hooks/zap-quote-simulation'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
-import { walletAtom } from '../../state/atoms'
+import { indexDTFAtom, walletAtom } from '../../state/atoms'
+import {
+  pickedSourceAtom,
+  quoteListAtom,
+} from '../../state/quote-list-atoms'
 import { ZapResult } from '../../types/api'
 import type { ProviderId } from '../../utils/providers'
 import { getReceivedAmount } from '../../utils/receipt'
 import {
+  trackQuoteSourcePicked,
   useTrackIndexDTFZap,
   useTrackIndexDTFZapClick,
   useTrackIndexDTFZapError,
@@ -124,6 +130,7 @@ const SubmitZapButton = ({
     amountIn,
     amountInValue,
     amountOut,
+    minAmountOut,
     tx,
     gas,
     truePriceImpact,
@@ -379,6 +386,35 @@ const SubmitZapButton = ({
     secondsLeft > 0 &&
     secondsLeft <= 5
 
+  // Reads the quote-list atoms lazily at click time (no subscription — the
+  // CTA must not re-render on list ticks) to record picked-vs-best.
+  const trackSourcePicked = useAtomCallback(
+    useCallback(
+      (get) => {
+        if (!source) return
+        const { rows, bestSource } = get(quoteListAtom)
+        const picked = get(pickedSourceAtom)
+        const dtf = get(indexDTFAtom)
+        trackQuoteSourcePicked({
+          source,
+          bestSource,
+          picked: picked != null,
+          minAmountOut,
+          bestMinAmountOut: bestSource
+            ? rows[bestSource]?.quote?.result?.minAmountOut
+            : undefined,
+          account,
+          tokenIn,
+          tokenOut,
+          dtfTicker: dtf?.token.symbol ?? '',
+          chainId,
+          type: currentTab,
+        })
+      },
+      [source, minAmountOut, account, tokenIn, tokenOut, chainId, currentTab]
+    )
+  )
+
   const execute = useCallback(() => {
     if (!readyToSubmit) return
     // an expired quote is a guaranteed revert (or an unfillable order) —
@@ -389,11 +425,13 @@ const SubmitZapButton = ({
       return
     }
     if (rfq) {
+      trackSourcePicked()
       setInputAmountCached(inputAmount)
       rfqExecute()
       return
     }
     if (!tx) return
+    trackSourcePicked()
     setInputAmountCached(inputAmount)
     sendTransaction({
       data: tx.data as Hex,
@@ -415,6 +453,7 @@ const SubmitZapButton = ({
     sendTransaction,
     gasLimit,
     chainId,
+    trackSourcePicked,
   ])
 
   const rfqError = rfqOrder.error ?? undefined

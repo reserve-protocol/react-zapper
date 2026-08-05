@@ -49,6 +49,53 @@ export const resetTempRegistrations = () => {
   mixpanelRegister('retryId', undefined)
   mixpanelRegister('source', undefined)
   mixpanelRegister('sourceId', undefined)
+  mixpanelRegister('bestSource', undefined)
+}
+
+/**
+ * Fired on every effective submit (tx sent or RFQ order signed), recording
+ * the source actually used vs the round's best — `picked: true` means the
+ * user chose it from the quote list, `false` means auto-best.
+ */
+export const trackQuoteSourcePicked = ({
+  source,
+  bestSource,
+  picked,
+  minAmountOut,
+  bestMinAmountOut,
+  account,
+  tokenIn,
+  tokenOut,
+  dtfTicker,
+  chainId,
+  type,
+}: {
+  source: ProviderId
+  bestSource?: ProviderId | null
+  picked: boolean
+  minAmountOut?: string
+  bestMinAmountOut?: string
+  account?: string
+  tokenIn?: string
+  tokenOut?: string
+  dtfTicker: string
+  chainId: number
+  type: 'buy' | 'sell'
+}) => {
+  mixpanelTrack('Quote Source Picked', {
+    source,
+    bestSource: bestSource ?? undefined,
+    isBest: bestSource != null ? source === bestSource : undefined,
+    picked,
+    minAmountOut,
+    bestMinAmountOut,
+    account,
+    tokenIn,
+    tokenOut,
+    dtfTicker,
+    chainId,
+    type,
+  })
 }
 
 export const trackIndexDTFQuoteError = ({

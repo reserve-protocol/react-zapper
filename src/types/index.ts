@@ -43,6 +43,12 @@ export interface ZapperProps {
   zapperApiUrl?: string
   connectWallet?: () => void
   debug?: boolean
+  /**
+   * Initial selection in the quote list. All enabled providers are always
+   * fetched; a specific provider id pre-selects that route (falling back to
+   * the best when it has no usable quote), `'best'` (default) follows the
+   * best quote automatically.
+   */
   defaultSource?: QuoteSource
   sellOnly?: boolean
   disabled?: boolean
