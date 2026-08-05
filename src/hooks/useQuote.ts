@@ -15,9 +15,10 @@ export interface QuoteInput {
 
 export interface QuoteData {
   input: QuoteInput
-  /** Winning provider quote result. `undefined` until a quote resolves. */
+  /** Active provider quote result (the user's pick from the quote list, or
+   * the best). `undefined` until a quote resolves. */
   quote: ZapResult | undefined
-  /** Winning provider id (e.g. `zap`, `velora`). `undefined` until a quote resolves. */
+  /** Active provider id (e.g. `zap`, `velora`). `undefined` until a quote resolves. */
   source: ProviderId | undefined
 }
 
@@ -38,8 +39,8 @@ export interface UseQuoteResult {
  *
  * Returns `{ data, loading, error }` for the active Buy/Sell flow:
  * - `data.input` — `{ token, amount, value }` for what the user is spending
- * - `data.quote` — the winning provider quote result, once it resolves
- * - `data.source` — the winning provider id, once it resolves
+ * - `data.quote` — the active provider quote (user's pick or best), once it resolves
+ * - `data.source` — the active provider id, once it resolves
  * - `loading` — true while a quote is being fetched or refetched
  * - `error` — the quote error message, if any
  *

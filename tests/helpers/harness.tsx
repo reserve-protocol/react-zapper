@@ -30,9 +30,12 @@ import {
   indexDTFAtom,
   QuoteSource,
   quoteSourceAtom,
+  refreshRateAtom,
   walletAtom,
 } from '../../src/state/atoms'
+import { pickedSourceAtom } from '../../src/state/quote-list-atoms'
 import { reducedZappableTokens } from '../../src/utils/constants'
+import type { ProviderId } from '../../src/utils/providers'
 
 export const ACCOUNT = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 export const DTF = '0x1000000000000000000000000000000000000001'
@@ -391,10 +394,13 @@ export const makeQuote = (
   },
 })
 
-type QuoteBuilder = (url: string) => Record<string, unknown>
+type QuoteBuilder = (
+  url: string
+) => Record<string, unknown> | Promise<Record<string, unknown>>
 let quoteBuilder: QuoteBuilder = () => makeQuote()
 
-/** Customize the quote served per endpoint URL (e.g. per provider). */
+/** Customize the quote served per endpoint URL (e.g. per provider). Async
+ * builders let a test delay or fail a single provider's responses. */
 export const setQuoteBuilder = (builder: QuoteBuilder) => {
   quoteBuilder = builder
 }
@@ -565,7 +571,7 @@ const installFetchMock = () => {
     if (url.includes('tokenIn=')) {
       scenario.quoteFetches++
       if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
-      return new Response(JSON.stringify(quoteBuilder(url)), {
+      return new Response(JSON.stringify(await quoteBuilder(url)), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
@@ -624,12 +630,18 @@ export const setup = async ({
   inputAmount = '1',
   inputToken,
   chain: chainName = 'mainnet',
+  refreshRate,
+  pickedSource,
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
   // an ERC-20 input instead of the native default (RFQ gasless flows need it)
   inputToken?: 'eth' | 'weth' | 'wbnb'
   chain?: 'mainnet' | 'bsc'
+  // quote refetch interval override (default 9s)
+  refreshRate?: number
+  // seeds the quote-list pick, like the `defaultSource` prop does
+  pickedSource?: ProviderId
 } = {}) => {
   const baseChain = chainName === 'bsc' ? bsc : mainnet
   scenario.chainId = baseChain.id
@@ -654,6 +666,8 @@ export const setup = async ({
   store.set(walletAtom, ACCOUNT)
   store.set(indexDTFAtom, makeDtf(baseChain.id))
   store.set(quoteSourceAtom, quoteSource)
+  if (refreshRate != null) store.set(refreshRateAtom, refreshRate)
+  if (pickedSource) store.set(pickedSourceAtom, pickedSource)
   const erc20Input =
     inputToken === 'weth' ? WETH_TOKEN : inputToken === 'wbnb' ? WBNB_TOKEN : null
   if (erc20Input) {

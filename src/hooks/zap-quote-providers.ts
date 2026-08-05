@@ -103,6 +103,24 @@ export const applyReservePricing = (
   }
 }
 
+/**
+ * Streaming progress of one comparison round. `round-complete` fires after
+ * simulation filtering and winner selection; `best: null` means every
+ * provider failed. Sources reported as `reverted` were excluded from the
+ * selection pool — in the all-reverted fallback they stay selectable and are
+ * NOT reported here.
+ */
+export type ProviderQuoteEvent =
+  | { type: 'round-start'; sources: ProviderId[] }
+  | { type: 'quote'; source: ProviderId; quote: ProviderQuote }
+  | { type: 'quote-error'; source: ProviderId; error: unknown }
+  | {
+      type: 'round-complete'
+      best: ProviderId | null
+      reverted: ProviderId[]
+      failed: ProviderId[]
+    }
+
 export type FetchQuoteContext = {
   providers: ProviderConfig[]
   quoteSource: Source | 'best'
@@ -124,6 +142,7 @@ export type FetchQuoteContext = {
   simulate?: SimulateQuote
   rfq?: RfqFetchContext
   pricing?: QuotePricing
+  onUpdate?: (event: ProviderQuoteEvent) => void
 }
 
 export type FetchQuoteResult = {
@@ -363,6 +382,21 @@ const parseMinOut = (q: ProviderQuote): bigint => {
 }
 
 /**
+ * Sort comparator matching `pickBestQuote`'s selection: higher `minAmountOut`
+ * first, ties prefer `zap`, otherwise stable. Sorting with this comparator
+ * puts the round winner at index 0, so list ordering can never disagree with
+ * the `Quote Source Winner` event.
+ */
+export const compareQuotes = (a: ProviderQuote, b: ProviderQuote): number => {
+  const amountA = parseMinOut(a)
+  const amountB = parseMinOut(b)
+  if (amountA !== amountB) return amountA > amountB ? -1 : 1
+  if (a.source === 'zap' && b.source !== 'zap') return -1
+  if (b.source === 'zap' && a.source !== 'zap') return 1
+  return 0
+}
+
+/**
  * Selects the best quote by `minAmountOut`. Ties go to `zap` to preserve
  * historical behaviour; if no `zap` quote is in the list, the first candidate
  * wins the tie.
@@ -438,8 +472,42 @@ export const fetchBestZapQuote = async (
     )
   }
 
+  const emit = ctx.onUpdate
+  emit?.({ type: 'round-start', sources: candidates.map((p) => p.id) })
+
+  // Streams each provider's settle as it happens (the allSettled below only
+  // resolves once every provider is done).
+  const fetchOneStreaming = (provider: ProviderConfig) =>
+    fetchOne(provider, ctx).then(
+      (quote) => {
+        emit?.({ type: 'quote', source: provider.id, quote })
+        return quote
+      },
+      (error) => {
+        emit?.({ type: 'quote-error', source: provider.id, error })
+        throw error
+      }
+    )
+
   if (candidates.length === 1) {
-    const selected = await fetchOne(candidates[0], ctx)
+    let selected: ProviderQuote
+    try {
+      selected = await fetchOneStreaming(candidates[0])
+    } catch (error) {
+      emit?.({
+        type: 'round-complete',
+        best: null,
+        reverted: [],
+        failed: [candidates[0].id],
+      })
+      throw error
+    }
+    emit?.({
+      type: 'round-complete',
+      best: selected.source,
+      reverted: [],
+      failed: [],
+    })
     return {
       selected,
       attempted: [candidates[0].id],
@@ -450,7 +518,7 @@ export const fetchBestZapQuote = async (
   }
 
   const settled = await Promise.allSettled(
-    candidates.map((p) => fetchOne(p, ctx))
+    candidates.map((p) => fetchOneStreaming(p))
   )
 
   const successful: ProviderQuote[] = []
@@ -466,6 +534,12 @@ export const fetchBestZapQuote = async (
   })
 
   if (!successful.length) {
+    emit?.({
+      type: 'round-complete',
+      best: null,
+      reverted: [],
+      failed: failed.map((f) => f.source),
+    })
     const firstRejection = settled.find(
       (r): r is PromiseRejectedResult => r.status === 'rejected'
     )
@@ -513,13 +587,25 @@ export const fetchBestZapQuote = async (
     }
   }
 
+  const selected = pickBestQuote(pool, ctx.analytics, {
+    simulationFiltered:
+      simulationFiltered.map((f) => f.source).join(',') || undefined,
+    simulationFallback:
+      simulationFiltered.length > 0 && pool === successful ? true : undefined,
+  })
+
+  emit?.({
+    type: 'round-complete',
+    best: selected.source,
+    // In the all-reverted fallback the filtered quotes stay in the selection
+    // pool, so they are not reported as reverted.
+    reverted:
+      pool === successful ? [] : simulationFiltered.map((f) => f.source),
+    failed: failed.map((f) => f.source),
+  })
+
   return {
-    selected: pickBestQuote(pool, ctx.analytics, {
-      simulationFiltered:
-        simulationFiltered.map((f) => f.source).join(',') || undefined,
-      simulationFallback:
-        simulationFiltered.length > 0 && pool === successful ? true : undefined,
-    }),
+    selected,
     attempted: candidates.map((p) => p.id),
     successful: successful.map((q) => q.source),
     failed,

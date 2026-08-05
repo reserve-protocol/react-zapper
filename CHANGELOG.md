@@ -1,3 +1,15 @@
+## [2.9.0] - 2026-08-04
+
+### Added
+
+- Selectable route list (DefiLlama-style): every provider's quote is now shown in a list under the swap panel, streaming in as each source responds and sorted best→worst once the round settles. The best route is pre-selected; the user can pick any other route, and the pick is sticky across auto-refreshes with automatic fallback to the best when the picked provider fails or its quote expires. Each quote shows an expiry countdown; failed providers are hidden from the list and reappear when they quote again.
+- Expiry-triggered refresh: in addition to the global `refreshRate` interval, quotes are refetched as soon as the earliest displayed quote expires. This pairs with the Reserve API now caching enso quotes until their `validUntil` — the countdown reflects a quote that actually stays stable between refreshes, and an expired quote is replaced immediately instead of sitting dead until the next tick.
+- New Mixpanel event `Quote Source Picked`, fired on every effective submit with the submitted source, the round's best source, and whether the user picked it explicitly (`picked`/`isBest`), plus a `bestSource` super-property on all zap events. `Quote Source Winner` is unchanged.
+
+### Changed
+
+- The "Quote Source" selector was removed from Settings — all enabled providers are always fetched and the route list is the way to choose a source. The `defaultSource` prop now pre-selects a route in the list instead of restricting fetching to a single provider.
+
 ## [2.8.0] - 2026-07-30
 
 ### Removed

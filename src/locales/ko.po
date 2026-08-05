@@ -14,8 +14,8 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
-#: src/components/zap-mint/buy/index.tsx:226
-#: src/components/zap-mint/sell/index.tsx:227
+#: src/components/zap-mint/buy/index.tsx:236
+#: src/components/zap-mint/sell/index.tsx:237
 msgid " + ${0} in dust "
 msgstr " + ${0} 더스트 "
 
@@ -23,7 +23,7 @@ msgstr " + ${0} 더스트 "
 msgid "A direct line to the team"
 msgstr "팀과의 직접 소통 채널"
 
-#: src/components/zap-mint/submit-zap.tsx:574
+#: src/components/zap-mint/submit-zap.tsx:623
 msgid "Approve use of {inputSymbol}"
 msgstr "{inputSymbol} 사용 승인"
 
@@ -35,20 +35,24 @@ msgstr "다양한 경로 구성 중"
 msgid "Balance"
 msgstr "잔액"
 
+#: src/components/zap-mint/quote-list.tsx:175
+msgid "Best"
+msgstr "최적"
+
 #: src/components/zap-mint/zap-settings.tsx:80
-msgid "Best Quote"
-msgstr "최적 견적"
+#~ msgid "Best Quote"
+#~ msgstr "최적 견적"
 
 #: src/components/zapper.tsx:159
 msgid "Buy"
 msgstr "매수"
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/buy/index.tsx:244
+#: src/components/zap-mint/buy/index.tsx:253
 msgid "Buy {0}"
 msgstr "{0} 매수"
 
-#: src/components/zap-mint/zap-settings.tsx:110
+#: src/components/zap-mint/zap-settings.tsx:62
 msgid "Can improve price impact but it will take more time to get quotes."
 msgstr "가격 영향을 개선할 수 있지만 견적을 받는 데 시간이 더 걸립니다."
 
@@ -84,7 +88,7 @@ msgstr "클립보드에 복사"
 msgid "Custom"
 msgstr "사용자 지정"
 
-#: src/components/zap-mint/zap-settings.tsx:115
+#: src/components/zap-mint/zap-settings.tsx:67
 msgid "Deep liquidity search"
 msgstr "심층 유동성 검색"
 
@@ -100,7 +104,7 @@ msgstr "변동성이 큰 기간에는 좋은 가격의 경로를 찾기 위해 �
 #~ msgid "Email"
 #~ msgstr "Email"
 
-#: src/components/zap-mint/zap-settings.tsx:109
+#: src/components/zap-mint/zap-settings.tsx:61
 msgid "Enable Deep liquidity search?"
 msgstr "심층 유동성 검색을 사용할까요?"
 
@@ -112,23 +116,37 @@ msgstr "이메일을 입력하세요"
 msgid "Evaluating slippage"
 msgstr "슬리피지 평가 중"
 
-#: src/components/zap-mint/zap-details.tsx:138
+#: src/components/zap-mint/zap-details.tsx:115
 msgid "Exchange Rate"
 msgstr "환율"
+
+#: src/components/zap-mint/quote-list.tsx:165
+msgid "Expired"
+msgstr "만료됨"
+
+#: src/components/zap-mint/quote-list.tsx:167
+msgid "Expires in {countdown}"
+msgstr "{countdown} 후 만료"
+
+#: src/components/zap-mint/quote-list.tsx:128
+#: src/components/zap-mint/quote-list.tsx:139
+#: src/components/zap-mint/quote-list.tsx:204
+#~ msgid "Failed"
+#~ msgstr "실패"
 
 #: src/components/zap-mint/zap-error-msg.tsx:134
 msgid "Failed to send. Try again."
 msgstr "전송에 실패했습니다. 다시 시도하세요."
 
-#: src/components/zap-mint/submit-zap.tsx:566
+#: src/components/zap-mint/submit-zap.tsx:615
 msgid "Fetching quote..."
 msgstr "견적 가져오는 중..."
 
-#: src/components/zap-mint/zap-settings.tsx:127
+#: src/components/zap-mint/zap-settings.tsx:79
 msgid "Force DTF mint?"
 msgstr "DTF Mint를 강제로 진행할까요?"
 
-#: src/components/zap-mint/zap-settings.tsx:133
+#: src/components/zap-mint/zap-settings.tsx:85
 msgid "Force minting DTF"
 msgstr "DTF 강제 Mint"
 
@@ -136,7 +154,7 @@ msgstr "DTF 강제 Mint"
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "이 DTF에 영향을 줄 수 있는 변경 사항에 대한 관련 소식을 받아보세요."
 
-#: src/components/zap-mint/submit-zap.tsx:80
+#: src/components/zap-mint/submit-zap.tsx:90
 msgid "Get started"
 msgstr "시작하기"
 
@@ -163,7 +181,7 @@ msgstr "높은 더스트 가치: ${0} (출력 가치의 {1})"
 msgid "High price impact: {0}"
 msgstr "높은 가격 영향: {0}"
 
-#: src/components/zap-mint/submit-zap.tsx:104
+#: src/components/zap-mint/submit-zap.tsx:114
 msgid "Insufficient balance"
 msgstr "잔액이 부족합니다"
 
@@ -175,8 +193,8 @@ msgstr "가스 잔액 부족"
 msgid "Loading DTF"
 msgstr "DTF 로딩 중"
 
-#: src/components/zap-mint/submit-zap.tsx:80
-#: src/components/zap-mint/submit-zap.tsx:102
+#: src/components/zap-mint/submit-zap.tsx:90
+#: src/components/zap-mint/submit-zap.tsx:112
 msgid "Loading..."
 msgstr "로딩 중..."
 
@@ -188,7 +206,7 @@ msgstr "최대"
 msgid "Max slippage"
 msgstr "최대 슬리피지"
 
-#: src/components/zap-mint/zap-settings.tsx:96
+#: src/components/zap-mint/zap-settings.tsx:48
 msgid "Max. mint slippage"
 msgstr "최대 Mint 슬리피지"
 
@@ -196,9 +214,13 @@ msgstr "최대 Mint 슬리피지"
 msgid "Methodology or mandate updates"
 msgstr "방법론 또는 강령 업데이트"
 
-#: src/components/zap-mint/zap-details.tsx:174
+#: src/components/zap-mint/zap-details.tsx:151
 msgid "Min Amount Out"
 msgstr "최소 수령 수량"
+
+#: src/components/zap-mint/quote-list.tsx:142
+#~ msgid "No route available from this provider right now."
+#~ msgstr "현재 이 제공자의 경로를 사용할 수 없습니다."
 
 #: src/components/zap-mint/zap-success-view.tsx:276
 #~ msgid "No thanks"
@@ -216,21 +238,21 @@ msgstr "개선에 도움이 되도록 신고해 주세요"
 msgid "Please try refreshing, or switch to manual minting."
 msgstr "새로고침하거나 수동 Mint로 전환해 주세요."
 
-#: src/components/zap-mint/zap-details.tsx:163
+#: src/components/zap-mint/zap-details.tsx:140
 msgid "Price Impact"
 msgstr "가격 영향"
 
-#: src/components/zap-mint/submit-zap.tsx:564
+#: src/components/zap-mint/submit-zap.tsx:613
 msgid "Quote expired"
 msgstr "견적 만료됨"
 
-#: src/components/zap-mint/zap-details.tsx:105
+#: src/components/zap-mint/zap-details.tsx:98
 msgid "Quote includes fees"
 msgstr "견적에 수수료 포함"
 
 #: src/components/zap-mint/zap-settings.tsx:69
-msgid "Quote Source"
-msgstr "견적 출처"
+#~ msgid "Quote Source"
+#~ msgstr "견적 출처"
 
 #: src/components/zap-mint/zap-success-view.tsx:138
 msgid "Received:"
@@ -252,6 +274,14 @@ msgstr "신고"
 msgid "Reported"
 msgstr "신고됨"
 
+#: src/components/zap-mint/quote-list.tsx:262
+msgid "Route options"
+msgstr "경로 옵션"
+
+#: src/components/zap-mint/quote-list.tsx:253
+msgid "Routes"
+msgstr "경로"
+
 #: src/components/zap-mint/zap-success-view.tsx:216
 msgid "Schedule an intro call"
 msgstr "소개 통화 예약하기"
@@ -261,15 +291,15 @@ msgid "Searching DEX Liquidity"
 msgstr "DEX 유동성 검색 중"
 
 #: src/components/zap-mint/zap-settings.tsx:70
-msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
-msgstr "사용할 견적 제공자를 선택하세요. 'Best'는 활성화된 모든 제공자를 자동으로 비교해 출력이 가장 높은 곳을 선택합니다. 특정 제공자를 선택하면 단일 출처로 고정됩니다."
+#~ msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
+#~ msgstr "사용할 견적 제공자를 선택하세요. 'Best'는 활성화된 모든 제공자를 자동으로 비교해 출력이 가장 높은 곳을 선택합니다. 특정 제공자를 선택하면 단일 출처로 고정됩니다."
 
 #: src/components/zapper.tsx:162
 msgid "Sell"
 msgstr "매도"
 
 #. placeholder {0}: indexDTF.token.symbol
-#: src/components/zap-mint/sell/index.tsx:249
+#: src/components/zap-mint/sell/index.tsx:258
 msgid "Sell {0}"
 msgstr "{0} 매도"
 
@@ -285,7 +315,7 @@ msgstr "전송 중..."
 msgid "Show details"
 msgstr "세부 정보 보기"
 
-#: src/components/zap-mint/submit-zap.tsx:568
+#: src/components/zap-mint/submit-zap.tsx:617
 msgid "Simulation failed - Refetching quote"
 msgstr "시뮬레이션 실패 - 견적 다시 가져오는 중"
 
@@ -309,11 +339,11 @@ msgstr "죄송합니다. 적합한 경로를 찾는 데 어려움을 겪고 있�
 msgid "Stay informed about this DTF"
 msgstr "이 DTF에 대한 소식 받기"
 
-#: src/components/zap-mint/submit-zap.tsx:574
+#: src/components/zap-mint/submit-zap.tsx:623
 msgid "Step 1. "
 msgstr "1단계. "
 
-#: src/components/zap-mint/submit-zap.tsx:573
+#: src/components/zap-mint/submit-zap.tsx:622
 msgid "Step 2. "
 msgstr "2단계. "
 
@@ -345,23 +375,23 @@ msgstr "{chainName}(으)로 전환"
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "참여해 주셔서 감사합니다. 함께하게 되어 기쁩니다! 이 DTF에 대한 중요한 업데이트가 있으면 연락드리겠습니다."
 
-#: src/components/zap-mint/zap-details.tsx:142
+#: src/components/zap-mint/zap-details.tsx:119
 msgid "The current exchange rate between the tokens."
 msgstr "토큰 간 현재 환율입니다."
 
-#: src/components/zap-mint/zap-details.tsx:109
+#: src/components/zap-mint/zap-details.tsx:102
 msgid "The displayed quote already includes all applicable fees and price impact."
 msgstr "표시된 견적에는 적용 가능한 모든 수수료와 가격 영향이 이미 포함되어 있습니다."
 
-#: src/components/zap-mint/zap-details.tsx:167
+#: src/components/zap-mint/zap-details.tsx:144
 msgid "The impact your trade has on the market price."
 msgstr "거래가 시장 가격에 미치는 영향입니다."
 
-#: src/components/zap-mint/zap-settings.tsx:97
+#: src/components/zap-mint/zap-settings.tsx:49
 msgid "The maximum amount of slippage you are willing to accept when minting. Higher slippage settings will make the transaction more likely to succeed, but may result in fewer tokens minted."
 msgstr "Mint 시 허용할 최대 슬리피지입니다. 슬리피지를 높게 설정하면 트랜잭션 성공 가능성이 커지지만, Mint되는 토큰 수가 줄어들 수 있습니다."
 
-#: src/components/zap-mint/zap-details.tsx:182
+#: src/components/zap-mint/zap-details.tsx:159
 msgid "The minimum amount of tokens you will receive."
 msgstr "받게 될 최소 토큰 수량입니다."
 
@@ -373,9 +403,14 @@ msgstr "이 거래의 가격 영향이 매우 높습니다. 예상보다 훨씬 
 msgid "This DTF contains assets with relatively low DEX liquidity"
 msgstr "이 DTF에는 DEX 유동성이 상대적으로 낮은 자산이 포함되어 있습니다"
 
-#: src/components/zap-mint/zap-settings.tsx:128
+#: src/components/zap-mint/zap-settings.tsx:80
 msgid "This is useful if you want to mint the DTF without trading."
 msgstr "거래 없이 DTF를 Mint하려는 경우에 유용합니다."
+
+#: src/components/zap-mint/quote-list.tsx:131
+#: src/components/zap-mint/quote-list.tsx:207
+#~ msgid "This route reverted in our transaction simulation."
+#~ msgstr "이 경로는 트랜잭션 시뮬레이션에서 실패했습니다."
 
 #. placeholder {0}: formatPercentage(Math.abs(dustPercentage))
 #: src/components/zap-mint/zap-dust-warning-checkbox.tsx:56
@@ -399,8 +434,8 @@ msgid "Used:"
 msgstr "사용:"
 
 #: src/components/zap-mint/zap-details.tsx:125
-msgid "Via"
-msgstr "경유"
+#~ msgid "Via"
+#~ msgstr "경유"
 
 #: src/components/zap-mint/zap-success-view.tsx:184
 msgid "View order"
@@ -410,7 +445,7 @@ msgstr "주문 보기"
 msgid "Wait and try again or consider using manual mode"
 msgstr "잠시 후 다시 시도하거나 수동 모드 사용을 고려하세요"
 
-#: src/components/zap-mint/submit-zap.tsx:570
+#: src/components/zap-mint/submit-zap.tsx:619
 msgid "Waiting for order to fill..."
 msgstr "주문 체결 대기 중..."
 

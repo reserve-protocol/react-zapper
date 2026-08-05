@@ -16,23 +16,25 @@ The library tracks 5 main event types with the following distribution:
    - `status: 'user_error'` - User validation error
    - `status: 'user_tx_error'` - Transaction execution error
 
-2. **`Quote Source Winner`** - 4 events
+2. **`Quote Source Winner`** - 2 reason families
 
-   - `reason: 'only_zap_available'` - Only Zap provided valid quote
-   - `reason: 'only_aggregator_available'` - Only an aggregator provided valid quote
-   - `reason: 'better_output'` - Winner had better minAmountOut
-   - `reason: 'tie_prefer_zap'` - Equal outputs, Zap selected
+   - `reason: 'only_<source>_available'` - Only one provider survived the round
+   - `reason: 'better_output'` - Winner had the best minAmountOut
 
-3. **`transaction`** - 2 events
+3. **`Quote Source Picked`** - 1 event
+
+   - Fired on every effective submit with the submitted source vs the round's best
+
+4. **`transaction`** - 2 events
 
    - `action: 'transaction_succeeded'` - Transaction confirmed on-chain
    - `action: 'transaction_reverted'` - Transaction failed/reverted
 
-4. **`alert`** - 1 event
+5. **`alert`** - 1 event
 
    - `cta: 'zap_success_notification'` - Successful zap completion alert
 
-5. **`tap`** - 5 events
+6. **`tap`** - 5 events
    - `cta: 'zap_settings'` - Settings button clicked
    - `cta: 'zap_refresh'` - Refresh quotes button clicked
    - `cta: 'zap_buy'` - Execute buy transaction clicked
@@ -75,32 +77,51 @@ Main event for tracking swap/zap operations.
 - When user errors occur
 - When transaction errors occur
 
-### 2. `Quote Source Winner` (4 total)
+### 2. `Quote Source Winner`
 
-Tracks which quote source (Zap or an aggregator) provided the best quote.
+Tracks which quote source won each comparison round (the automatic best).
 
 #### Properties:
 
 - `source`: winning provider id (e.g. 'zap', 'velora')
-- `reason`: Why this source was selected (4 possible reasons)
-  - `'only_zap_available'`: Only Zap returned a valid quote (aggregators failed or unavailable)
-  - `'only_aggregator_available'`: Only an aggregator returned a valid quote (Zap failed or unavailable)
-  - `'better_output'`: This source provided a better minAmountOut value
-  - `'tie_prefer_zap'`: Both sources returned identical output amounts, Zap selected as default
+- `reason`: Why this source was selected
+  - `'only_<source>_available'`: Only one provider survived the round (e.g. `only_zap_available`)
+  - `'better_output'`: This source provided the best minAmountOut value
+- `winningMinAmountOut`: The winner's minimum output amount (multi-candidate rounds)
+- `comparedProviders`: Comma-joined provider ids that competed (multi-candidate rounds)
+- `simulationFiltered`: Comma-joined provider ids excluded by the revert simulation (when any)
+- `simulationFallback`: `true` when every candidate reverted and selection fell back to the raw pool
 - `tokenIn`: Input token address
 - `tokenOut`: Output token address
 - `dtfTicker`: DTF ticker symbol
 - `chainId`: Chain ID
 - `type`: 'buy' | 'sell'
-- `zapMinAmountOut`: Zap's minimum output amount (when both available)
-- `aggregatorMinAmountOut`: The aggregator's minimum output amount (when both available)
 
 #### When Emitted:
 
-- In `selectBestQuote()` when choosing between provider quotes
-- Only emitted when `quoteSource` is set to 'best'
+- In `pickBestQuote()` when a comparison round completes (not on single-provider rounds forced by tests)
 
-### 3. `transaction` (2 total)
+### 3. `Quote Source Picked`
+
+Tracks the source actually used at submit time vs the automatic best, so picked-vs-best behavior can be analyzed. The route list pre-selects the best source; the user may pick another row.
+
+#### Properties:
+
+- `source`: submitted provider id (the active quote's source)
+- `bestSource`: the round winner's provider id
+- `isBest`: `true` when the submitted source is the round winner
+- `picked`: `true` when the user explicitly picked the source from the route list, `false` for auto-best
+- `minAmountOut`: submitted quote's minimum output amount
+- `bestMinAmountOut`: best quote's minimum output amount
+- `account`, `tokenIn`, `tokenOut`, `dtfTicker`, `chainId`, `type`: same context as `Quote Source Winner`
+
+#### When Emitted:
+
+- On every effective submit — right when the transaction is sent or the RFQ order signing starts (not on approvals, not on row clicks, not on programmatic `defaultSource` seeding)
+
+Additionally, `bestSource` is registered as a super-property alongside `source`/`sourceId`, so every downstream event (`index-dtf-zap-swap`, `tap`, `alert`) carries both the active and the best source.
+
+### 4. `transaction` (2 total)
 
 Tracks blockchain transaction results.
 
@@ -118,7 +139,7 @@ Tracks blockchain transaction results.
 - When a transaction is confirmed on-chain (success)
 - When a transaction is reverted or fails on-chain
 
-### 4. `alert` (1 total)
+### 5. `alert` (1 total)
 
 Tracks important user notifications and alerts.
 
@@ -138,7 +159,7 @@ Tracks important user notifications and alerts.
 
 - When a zap transaction completes successfully (`zap_success_notification`)
 
-### 5. `tap` (5 total)
+### 6. `tap` (5 total)
 
 Generic click tracking event for UI interactions.
 
@@ -206,6 +227,13 @@ These properties are registered globally using `mixpanelRegister()` and automati
 - **Property**: `source`
 - **Values**: provider id (e.g. 'zap', 'velora', 'enso')
 - **Generation Triggers**:
-  - When calling and waiting for the response from each API source
-  - When a quote source is selected as winner
+  - When the active quote changes (round completion, user pick from the route list, or fallback)
 - **Purpose**: Track which source was ultimately used
+
+### Best Source
+
+- **Property**: `bestSource`
+- **Values**: provider id (e.g. 'zap', 'velora', 'enso')
+- **Generation Triggers**:
+  - When a comparison round completes with a winner
+- **Purpose**: Compare the active (possibly user-picked) source against the automatic best on any downstream event

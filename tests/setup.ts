@@ -25,12 +25,13 @@ if (NativeRequest) {
 }
 
 // mixpanel does real network I/O at init/track time — neutralize it entirely.
+// track/register are spies so tests can assert on event payloads.
 vi.mock('mixpanel-browser/src/loaders/loader-module-core', () => ({
   default: {
     init: () => {},
-    track: () => {},
+    track: vi.fn(),
     time_event: () => {},
-    register: () => {},
+    register: vi.fn(),
     unregister: () => {},
     people: { set: () => {} },
   },
