@@ -18,7 +18,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 const armedCta = () => {
   const cta = getCta()
-  return !cta.disabled && /Buy TEST/i.test(cta.textContent || '')
+  return !cta.disabled && /Market Buy/i.test(cta.textContent || '')
 }
 
 describe('expired quote invariant', () => {

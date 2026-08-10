@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomWithReset } from 'jotai/utils'
+import { atomWithReset, RESET } from 'jotai/utils'
 import type { UseQuoteResult } from '../../hooks/useQuote'
 import {
   balancesAtom,
@@ -7,6 +7,7 @@ import {
   indexDTFAtom,
   zappableTokenOrderAtom,
 } from '../../state/atoms'
+import { resetQuoteListAtom } from '../../state/quote-list-atoms'
 import {
   DisabledSettingsConfig,
   ScheduleCallConfig,
@@ -17,7 +18,6 @@ import { reducedZappableTokens } from '../../utils/constants'
 
 const openZapMintModalBaseAtom = atom(false)
 export const zapperCurrentTabAtom = atom<'buy' | 'sell'>('buy')
-export const showZapSettingsAtom = atom<boolean>(false)
 export const zapMintInputAtom = atomWithReset<string>('')
 export const zapMintInputCachedAtom = atom<string>('')
 export const indexDTFBalanceAtom = atom<bigint>((get) => {
@@ -139,7 +139,8 @@ export const zapQuoteStateAtom = atom<UseQuoteResult>({
   error: undefined,
 })
 
-export const slippageAtom = atomWithReset<string>('100')
+// Inverted convention: value S ⇒ a fraction of 1/S — '200' = 0.5% (default)
+export const slippageAtom = atomWithReset<string>('200')
 export const forceMintAtom = atomWithReset<boolean>(false)
 export const zapRefetchAtom = atom<{ fn: () => void }>({ fn: () => {} })
 export const zapFetchingAtom = atom<boolean>(false)
@@ -149,3 +150,12 @@ export const zapPriceImpactWarningCheckboxAtom = atom(false)
 export const zapHighPriceImpactAtom = atom<boolean>(false)
 export const zapDustWarningCheckboxAtom = atom(false)
 export const zapHighDustValueAtom = atom<boolean>(false)
+
+// Returns the zapper to a clean slate (input, tx freeze, quote rows) while
+// the success snapshot stays untouched — fired when the inline success dialog
+// opens so the widget behind it is fresh.
+export const resetZapperStateAtom = atom(null, (_get, set) => {
+  set(zapMintInputAtom, RESET)
+  set(zapOngoingTxAtom, false)
+  set(resetQuoteListAtom)
+})

@@ -3,7 +3,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
 import { formatEther, formatUnits, parseEther } from 'viem'
-import useLoadingAfterRefetch from '../../../hooks/useLoadingAfterRefetch'
 import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
@@ -17,6 +16,7 @@ import { resetQuoteListAtom } from '../../../state/quote-list-atoms'
 import { Token } from '../../../types'
 import {
   formatCurrency,
+  formatOutputAmount,
   resetTempRegistrations,
   useTrackQuoteErrorUX,
 } from '../../../utils'
@@ -38,9 +38,9 @@ import {
   zapRefetchAtom,
 } from '../atom'
 import { Debug } from '../debug/debug'
-import QuoteList from '../quote-list'
+import SlippageRow from '../slippage-row'
 import SubmitZap from '../submit-zap'
-import ZapDetails, { ZapPriceImpact } from '../zap-details'
+import ZapDetails from '../zap-details'
 
 interface SellProps {
   mode?: 'modal' | 'inline' | 'simple'
@@ -82,9 +82,10 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     setOutputToken(token)
   }
 
-  const insufficientBalance = parseEther(inputAmount) > indexDTFBalance
+  const insufficientBalance =
+    !!account && parseEther(inputAmount) > indexDTFBalance
 
-  const { data, isLoading, isFetching, refetch, failureReason, roundData } =
+  const { data, isLoading, isFetching, refetch, failureReason, sourcing } =
     useZapSwapQuery({
       tokenIn: indexDTF?.id,
       tokenOut: selectedToken.address,
@@ -112,10 +113,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     zapError: zapperErrorMessage,
   })
 
-  // Keyed to the round result so a user pick (new active quote, same round)
-  // doesn't flash the output loader.
-  const { loadingAfterRefetch } = useLoadingAfterRefetch(roundData)
-
   const priceFrom = data?.result?.amountInValue
   const priceTo = data?.result?.amountOutValue
   const valueTo = data?.result?.amountOut
@@ -142,9 +139,11 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     setZapRefetch({ fn: refetch })
   }, [refetch, setZapRefetch])
 
+  // Only the first load of a cache key: background refetches keep the shown
+  // quote and a live CTA, so they must not flip the global fetching flag.
   useEffect(() => {
-    setZapFetching(fetchingZapper)
-  }, [fetchingZapper, setZapFetching])
+    setZapFetching(isLoading)
+  }, [isLoading, setZapFetching])
 
   useEffect(() => {
     const succeeded = data?.status === 'success'
@@ -225,7 +224,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
           value: inputAmount,
           onChange: setInputAmount,
           onMax,
-          disabled: !account,
         }}
         to={{
           address: selectedToken.address,
@@ -234,28 +232,29 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
             <span>
               ${formatCurrency(priceTo)}
               {dustValue > 0.01
-                ? t` + $${formatCurrency(dustValue)} in dust `
-                : ' '}
-              <ZapPriceImpact data={data?.result} />
+                ? t` + $${formatCurrency(dustValue)} in dust`
+                : ''}
             </span>
           ) : undefined,
-          value: formatUnits(BigInt(valueTo || 0), selectedToken.decimals),
+          value: formatOutputAmount(
+            Number(formatUnits(BigInt(valueTo || 0), selectedToken.decimals))
+          ),
           tokens,
           onTokenSelect: handleTokenSelect,
           tokensLoading,
           disabled: disabled || ongoingTx,
         }}
         onSwap={sellOnly ? undefined : changeTab}
-        loading={isLoading || loadingAfterRefetch}
+        loading={isLoading || sourcing}
         disabled={disabled || ongoingTx}
       />
-      {mode !== 'simple' && <QuoteList />}
-      {mode !== 'simple' && !!data?.result && <ZapDetails data={data.result} />}
+      {mode !== 'simple' && <SlippageRow />}
+      {mode !== 'simple' && <ZapDetails data={data?.result} />}
       <SubmitZap
         data={data?.result}
         source={data?.source}
         chainId={indexDTF.chainId}
-        buttonLabel={t`Sell ${indexDTF.token.symbol}`}
+        buttonLabel={t`Market Sell`}
         inputSymbol={indexDTF.token.symbol}
         outputSymbol={selectedToken.symbol}
         inputAmount={formatCurrency(Number(inputAmount))}
@@ -269,9 +268,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
         mode={mode}
         disabled={disabled}
       />
-      {mode !== 'simple' && debug && !!data?.result?.debug && (
-        <Debug data={data.result.debug} />
-      )}
+      {mode !== 'simple' && debug && <Debug data={data?.result?.debug} />}
     </div>
   )
 }

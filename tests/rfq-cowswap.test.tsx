@@ -61,8 +61,8 @@ describe('cowswap RFQ flow', () => {
     expect(posted.feeAmount).toBe('0')
     // fee folded: 0.99 net + 0.01 fee = the 1 WETH input
     expect(posted.sellAmount).toBe('1000000000000000000')
-    // limit = quoted 1000 minus 1% slippage
-    expect(posted.buyAmount).toBe('990000000000000000000')
+    // limit = quoted 1000 minus the default 0.5% slippage
+    expect(posted.buyAmount).toBe('995000000000000000000')
     expect(posted.kind).toBe('sell')
     expect(posted.partiallyFillable).toBe(false)
     expect(scenario.calls).toContain('eth_signTypedData_v4')
@@ -148,7 +148,7 @@ describe('cowswap RFQ flow', () => {
     const order = (decoded.args as [Record<string, unknown>])[0]
     expect(order.feeAmount).toBe(0n)
     expect(order.partiallyFillable).toBe(false)
-    expect(order.buyAmount).toBe(990n * 10n ** 18n) // 1% slippage limit
+    expect(order.buyAmount).toBe(995n * 10n ** 18n) // default 0.5% slippage limit
     const validTo = Number(order.validTo)
     const nowSec = Math.floor(Date.now() / 1000)
     expect(validTo).toBeGreaterThan(nowSec + 500)

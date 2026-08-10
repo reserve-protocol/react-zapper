@@ -7,12 +7,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './dropdown-menu'
-import { Input, NumericalInput } from './input'
+import { NumericalInput } from './input'
 import useMediaQuery from '../../hooks/useMediaQuery'
 import { cn } from '../../utils/cn'
 import { chainIdAtom, indexDTFAtom, indexDTFBrandAtom } from '../../state/atoms'
 import { Token } from '../../types'
-import { formatCurrency } from '../../utils'
+import { formatCurrency, formatElapsedTime } from '../../utils'
 import { useAtomValue } from 'jotai'
 import {
   ArrowDown,
@@ -28,10 +28,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { Trans, useLingui } from '@lingui/react/macro'
-import { msg } from '@lingui/core/macro'
-import type { MessageDescriptor } from '@lingui/core'
-import GaugeIcon from '../icons/GaugeIcon'
+import { Trans } from '@lingui/react/macro'
 import {
   Accordion,
   AccordionContent,
@@ -41,7 +38,6 @@ import {
 import Help from './help'
 import { Separator } from './separator'
 import { Skeleton } from './skeleton'
-import { ToggleGroup, ToggleGroupItem } from './toggle-group'
 
 type TokenWithBalance = Token & { balance?: string }
 
@@ -256,7 +252,7 @@ export const TokenInputBox = ({
     >
       <div>
         <h3 className="text-primary">
-          {from?.title || <Trans>You use:</Trans>}
+          {from?.title || <Trans>Order size</Trans>}
         </h3>
         <div className="flex gap-1">
           <TokenInput {...from} disabled={disabled || from.disabled} />
@@ -280,23 +276,12 @@ export const TokenInputBox = ({
   )
 }
 
-const SLOW_LOADING_TEXTS: MessageDescriptor[] = [
-  msg`Searching DEX Liquidity`,
-  msg`Assembling different routes`,
-  msg`Evaluating slippage`,
-  msg`Reducing potential dust`,
-  msg`Loading DTF`,
-]
-
 const SlowLoading = ({ enabled }: { enabled: boolean }) => {
-  const { t } = useLingui()
   const [elapsed, setElapsed] = useState(1)
-  const [textIndex, setTextIndex] = useState(0)
 
   useEffect(() => {
     if (!enabled) {
       setElapsed(1)
-      setTextIndex(0)
       return
     }
 
@@ -304,13 +289,8 @@ const SlowLoading = ({ enabled }: { enabled: boolean }) => {
       setElapsed((prev) => prev + 1)
     }, 1000)
 
-    const textInterval = setInterval(() => {
-      setTextIndex((prev) => (prev + 1) % SLOW_LOADING_TEXTS.length)
-    }, 5000)
-
     return () => {
       clearInterval(elapsedInterval)
-      clearInterval(textInterval)
     }
   }, [enabled])
 
@@ -325,9 +305,11 @@ const SlowLoading = ({ enabled }: { enabled: boolean }) => {
       <div className="relative flex items-center gap-1 justify-between bg-card rounded-full px-3 py-2 text-sm text-primary border border-primary">
         <div className="flex items-center gap-1">
           <Loader size={16} className="animate-spin-slow" />
-          {t(SLOW_LOADING_TEXTS[textIndex])}
+          <Trans>Sourcing liquidity</Trans>
         </div>
-        <div className="text-muted-foreground min-w-4">{`${elapsed}s`}</div>
+        <div className="text-muted-foreground min-w-4">
+          {formatElapsedTime(elapsed)}
+        </div>
       </div>
     </div>
   )
@@ -373,7 +355,7 @@ export const TokenOutputBox = ({
     >
       <SlowLoading enabled={slowLoading} />
       <div>
-        <h3>{to.title || <Trans>You receive:</Trans>}</h3>
+        <h3>{to.title || <Trans>Projected proceeds</Trans>}</h3>
         <div className="flex items-center gap-2 justify-between">
           {loading ? (
             <Skeleton className="w-full h-[40px]" />
@@ -431,123 +413,21 @@ export const ArrowSeparator = ({
   )
 }
 
-export const SlippageSelector = ({
-  value,
-  onChange,
-  options = ['20', '50', '100', '200'],
-  formatOption = (option) => `${(1 / Number(option)) * 100}%`,
-  hideTitle = false,
-}: {
-  value: string
-  onChange: (value: string) => void
-  options?: string[]
-  formatOption?: (option: string) => string
-  hideTitle?: boolean
-}) => {
-  const { t } = useLingui()
-  const [customValue, setCustomValue] = useState(
-    (1 / (Number(value) / 100)).toFixed(3)
-  )
-
-  const handleCustomChange = (value: string) => {
-    try {
-      const parsedValue = 1 / (Number(value) / 100)
-      setCustomValue(value)
-      onChange(parsedValue.toString())
-    } catch {
-      setCustomValue(value)
-    }
-  }
-
-  const onSelectOption = (value: string) => {
-    onChange(value)
-    const parsedValue = 1 / (Number(value) / 100)
-    setCustomValue(parsedValue.toFixed(3))
-  }
-
-  return (
-    <div
-      className={cn(
-        'flex items-center gap-2 rounded-xl justify-between',
-        hideTitle ? '' : 'bg-muted p-2'
-      )}
-    >
-      {!hideTitle && (
-        <div className="flex items-center gap-1">
-          <GaugeIcon height={16} width={16} />
-          <div className="text-sm font-semibold">
-            <span className="inline-block sm:hidden">
-              <Trans>Slippage</Trans>
-            </span>
-            <span className="hidden sm:inline-block">
-              <Trans>Max slippage</Trans>
-            </span>
-          </div>
-        </div>
-      )}
-      <div className="flex items-center gap-2">
-        <ToggleGroup
-          type="single"
-          className="bg-muted-foreground/10 p-1 rounded-lg justify-start w-max"
-          value={value}
-          onValueChange={onSelectOption}
-        >
-          {options.map((option) => (
-            <ToggleGroupItem
-              key={option}
-              value={option.toString()}
-              aria-label={t`Toggle ${option}`}
-              className="px-3 rounded-md data-[state=on]:bg-card text-secondary-foreground/80 data-[state=on]:text-primary"
-              size="xs"
-            >
-              {formatOption(option)}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        <div className="w-20 hidden sm:block" role="button">
-          <div className="relative">
-            <Input
-              placeholder={t`Custom`}
-              className={cn(
-                'h-9 px-[10px] rounded-lg text-base bg-transparent [&:focus::placeholder]:opacity-0 [&:focus::placeholder]:transition-opacity focus-visible:ring-0 focus-visible:ring-offset-0 ',
-                customValue && 'pl-2 pr-6'
-              )}
-              value={customValue}
-              type="text"
-              pattern="^(?:100|[0-9]{1,2})(?:\.[0-9]{1,3})?$"
-              onChange={(e) => {
-                const value = e.target.value
-                if (
-                  value === '' ||
-                  (/^\d*\.?\d{0,3}$/.test(value) &&
-                    Number(value) >= 0 &&
-                    Number(value) <= 100)
-                ) {
-                  handleCustomChange(value)
-                }
-              }}
-            />
-            {customValue && (
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-                %
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 type SwapDetailItem = {
   left: ReactNode
   right?: ReactNode
   help?: ReactNode
+  className?: string
 }
 
-const SwapDetailItem = ({ left, right, help }: SwapDetailItem) => {
+const SwapDetailItem = ({ left, right, help, className }: SwapDetailItem) => {
   return (
-    <div className="flex gap-1 items-center justify-between flex-1 px-1">
+    <div
+      className={cn(
+        'flex gap-1 items-center justify-between flex-1 px-1',
+        className
+      )}
+    >
       <div className="flex gap-1 items-center">
         <div>{left}</div>
         {!!help && <Help content={help} className="text-muted-foreground" />}
@@ -560,9 +440,15 @@ const SwapDetailItem = ({ left, right, help }: SwapDetailItem) => {
 type SwapDetailsProps = {
   visible: SwapDetailItem
   details: SwapDetailItem[]
+  /** Rendered inside the expanded content, above the detail rows. */
+  children?: ReactNode
 }
 
-export const SwapDetails = ({ visible, details }: SwapDetailsProps) => {
+export const SwapDetails = ({
+  visible,
+  details,
+  children,
+}: SwapDetailsProps) => {
   const [open, setOpen] = useState(false)
   return (
     <Accordion
@@ -572,12 +458,19 @@ export const SwapDetails = ({ visible, details }: SwapDetailsProps) => {
       onValueChange={(value) => setOpen(Boolean(value))}
     >
       <AccordionItem value="true" className="border-b-0">
+        {/* px-0 on the inner item so the row's effective inset (trigger px-3)
+            matches the slippage row above the accordion */}
         <AccordionTrigger className="px-3 py-2 font-light hover:border-transparent focus:outline-none">
-          <SwapDetailItem left={visible.left} right={visible.right} />
+          <SwapDetailItem
+            left={visible.left}
+            right={visible.right}
+            className="px-0"
+          />
         </AccordionTrigger>
         <AccordionContent>
           <Separator className="mt-2" />
-          <div className="px-3 pt-4 pb-2 flex flex-col gap-2">
+          {children && <div className="px-1 pt-3">{children}</div>}
+          <div className="px-2 pt-4 pb-2 flex flex-col gap-2">
             {details.map((detail, index) => (
               <SwapDetailItem {...detail} key={`swap-detail-${index}`} />
             ))}

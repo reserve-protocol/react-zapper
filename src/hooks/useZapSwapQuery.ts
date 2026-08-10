@@ -55,6 +55,7 @@ import {
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
 import { ChainId } from '@/utils/chains'
+import { PLACEHOLDER_SIGNER } from '@/utils/constants'
 
 // Expiry-triggered refetch: the API may cache a provider's quote until its
 // validUntil (e.g. enso), so refetch shortly AFTER the earliest quote expires
@@ -144,6 +145,10 @@ const useZapSwapQuery = ({
       : providers
   }, [chainId, shouldSkipZapper, quoteSource])
 
+  // Without a wallet, quotes are still fetched (display-only) using a
+  // placeholder signer; anything executable is stripped from the results.
+  const signer = account ?? PLACEHOLDER_SIGNER
+
   // Cache key for react-query — changes when any swap param changes. We
   // intentionally don't memoize endpoint strings here; `fetchBestZapQuote`
   // rebuilds them per fetch using the latest tracking ids.
@@ -152,7 +157,6 @@ const useZapSwapQuery = ({
       if (
         !tokenIn ||
         !tokenOut ||
-        !account ||
         isNaN(Number(amountIn)) ||
         Number(amountIn) === 0
       ) {
@@ -164,7 +168,7 @@ const useZapSwapQuery = ({
         tokenOut,
         amountIn,
         slippage,
-        account,
+        signer,
         forceMint,
         deepLiquidity,
         debug,
@@ -176,7 +180,7 @@ const useZapSwapQuery = ({
       tokenOut,
       amountIn,
       slippage,
-      account,
+      signer,
       forceMint,
       deepLiquidity,
       debug,
@@ -188,8 +192,8 @@ const useZapSwapQuery = ({
   const query = useQuery({
     queryKey: ['zapDeploy', cacheKey, quoteSource],
     queryFn: async (): Promise<FetchQuoteResult> => {
-      if (!tokenIn || !tokenOut || !account || !cacheKey) {
-        throw new Error('Invalid tokenIn, tokenOut or account')
+      if (!tokenIn || !tokenOut || !cacheKey) {
+        throw new Error('Invalid tokenIn or tokenOut')
       }
 
       mixpanelTimeEvent(SUBMIT_BUTTON_READY_EVENT)
@@ -208,13 +212,13 @@ const useZapSwapQuery = ({
       setRetryId(newRetryId)
       mixpanelRegister('retryId', newRetryId)
 
-      // Pre-select simulation only makes sense when the account could
-      // actually execute the tx: with insufficient funds every estimate
-      // reverts for reasons unrelated to the quotes. Skip too when the host
-      // wagmi config doesn't know the target chain.
+      // Pre-select simulation only makes sense when a real account could
+      // actually execute the tx: with insufficient funds (or no wallet) every
+      // estimate reverts for reasons unrelated to the quotes. Skip too when
+      // the host wagmi config doesn't know the target chain.
       const chainConfigured = wagmiConfig.chains.some((c) => c.id === chainId)
       const simulate =
-        !insufficientBalance && chainConfigured
+        !!account && !insufficientBalance && chainConfigured
           ? makeWagmiSimulator(wagmiConfig, {
               chainId,
               account: account as Address,
@@ -254,6 +258,7 @@ const useZapSwapQuery = ({
         simulate,
         rfq,
         pricing,
+        signerIsPlaceholder: !account,
         onUpdate: (event) => {
           switch (event.type) {
             case 'round-start':
@@ -281,7 +286,7 @@ const useZapSwapQuery = ({
           tokenOut,
           amountIn,
           slippage,
-          signer: account as Address,
+          signer: signer as Address,
           trade: !forceMint,
           bypassCache: false,
           debug,
@@ -325,6 +330,15 @@ const useZapSwapQuery = ({
     prevCacheKeyRef.current = cacheKey
   }, [cacheKey, resetList])
 
+  // Wallet connect/switch → drop the rows immediately: display-only
+  // placeholder quotes (or another account's quotes) must not linger while
+  // the new signer's round is in flight.
+  const prevAccountRef = useRef(account)
+  useEffect(() => {
+    if (prevAccountRef.current !== account) resetList()
+    prevAccountRef.current = account
+  }, [account, resetList])
+
   // Tracking follows the ACTIVE quote (picked-or-best), not just the round
   // winner: registrations must be right when the user picks a row or when an
   // expired pick falls back — both happen without a new fetch. The endpoint
@@ -362,10 +376,16 @@ const useZapSwapQuery = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundResult])
 
+  // Rounds that end with no usable quote resolve successfully with
+  // `selected: null`, so there is no error state to show — `sourcing` stays
+  // true and the caller keeps the loading treatment up while the query
+  // retries on its refresh cadence.
+  const sourcing = !disabled && !!cacheKey && !active
+
   // `data` is the ACTIVE quote (picked-or-best); `roundData` changes once per
   // completed round — use it for round-scoped UI like the refetch loader so a
   // user pick doesn't retrigger it.
-  return { ...query, data: active ?? undefined, roundData: query.data }
+  return { ...query, data: active ?? undefined, roundData: query.data, sourcing }
 }
 
 export default useZapSwapQuery

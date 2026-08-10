@@ -73,9 +73,10 @@ function App() {
   const [zapperApiUrl, setZapperApiUrl] = useState(ZAPPER_API_URLS[0].value)
   const [mode, setMode] = useState<'modal' | 'inline' | 'simple'>('inline')
   const [sellOnly, setSellOnly] = useState(false)
+  const [showTabs, setShowTabs] = useState(false)
   const [showContactInfo, setShowContactInfo] = useState(true)
   const [locale, setLocale] = useState<SupportedLocale>('en')
-  const [refreshRate, setRefreshRate] = useState(9000)
+  const [refreshRate, setRefreshRate] = useState(30000)
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('theme')
     if (stored) return stored === 'dark'
@@ -116,7 +117,11 @@ function App() {
               onClick={() => setDark((d) => !d)}
               aria-label="Toggle theme"
             >
-              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {dark ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
             </Button>
             <ConnectButton />
           </div>
@@ -133,340 +138,393 @@ function App() {
           </Card>
         ) : (
           <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Configuration */}
-            <Card className="bg-secondary/30 border-border-secondary h-fit">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                  Configuration
-                </CardTitle>
-                <CardDescription>
-                  Configure the DTF token and API endpoint for the zapper
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Chain</label>
-                <Select
-                  value={selectedChain.id.toString()}
-                  onValueChange={(value) => {
-                    setSelectedChain(
-                      chains.find((chain) => chain.id.toString() === value) ||
-                        chains[0]
-                    )
-                  }}
-                >
-                  <SelectTrigger className="w-full md:w-64">
-                    <SelectValue placeholder="Select a chain" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {chains.map((chain) => (
-                      <SelectItem key={chain.id} value={chain.id.toString()}>
-                        {chain.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  DTF Token
-                </label>
-                <Select
-                  value={selectedDTF?.address}
-                  onValueChange={(value) => {
-                    const dtf = availableDTFs.find((d) => d.address === value)
-                    if (dtf) setSelectedDTF(dtf)
-                  }}
-                >
-                  <SelectTrigger className="w-full md:w-64">
-                    <SelectValue placeholder="Select a DTF" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableDTFs.map((dtf) => (
-                      <SelectItem key={dtf.address} value={dtf.address}>
-                        {dtf.symbol}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Configuration */}
+              <Card className="bg-secondary/30 border-border-secondary h-fit">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    Configuration
+                  </CardTitle>
+                  <CardDescription>
+                    Configure the DTF token and API endpoint for the zapper
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Chain
+                    </label>
+                    <Select
+                      value={selectedChain.id.toString()}
+                      onValueChange={(value) => {
+                        setSelectedChain(
+                          chains.find(
+                            (chain) => chain.id.toString() === value
+                          ) || chains[0]
+                        )
+                      }}
+                    >
+                      <SelectTrigger className="w-full md:w-64">
+                        <SelectValue placeholder="Select a chain" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {chains.map((chain) => (
+                          <SelectItem
+                            key={chain.id}
+                            value={chain.id.toString()}
+                          >
+                            {chain.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      DTF Token
+                    </label>
+                    <Select
+                      value={selectedDTF?.address}
+                      onValueChange={(value) => {
+                        const dtf = availableDTFs.find(
+                          (d) => d.address === value
+                        )
+                        if (dtf) setSelectedDTF(dtf)
+                      }}
+                    >
+                      <SelectTrigger className="w-full md:w-64">
+                        <SelectValue placeholder="Select a DTF" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableDTFs.map((dtf) => (
+                          <SelectItem key={dtf.address} value={dtf.address}>
+                            {dtf.symbol}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  API Endpoint
-                </label>
-                <Select
-                  value={apiUrl || 'default'}
-                  onValueChange={(value) =>
-                    setApiUrl(value === 'default' ? '' : value)
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {API_URLS.map((url) => (
-                      <SelectItem key={url.value} value={url.value}>
-                        {url.label} - {url.value}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Reserve API endpoint (prices, DTF data, folio manager)
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Zapper API Endpoint
-                </label>
-                <Select
-                  value={zapperApiUrl || 'default'}
-                  onValueChange={(value) =>
-                    setZapperApiUrl(value === 'default' ? '' : value)
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ZAPPER_API_URLS.map((url) => (
-                      <SelectItem key={url.value} value={url.value}>
-                        {url.label} - {url.value}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Zapper service endpoint (swap, deploy, healthcheck)
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Debug mode
-                </label>
-                <Select
-                  value={debug.toString()}
-                  onValueChange={(value) => setDebug(value === 'true')}
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[false, true]
-                      .map((v) => v.toString())
-                      .map((v) => (
-                        <SelectItem key={v} value={v}>
-                          {v}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      API Endpoint
+                    </label>
+                    <Select
+                      value={apiUrl || 'default'}
+                      onValueChange={(value) =>
+                        setApiUrl(value === 'default' ? '' : value)
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {API_URLS.map((url) => (
+                          <SelectItem key={url.value} value={url.value}>
+                            {url.label} - {url.value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Reserve API endpoint (prices, DTF data, folio manager)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Zapper API Endpoint
+                    </label>
+                    <Select
+                      value={zapperApiUrl || 'default'}
+                      onValueChange={(value) =>
+                        setZapperApiUrl(value === 'default' ? '' : value)
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ZAPPER_API_URLS.map((url) => (
+                          <SelectItem key={url.value} value={url.value}>
+                            {url.label} - {url.value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Zapper service endpoint (swap, deploy, healthcheck)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Debug mode
+                    </label>
+                    <Select
+                      value={debug.toString()}
+                      onValueChange={(value) => setDebug(value === 'true')}
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[false, true]
+                          .map((v) => v.toString())
+                          .map((v) => (
+                            <SelectItem key={v} value={v}>
+                              {v}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Default Quote Source
+                    </label>
+                    <Select
+                      value={quoteSource}
+                      onValueChange={(value) =>
+                        setQuoteSource(value as QuoteSource)
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="best">Best Quote</SelectItem>
+                        {(Object.keys(PROVIDERS) as ProviderId[]).map((id) => (
+                          <SelectItem key={id} value={id}>
+                            {PROVIDERS[id].label} Quote
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Quote Refresh Rate
+                    </label>
+                    <Select
+                      value={refreshRate.toString()}
+                      onValueChange={(value) => setRefreshRate(Number(value))}
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5000">5 seconds</SelectItem>
+                        <SelectItem value="9000">9 seconds</SelectItem>
+                        <SelectItem value="15000">15 seconds</SelectItem>
+                        <SelectItem value="30000">
+                          30 seconds (default)
                         </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Default Quote Source
-                </label>
-                <Select
-                  value={quoteSource}
-                  onValueChange={(value) =>
-                    setQuoteSource(value as QuoteSource)
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="best">Best Quote</SelectItem>
-                    {(Object.keys(PROVIDERS) as ProviderId[]).map((id) => (
-                      <SelectItem key={id} value={id}>
-                        {PROVIDERS[id].label} Quote
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Quote Refresh Rate
-                </label>
-                <Select
-                  value={refreshRate.toString()}
-                  onValueChange={(value) => setRefreshRate(Number(value))}
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5000">5 seconds</SelectItem>
-                    <SelectItem value="9000">9 seconds (default)</SelectItem>
-                    <SelectItem value="15000">15 seconds</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Display Mode
-                </label>
-                <Select
-                  value={mode}
-                  onValueChange={(value) =>
-                    setMode(value as 'modal' | 'inline' | 'simple')
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="modal">Modal</SelectItem>
-                    <SelectItem value="inline">Inline</SelectItem>
-                    <SelectItem value="simple">Simple</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Modal: Opens in a dialog | Inline: Embedded with controls | Simple: Minimal interface
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Sell Only (Deprecated DTF)
-                </label>
-                <Select
-                  value={sellOnly.toString()}
-                  onValueChange={(value) => setSellOnly(value === 'true')}
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[false, true]
-                      .map((v) => v.toString())
-                      .map((v) => (
-                        <SelectItem key={v} value={v}>
-                          {v}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  When enabled, disables Buy tab and only allows selling/redeeming
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Show Contact Info
-                </label>
-                <Select
-                  value={showContactInfo.toString()}
-                  onValueChange={(value) =>
-                    setShowContactInfo(value === 'true')
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[true, false]
-                      .map((v) => v.toString())
-                      .map((v) => (
-                        <SelectItem key={v} value={v}>
-                          {v}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Shows the "Stay informed" contact panel after a successful mint
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Language
-                </label>
-                <Select
-                  value={locale}
-                  onValueChange={(value) =>
-                    setLocale(value as SupportedLocale)
-                  }
-                >
-                  <SelectTrigger className="w-full md:w-96">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="ko">한국어</SelectItem>
-                    <SelectItem value="zh">中文</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Optional <code>locale</code> prop. Untranslated strings fall
-                  back to English.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Display Mode
+                    </label>
+                    <Select
+                      value={mode}
+                      onValueChange={(value) =>
+                        setMode(value as 'modal' | 'inline' | 'simple')
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="modal">Modal</SelectItem>
+                        <SelectItem value="inline">Inline</SelectItem>
+                        <SelectItem value="simple">Simple</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Modal: Opens in a dialog | Inline: Embedded with controls
+                      | Simple: Minimal interface
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Sell Only (Deprecated DTF)
+                    </label>
+                    <Select
+                      value={sellOnly.toString()}
+                      onValueChange={(value) => setSellOnly(value === 'true')}
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[false, true]
+                          .map((v) => v.toString())
+                          .map((v) => (
+                            <SelectItem key={v} value={v}>
+                              {v}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      When enabled, disables Buy tab and only allows
+                      selling/redeeming
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Show Buy/Sell Tabs (inline)
+                    </label>
+                    <Select
+                      value={showTabs.toString()}
+                      onValueChange={(value) => setShowTabs(value === 'true')}
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[false, true]
+                          .map((v) => v.toString())
+                          .map((v) => (
+                            <SelectItem key={v} value={v}>
+                              {v}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Show the Buy/Sell tab switcher in inline mode (hidden by
+                      default; the swap arrow still flips sides)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Show Contact Info
+                    </label>
+                    <Select
+                      value={showContactInfo.toString()}
+                      onValueChange={(value) =>
+                        setShowContactInfo(value === 'true')
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[true, false]
+                          .map((v) => v.toString())
+                          .map((v) => (
+                            <SelectItem key={v} value={v}>
+                              {v}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Shows the "Stay informed" contact panel after a successful
+                      mint
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Language
+                    </label>
+                    <Select
+                      value={locale}
+                      onValueChange={(value) =>
+                        setLocale(value as SupportedLocale)
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-96">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                        <SelectItem value="ko">한국어</SelectItem>
+                        <SelectItem value="zh">中文</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Optional <code>locale</code> prop. Untranslated strings
+                      fall back to English.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Right: Zapper Component */}
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${
-                  mode === 'modal' ? 'bg-success' :
-                  mode === 'inline' ? 'bg-primary' :
-                  'bg-warning'
-                }`} />
-                Zapper Component ({mode.charAt(0).toUpperCase() + mode.slice(1)} Mode)
-              </CardTitle>
-              <CardDescription>
-                {mode === 'modal' ? 'Opens the zapper in a modal dialog' :
-                 mode === 'inline' ? 'Embedded zapper component with full controls' :
-                 'Minimal zapper interface without extra UI elements'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className={mode === 'modal' ? '' : 'p-0'}>
-              {mode === 'modal' ? (
-                <>
-                  <ZapperWrapper
-                    chain={selectedChain.id as AvailableChain}
-                    dtfAddress={selectedDTF.address}
-                    mode="modal"
-                    apiUrl={apiUrl || undefined}
-                    zapperApiUrl={zapperApiUrl || undefined}
-                    defaultSource={quoteSource}
-                    debug={debug}
-                    sellOnly={sellOnly}
-                    showContactInfo={showContactInfo}
-                    locale={locale}
-                    refreshRate={refreshRate}
-                  />
-                  <Button onClick={open} className="w-full rounded-xl" size="lg">
-                    Open Zapper Modal
-                  </Button>
-                </>
-              ) : (
-                <div className="p-4 border-t border-muted">
-                  <ZapperWrapper
-                    chain={selectedChain.id as AvailableChain}
-                    dtfAddress={selectedDTF.address}
-                    mode={mode}
-                    apiUrl={apiUrl || undefined}
-                    zapperApiUrl={zapperApiUrl || undefined}
-                    debug={debug}
-                    defaultSource={quoteSource}
-                    sellOnly={sellOnly}
-                    showContactInfo={showContactInfo}
-                    locale={locale}
-                    refreshRate={refreshRate}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          </div>
-          <QuoteStatePanel />
+              {/* Right: Zapper Component */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        mode === 'modal'
+                          ? 'bg-success'
+                          : mode === 'inline'
+                            ? 'bg-primary'
+                            : 'bg-warning'
+                      }`}
+                    />
+                    Zapper Component (
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)} Mode)
+                  </CardTitle>
+                  <CardDescription>
+                    {mode === 'modal'
+                      ? 'Opens the zapper in a modal dialog'
+                      : mode === 'inline'
+                        ? 'Embedded zapper component with full controls'
+                        : 'Minimal zapper interface without extra UI elements'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className={mode === 'modal' ? '' : 'p-0'}>
+                  {mode === 'modal' ? (
+                    <>
+                      <ZapperWrapper
+                        chain={selectedChain.id as AvailableChain}
+                        dtfAddress={selectedDTF.address}
+                        mode="modal"
+                        apiUrl={apiUrl || undefined}
+                        zapperApiUrl={zapperApiUrl || undefined}
+                        defaultSource={quoteSource}
+                        debug={debug}
+                        sellOnly={sellOnly}
+                        showTabs={showTabs}
+                        showContactInfo={showContactInfo}
+                        locale={locale}
+                        refreshRate={refreshRate}
+                      />
+                      <Button
+                        onClick={open}
+                        className="w-full rounded-xl"
+                        size="lg"
+                      >
+                        Open Zapper Modal
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="p-4 border-t border-muted">
+                      <ZapperWrapper
+                        chain={selectedChain.id as AvailableChain}
+                        dtfAddress={selectedDTF.address}
+                        mode={mode}
+                        apiUrl={apiUrl || undefined}
+                        zapperApiUrl={zapperApiUrl || undefined}
+                        debug={debug}
+                        defaultSource={quoteSource}
+                        sellOnly={sellOnly}
+                        showTabs={showTabs}
+                        showContactInfo={showContactInfo}
+                        locale={locale}
+                        refreshRate={refreshRate}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            <QuoteStatePanel />
           </>
         )}
       </div>

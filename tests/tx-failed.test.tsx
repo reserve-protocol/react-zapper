@@ -123,7 +123,7 @@ describe('CTA recovery after failed transaction', () => {
       await waitFor(
         () => {
           const cta = getCta()
-          expect(cta.textContent).toMatch(/Buy TEST/i)
+          expect(cta.textContent).toMatch(/Market Buy/i)
           expect(cta.disabled).toBe(false)
         },
         { timeout: 20_000, interval: 250 }
@@ -131,7 +131,7 @@ describe('CTA recovery after failed transaction', () => {
       // must be stable, not a momentary flap
       await new Promise((r) => setTimeout(r, 3_000))
       const cta = getCta()
-      expect(cta.textContent).toMatch(/Buy TEST/i)
+      expect(cta.textContent).toMatch(/Market Buy/i)
       expect(cta.disabled).toBe(false)
     } catch (e) {
       dumpState('STUCK after revert+stale-sim')

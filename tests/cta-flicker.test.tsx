@@ -1,10 +1,14 @@
 /**
- * Fast quote refreshes must not blink the CTA: when a refetch resolves in
- * under the deferred-loading delay, the button should not visibly change at
- * all. Catches the sub-perceptual "Fetching quote..." flash on every
- * refresh tick.
+ * Quote refreshes must not blink the CTA: background refetches keep the
+ * previous quote displayed and the button ready — no "Fetching quote..."
+ * state, no disable, regardless of how slow the refetch is. Only the first
+ * load of a cache key shows a fetching state.
+ *
+ * Tests pass an explicit 9s refreshRate (production default is 30s) so a
+ * couple of refresh ticks fit in each observation window.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { fireEvent, waitFor } from '@testing-library/react'
 
 import {
   getCta,
@@ -38,7 +42,7 @@ describe('CTA flicker on quote refresh', () => {
         },
       })
     )
-    await setup()
+    await setup({ refreshRate: 9_000 })
     await waitForReadyCta()
 
     // observe two full refresh ticks (9s interval) at high frequency
@@ -81,7 +85,7 @@ describe('CTA flicker on quote refresh', () => {
       })
     )
     scenario.quoteDelayMs = 800
-    await setup()
+    await setup({ refreshRate: 9_000 })
     await waitForReadyCta()
 
     const transitions: string[] = []
@@ -116,9 +120,20 @@ describe('CTA flicker on quote refresh', () => {
     expect(simFlash).toHaveLength(0)
   }, 40_000)
 
-  it('shows a readable fetching state when the refetch is slow', async () => {
+  it('keeps the CTA ready through a slow background refetch', async () => {
+    // realistic: every refetch returns different calldata, and takes 800ms
+    let fetchCount = 0
+    setQuoteBuilder(() =>
+      makeQuote({
+        tx: {
+          data: `0x12345678${(fetchCount++).toString(16).padStart(4, '0')}`,
+          to: '0x2000000000000000000000000000000000000002',
+          value: '1000000000000000000',
+        },
+      })
+    )
     scenario.quoteDelayMs = 800
-    await setup()
+    await setup({ refreshRate: 9_000 })
     await waitForReadyCta()
 
     const transitions: { at: number; state: string }[] = []
@@ -148,14 +163,47 @@ describe('CTA flicker on quote refresh', () => {
         transitions.map((t) => `${t.at}ms ${t.state}`).join('\n')
     )
 
-    const fetchingIdx = transitions.findIndex((t) =>
-      /Fetching quote/.test(t.state)
+    // the previous quote stays displayed and clickable: no fetching state,
+    // no disable, no other transition for the whole refetch
+    expect(
+      transitions.filter((t) => /Fetching quote/.test(t.state))
+    ).toHaveLength(0)
+    expect(transitions).toHaveLength(1)
+    expect(transitions[0].state).toMatch(/Market Buy/)
+    expect(transitions[0].state).toMatch(/\|false$/)
+  }, 40_000)
+
+  it('submits the displayed quote when clicked mid-refetch', async () => {
+    let fetchCount = 0
+    let lastBuiltData = ''
+    setQuoteBuilder(() => {
+      lastBuiltData = `0x12345678${(fetchCount++).toString(16).padStart(4, '0')}`
+      return makeQuote({
+        tx: {
+          data: lastBuiltData,
+          to: '0x2000000000000000000000000000000000000002',
+          value: '1000000000000000000',
+        },
+      })
+    })
+    await setup({ refreshRate: 9_000 })
+    await waitForReadyCta()
+
+    // the quote on screen is the last one built; make the next round slow and
+    // click while its refetch is still in flight
+    const displayedData = lastBuiltData
+    scenario.quoteDelayMs = 5_000
+    await new Promise((r) => setTimeout(r, 9_500))
+
+    const cta = getCta()
+    expect(cta.textContent).toMatch(/Market Buy/)
+    expect(cta.disabled).toBe(false)
+    fireEvent.click(cta)
+
+    await waitFor(
+      () => expect(scenario.sentTransactions).toHaveLength(1),
+      { timeout: 15_000 }
     )
-    expect(fetchingIdx).toBeGreaterThan(0)
-    // and it stayed up long enough to be readable (minDuration ~400ms)
-    const shownFor =
-      (transitions[fetchingIdx + 1]?.at ?? Infinity) -
-      transitions[fetchingIdx].at
-    expect(shownFor).toBeGreaterThanOrEqual(350)
+    expect(scenario.sentTransactions[0].data).toBe(displayedData)
   }, 40_000)
 })

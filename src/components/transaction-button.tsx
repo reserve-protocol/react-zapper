@@ -55,7 +55,11 @@ export function TransactionButton({
   }, [balance, gas])
 
   if (!isConnected) {
-    return <ConnectWalletButton disabled={disabled || loading} />
+    // Keep the action label and styling: the CTA reads e.g. "Market Buy" and
+    // clicking it prompts the wallet connect flow.
+    return (
+      <ConnectWalletButton className={className}>{children}</ConnectWalletButton>
+    )
   }
 
   if (isWrongChain) {
@@ -80,16 +84,24 @@ export function TransactionButton({
   )
 }
 
-export const ConnectWalletButton = ({ disabled }: { disabled?: boolean }) => {
+export const ConnectWalletButton = ({
+  disabled,
+  className,
+  children,
+}: {
+  disabled?: boolean
+  className?: string
+  children?: React.ReactNode
+}) => {
   const { fn: connectWallet } = useAtomValue(connectWalletAtom)
   return (
     <Button
       size="lg"
       onClick={connectWallet}
-      className="w-full rounded-xl"
+      className={cn('w-full rounded-xl', className)}
       disabled={disabled}
     >
-      <Trans>Connect Wallet</Trans>
+      {children ?? <Trans>Connect Wallet</Trans>}
     </Button>
   )
 }
@@ -113,9 +125,14 @@ export const SwitchChainButton = ({ disabled }: { disabled?: boolean }) => {
 export function TransactionButtonContainer({
   children,
   disabled,
+  connectLabel,
+  connectClassName,
 }: {
   children: React.ReactNode
   disabled?: boolean
+  /** Label for the disconnected state (defaults to "Connect Wallet"). */
+  connectLabel?: React.ReactNode
+  connectClassName?: string
 }) {
   const account = useAccount()
   const chainId = useAtomValue(chainIdAtom)
@@ -124,7 +141,11 @@ export function TransactionButtonContainer({
   const isWrongChain = walletChainId && walletChainId !== chainId
 
   if (!isConnected) {
-    return <ConnectWalletButton disabled={disabled} />
+    return (
+      <ConnectWalletButton className={connectClassName}>
+        {connectLabel}
+      </ConnectWalletButton>
+    )
   }
 
   if (isWrongChain) {

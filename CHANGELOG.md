@@ -1,3 +1,28 @@
+## [2.10.0] - 2026-08-07
+
+### Added
+
+- Usable without a connected wallet: quotes are fetched with a placeholder signer while disconnected (inputs enabled, routes and details shown), and anything executable is stripped from those quotes (`tx`, RFQ order, approval flags). The CTA keeps its Market Buy/Sell label and styling and triggers the host's `connectWallet` callback on click.
+- Toxic-quote filter: quotes losing more than 8% of value to price impact (dust-adjusted, Reserve-priced) are discarded like any other provider failure — they never appear in the route list nor win a round. New Mixpanel events `Quote Toxic Filtered` and `Quote Round Empty` for observability.
+- Slippage tolerance picker above the Details view: a fixed-option dropdown (0.1% / 0.5% / 1% / 5%, no free input) with the tooltip "Permissible price deviation (%) between quoted and execution price". The default changed from 1% to **0.5%**. Changing it refetches quotes and recomputes the Max slippage detail. New Mixpanel event `Slippage Tolerance Changed`.
+- New "Max slippage" detail row: the worst-case value difference if the trade executes at `minAmountOut`, derived from the quote itself (so venue-supplied minimums, e.g. PCSX Dutch orders, are reported truthfully). A regression test guards that it agrees with `projected slippage + tolerance` for tolerance-derived minimums.
+
+### Changed
+
+- The Buy/Sell tabs in inline mode are now hidden by default and opt-in via the new `showTabs` prop — the swap arrow between the amount boxes remains the way to flip sides.
+- Quote refresh interval default raised from 9s to **30s**, and background refetches no longer show any loading state: the previous quote stays displayed and the CTA stays clickable for the whole refetch (clicking mid-refetch submits the quote on screen). Only the first quote of a new input shows a loading state.
+- The route list moved inside the collapsible **Details** section (trigger renamed "Details"); it is no longer always visible. Rows appear only when their quote resolves — no more all-provider loading skeletons expanding and shrinking the panel — and the "Expires in" countdown and the red delta-vs-best percentage were removed from rows (expired rows still dim and become unselectable).
+- Details content reworked: Routes, **Current price** (ex "Exchange Rate"), **Projected slippage** (ex "Price Impact" — renamed per feedback that "price impact" was the wrong term; the inline percentage next to the output USD value was removed, only the dollar value remains), **Max slippage**, Min amount out, and "Quote includes fees" last.
+- CTAs restyled as market orders: "Market Buy" / "Market Sell" instead of "Buy/Sell {ticker}", colored with Register's candlestick green (`#24B886`) and red (`#E85F45`). The approval step reads "Approve and market buy/sell" (the "Step 1/2" prefixes are gone) with the same colors.
+- Copy: "You use:" → **"Order size"**, "You receive:" → **"Projected proceeds"**.
+- The main output amount is now formatted (up to 6 decimals below 1, up to 2 decimals above, significant-digits fallback for tiny values) instead of rendering the quote's full raw precision.
+- No more terminal "no routes" error: when no provider returns a usable quote the widget keeps the loading treatment and silently retries on the refresh cadence. The slow-loading overlay shows a fixed **"Sourcing liquidity"** label (the rotating messages are gone) and its elapsed counter rolls over to minutes and hours.
+- Success view in inline mode is now a popup dialog instead of replacing the widget; the zapper resets behind it (input, quote rows, tx freeze) so a clean form is ready when the dialog closes.
+
+### Removed
+
+- The settings page and its gear button. Slippage moved to the new picker; the "Deep liquidity search" and "Force DTF mint" toggles moved into the debug panel (`debug` prop), where the `disabledSettings` prop still hides them. The refresh button is also debug-only now (the close button remains in modal mode).
+
 ## [2.9.0] - 2026-08-04
 
 ### Added

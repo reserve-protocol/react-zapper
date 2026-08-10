@@ -63,6 +63,13 @@ const FUSAKA_GAS_LIMIT = 2n ** 24n
 // (CoW's can be valid for hours) would read as noise.
 const COUNTDOWN_VISIBLE_UNDER_SECONDS = 60
 
+// Register's candlestick colors (fixed brand hexes, same in light and dark):
+// the CTA reads as the side of the trade, like the candles do.
+export const MARKET_CTA_CLASS = {
+  buy: 'bg-[#24B886] hover:bg-[#24B886]/90 text-white',
+  sell: 'bg-[#E85F45] hover:bg-[#E85F45]/90 text-white',
+} as const
+
 const GetStartedButton = ({
   fetchingZapper,
   showTxButton,
@@ -208,9 +215,6 @@ const SubmitZapButton = ({
     chainId,
   })
 
-  const addStepOneLabel =
-    approvalNeeded && approvalReceipt?.status !== 'success'
-  const addStepTwoLabel = approvalReceipt?.status === 'success'
   const readyToSubmit = !approvalNeeded || approvalReceipt?.status === 'success'
 
   const {
@@ -240,8 +244,9 @@ const SubmitZapButton = ({
     chainId,
     query: {
       // Stop simulating once a tx is in flight/done — a failed simulation
-      // would force a quote refetch and overwrite the frozen result.
-      enabled: readyToSubmit && !!tx && !ongoingTx,
+      // would force a quote refetch and overwrite the frozen result. Never
+      // simulate without a real account (placeholder quotes carry no tx).
+      enabled: readyToSubmit && !!tx && !ongoingTx && !!account,
       refetchIntervalInBackground: true,
       refetchOnWindowFocus: true,
       refetchInterval: 2_000,
@@ -607,7 +612,11 @@ const SubmitZapButton = ({
             approve()
           }
         }}
-        className={cn('rounded-xl', heartbeat && 'animate-heartbeat')}
+        className={cn(
+          'rounded-xl',
+          MARKET_CTA_CLASS[currentTab],
+          heartbeat && 'animate-heartbeat'
+        )}
       >
         {quoteExpired
           ? t`Quote expired`
@@ -619,8 +628,10 @@ const SubmitZapButton = ({
           ? t`Waiting for order to fill...`
           : `${
               readyToSubmit
-                ? `${addStepTwoLabel ? t`Step 2. ` : ''}${buttonLabel}`
-                : `${addStepOneLabel ? t`Step 1. ` : ''}${t`Approve use of ${inputSymbol}`}`
+                ? buttonLabel
+                : currentTab === 'buy'
+                ? t`Approve and market buy`
+                : t`Approve and market sell`
             }${
               secondsLeft !== null &&
               secondsLeft > 0 &&
@@ -671,6 +682,7 @@ const SubmitZap = ({
   disabled?: boolean
 }) => {
   const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
+  const currentTab = useAtomValue(zapperCurrentTabAtom)
 
   // Simple mode: show Get Started button instead of transaction button
   if (mode === 'simple' && !zapOngoingTx) {
@@ -698,7 +710,11 @@ const SubmitZap = ({
       disabled={disabled}
     />
   ) : (
-    <TransactionButtonContainer disabled={disabled}>
+    <TransactionButtonContainer
+      disabled={disabled}
+      connectLabel={buttonLabel}
+      connectClassName={cn('rounded-xl', MARKET_CTA_CLASS[currentTab])}
+    >
       <LoadingButton
         fetchingZapper={fetchingZapper}
         insufficientBalance={insufficientBalance}

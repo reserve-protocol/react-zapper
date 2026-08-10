@@ -338,12 +338,15 @@ export const cowswapAdapter: RfqAdapter = {
         receiver: ctx.account,
         signingScheme: SigningScheme.EIP712,
       }),
-      ctx.readAllowance(ctx.tokenIn, ctx.account, vaultRelayer),
+      // Placeholder signer → indicative quote, no allowance read
+      ctx.signerIsPlaceholder
+        ? Promise.resolve(null)
+        : ctx.readAllowance(ctx.tokenIn, ctx.account, vaultRelayer),
     ])
     const sellAmount =
       BigInt(response.quote.sellAmount) + BigInt(response.quote.feeAmount)
     return mapCowQuoteToZapResult(response, ctx, {
-      approvalNeeded: allowance < sellAmount,
+      approvalNeeded: allowance != null && allowance < sellAmount,
       flow: 'gasless',
     })
   },
