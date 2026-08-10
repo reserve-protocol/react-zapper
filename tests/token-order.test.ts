@@ -6,7 +6,13 @@ import { reducedZappableTokens } from '../src/utils/constants'
 import { ChainId } from '../src/utils/chains'
 
 const tokens = reducedZappableTokens[ChainId.Mainnet]
-const [eth, weth, usdc] = tokens.map((t) => t.address.toLowerCase())
+const bySymbol = (symbol: string) =>
+  tokens.find((t) => t.symbol === symbol)!.address.toLowerCase()
+// Default list order is [usdc, eth, weth] — stables lead so they are the
+// no-wallet default input.
+const eth = bySymbol('ETH')
+const weth = bySymbol('WETH')
+const usdc = bySymbol('USDC')
 
 describe('sortTokensByUsdValue', () => {
   it('orders tokens by balance × price, descending', () => {
@@ -24,7 +30,7 @@ describe('sortTokensByUsdValue', () => {
       { [eth]: '0', [weth]: '0', [usdc]: '0' },
       { [eth]: 2000, [weth]: 2000, [usdc]: 1 }
     )
-    expect(order).toEqual([eth, weth, usdc])
+    expect(order).toEqual([usdc, eth, weth])
   })
 
   it('treats missing balances as zero', () => {
@@ -47,7 +53,7 @@ describe('sortTokensByUsdValue', () => {
 
   it('falls back to the default order when there is no data at all', () => {
     const order = sortTokensByUsdValue(tokens, {}, {})
-    expect(order).toEqual([eth, weth, usdc])
+    expect(order).toEqual([usdc, eth, weth])
   })
 
   it('normalizes addresses to lowercase', () => {

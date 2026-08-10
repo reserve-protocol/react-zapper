@@ -28,6 +28,9 @@ describe('no-wallet quoting', () => {
     const connectWallet = vi.fn()
     await setup({ connected: false, connectWallet })
 
+    // disconnected default input is the stable leading the token list
+    expect(screen.getAllByText('USDC').length).toBeGreaterThan(0)
+
     // the placeholder-signed round actually fetches quotes (before this
     // feature the query was disabled entirely without an account)
     await waitFor(() => expect(scenario.quoteFetches).toBeGreaterThan(0), {

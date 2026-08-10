@@ -26,8 +26,10 @@ const balancesCallAtom = atom((get) => {
     return undefined
   }
 
+  // Every ERC-20 in the list gets a balanceOf call; the native token (pseudo
+  // address, not a contract) is read separately via useBalance.
   const tokens: [Address, number][] = reducedZappableTokens[chainId]
-    .slice(1)
+    .filter((token) => token.address.toLowerCase() !== ethAddress.toLowerCase())
     .map((token) => [token.address, token.decimals])
 
   if (indexDTF) {

@@ -18,10 +18,7 @@ import useRfqOrderExecution, {
 import { classifyEstimateGasError } from '../../hooks/zap-quote-simulation'
 import useWatchTransaction from '../../hooks/useWatchTransaction'
 import { indexDTFAtom, walletAtom } from '../../state/atoms'
-import {
-  pickedSourceAtom,
-  quoteListAtom,
-} from '../../state/quote-list-atoms'
+import { pickedSourceAtom, quoteListAtom } from '../../state/quote-list-atoms'
 import { ZapResult } from '../../types/api'
 import type { ProviderId } from '../../utils/providers'
 import { getReceivedAmount } from '../../utils/receipt'
@@ -58,10 +55,6 @@ import { minBigInt } from '@/utils'
 
 // EIP-7825: Transaction Gas Limit Cap
 const FUSAKA_GAS_LIMIT = 2n ** 24n
-
-// The countdown suffix only shows when expiry is imminent — long-lived quotes
-// (CoW's can be valid for hours) would read as noise.
-const COUNTDOWN_VISIBLE_UNDER_SECONDS = 60
 
 // Register's candlestick colors (fixed brand hexes, same in light and dark):
 // the CTA reads as the side of the trade, like the candles do.
@@ -375,8 +368,10 @@ const SubmitZapButton = ({
     rfqOrder.phase === 'submitting' || rfqOrder.phase === 'filling'
 
   // While the CTA is clicked and the quote refresh is paused (signing in the
-  // wallet or waiting for the approval to mine), count down to quote expiry.
-  // Once an RFQ order is posted the quote no longer matters — no countdown.
+  // wallet or waiting for the approval to mine), track quote expiry so a dead
+  // quote flips the label to "Quote expired" — without showing a ticking
+  // countdown on the CTA. Once an RFQ order is posted the quote no longer
+  // matters.
   const countdownActive =
     ongoingTx &&
     !receipt &&
@@ -385,11 +380,6 @@ const SubmitZapButton = ({
     !rfqWaitingFill
   const secondsLeft = useQuoteCountdown(validUntil, countdownActive)
   const quoteExpired = countdownActive && secondsLeft === 0
-  const heartbeat =
-    countdownActive &&
-    secondsLeft !== null &&
-    secondsLeft > 0 &&
-    secondsLeft <= 5
 
   // Reads the quote-list atoms lazily at click time (no subscription — the
   // CTA must not re-render on list ticks) to record picked-vs-best.
@@ -486,8 +476,11 @@ const SubmitZapButton = ({
       receivedRaw > 0n
         ? formatUnits(receivedRaw, outputDecimals)
         : formatUnits(BigInt(amountOut || 0), outputDecimals)
-    const quotedOut = Number(formatUnits(BigInt(amountOut || 0), outputDecimals))
-    const unitPrice = amountOutValue && quotedOut ? amountOutValue / quotedOut : 0
+    const quotedOut = Number(
+      formatUnits(BigInt(amountOut || 0), outputDecimals)
+    )
+    const unitPrice =
+      amountOutValue && quotedOut ? amountOutValue / quotedOut : 0
 
     setZapSuccess({
       isMint: currentTab === 'buy',
@@ -612,33 +605,21 @@ const SubmitZapButton = ({
             approve()
           }
         }}
-        className={cn(
-          'rounded-xl',
-          MARKET_CTA_CLASS[currentTab],
-          heartbeat && 'animate-heartbeat'
-        )}
+        className={cn('rounded-xl', MARKET_CTA_CLASS[currentTab])}
       >
         {quoteExpired
           ? t`Quote expired`
           : showFetching
-          ? t`Fetching quote...`
-          : simulationFailed
-          ? t`Simulation failed - Refetching quote`
-          : rfqWaitingFill
-          ? t`Waiting for order to fill...`
-          : `${
-              readyToSubmit
-                ? buttonLabel
-                : currentTab === 'buy'
-                ? t`Approve and market buy`
-                : t`Approve and market sell`
-            }${
-              secondsLeft !== null &&
-              secondsLeft > 0 &&
-              secondsLeft < COUNTDOWN_VISIBLE_UNDER_SECONDS
-                ? ` (${secondsLeft}s)`
-                : ''
-            }`}
+            ? t`Fetching quote...`
+            : simulationFailed
+              ? t`Simulation failed - Refetching quote`
+              : rfqWaitingFill
+                ? t`Waiting for order to fill...`
+                : readyToSubmit
+                  ? buttonLabel
+                  : currentTab === 'buy'
+                    ? t`Approve and market buy`
+                    : t`Approve and market sell`}
       </TransactionButton>
       {mode !== 'simple' && <ZapTxErrorMsg error={error} />}
       {mode !== 'simple' && rfqNotice && (

@@ -2,7 +2,16 @@ import { Address, ethAddress } from 'viem'
 import { ChainId } from './chains'
 import { Token } from '..'
 
+// Stables lead every list: with no wallet connected there are no balances to
+// order by, so the first entry is the default input asset.
 const reducedMainnetTokens = [
+  {
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as Address,
+    symbol: 'USDC',
+    name: 'USDC',
+    decimals: 6,
+    targetUnit: 'USD',
+  },
   {
     address: ethAddress,
     symbol: 'ETH',
@@ -17,16 +26,16 @@ const reducedMainnetTokens = [
     decimals: 18,
     targetUnit: 'ETH',
   },
+]
+
+const reducedBaseTokens = [
   {
-    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as Address,
+    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as Address,
     symbol: 'USDC',
     name: 'USDC',
     decimals: 6,
     targetUnit: 'USD',
   },
-]
-
-const reducedBaseTokens = [
   {
     address: ethAddress,
     symbol: 'ETH',
@@ -41,16 +50,16 @@ const reducedBaseTokens = [
     decimals: 18,
     targetUnit: 'ETH',
   },
+]
+
+const reducedArbitrumTokens = [
   {
-    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as Address,
+    address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' as Address,
     symbol: 'USDC',
     name: 'USDC',
     decimals: 6,
     targetUnit: 'USD',
   },
-]
-
-const reducedArbitrumTokens = [
   {
     address: ethAddress,
     symbol: 'ETH',
@@ -65,29 +74,22 @@ const reducedArbitrumTokens = [
     decimals: 18,
     targetUnit: 'ETH',
   },
-  {
-    address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' as Address,
-    symbol: 'USDC',
-    name: 'USDC',
-    decimals: 6,
-    targetUnit: 'USD',
-  },
 ]
 
 const bscTokens = [
-  {
-    address: ethAddress,
-    symbol: 'BNB',
-    name: 'BNB',
-    decimals: 18,
-    targetUnit: 'BNB',
-  },
   {
     address: '0x55d398326f99059fF775485246999027B3197955' as Address,
     symbol: 'USDT',
     name: 'Tether USD',
     decimals: 18,
     targetUnit: 'USD',
+  },
+  {
+    address: ethAddress,
+    symbol: 'BNB',
+    name: 'BNB',
+    decimals: 18,
+    targetUnit: 'BNB',
   },
   {
     address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' as Address,

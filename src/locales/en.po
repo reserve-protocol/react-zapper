@@ -56,7 +56,7 @@ msgstr ""
 #~ msgid "Best Quote"
 #~ msgstr ""
 
-#: src/components/zapper.tsx:148
+#: src/components/zapper.tsx:153
 msgid "Buy"
 msgstr ""
 
@@ -84,7 +84,7 @@ msgstr ""
 msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
 msgstr ""
 
-#: src/components/transaction-button.tsx:104
+#: src/components/transaction-button.tsx:117
 msgid "Connect Wallet"
 msgstr ""
 
@@ -96,7 +96,7 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:102
+#: src/components/zap-mint/zap-details.tsx:151
 msgid "Current price"
 msgstr ""
 
@@ -108,7 +108,7 @@ msgstr ""
 msgid "Deep liquidity search"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:94
+#: src/components/zap-mint/zap-details.tsx:143
 msgid "Details"
 msgstr ""
 
@@ -209,7 +209,7 @@ msgstr ""
 msgid "Insufficient balance"
 msgstr ""
 
-#: src/components/transaction-button.tsx:82
+#: src/components/transaction-button.tsx:95
 msgid "Insufficient gas balance"
 msgstr ""
 
@@ -234,7 +234,7 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:127
+#: src/components/zap-mint/zap-details.tsx:181
 msgid "Max slippage"
 msgstr ""
 
@@ -246,7 +246,7 @@ msgstr ""
 msgid "Methodology or mandate updates"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:146
+#: src/components/zap-mint/zap-details.tsx:202
 msgid "Min Amount Out"
 msgstr ""
 
@@ -282,7 +282,7 @@ msgstr ""
 #~ msgid "Price Impact"
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:116
+#: src/components/zap-mint/zap-details.tsx:170
 msgid "Projected difference (%) between the value you pay and the value you receive, at current prices."
 msgstr ""
 
@@ -290,7 +290,7 @@ msgstr ""
 msgid "Projected proceeds"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:111
+#: src/components/zap-mint/zap-details.tsx:160
 msgid "Projected slippage"
 msgstr ""
 
@@ -298,7 +298,7 @@ msgstr ""
 msgid "Quote expired"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:163
+#: src/components/zap-mint/zap-details.tsx:221
 msgid "Quote includes fees"
 msgstr ""
 
@@ -346,7 +346,7 @@ msgstr ""
 #~ msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
 #~ msgstr ""
 
-#: src/components/zapper.tsx:151
+#: src/components/zapper.tsx:156
 msgid "Sell"
 msgstr ""
 
@@ -419,8 +419,8 @@ msgid "Successful Redemption"
 msgstr ""
 
 #: src/components/transaction-button.tsx:120
-msgid "Switch to {chainName}"
-msgstr ""
+#~ msgid "Switch to {chainName}"
+#~ msgstr ""
 
 #: src/components/zap-mint/subscribe-updates.tsx:41
 #~ msgid "Telegram"
@@ -434,7 +434,7 @@ msgstr ""
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:106
+#: src/components/zap-mint/zap-details.tsx:155
 msgid "The current exchange rate between the tokens."
 msgstr ""
 
@@ -442,7 +442,7 @@ msgstr ""
 #~ msgid "The displayed quote already includes all applicable fees and price impact."
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:167
+#: src/components/zap-mint/zap-details.tsx:225
 msgid "The displayed quote already includes all applicable fees."
 msgstr ""
 
@@ -454,7 +454,7 @@ msgstr ""
 #~ msgid "The maximum amount of slippage you are willing to accept when minting. Higher slippage settings will make the transaction more likely to succeed, but may result in fewer tokens minted."
 #~ msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:155
+#: src/components/zap-mint/zap-details.tsx:211
 msgid "The minimum amount of tokens you will receive."
 msgstr ""
 
@@ -488,8 +488,8 @@ msgstr ""
 #~ msgid "Toggle {option}"
 #~ msgstr ""
 
-#: src/components/zapper.tsx:131
-#: src/components/zapper.tsx:185
+#: src/components/zapper.tsx:134
+#: src/components/zapper.tsx:194
 msgid "Transaction successful"
 msgstr ""
 
@@ -517,7 +517,7 @@ msgstr ""
 msgid "Waiting for order to fill..."
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:132
+#: src/components/zap-mint/zap-details.tsx:188
 msgid "Worst case: the value difference (%) if the trade executes at the minimum amount out allowed by your slippage tolerance."
 msgstr ""
 

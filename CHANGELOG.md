@@ -1,3 +1,11 @@
+## [2.10.2] - 2026-08-10
+
+### Changed
+
+- The default input asset when no wallet is connected is now the chain's stablecoin (USDC on Ethereum/Base/Arbitrum, USDT on BSC) instead of the native token: stables lead the zappable token lists, and without balances to order by, the first entry is the default. With a wallet connected the order keeps following the user's balances, unchanged.
+- The "Switch network" button is gone: a wallet sitting on another network sees the regular CTA, and the network switch is requested right before the CTA action (approve or buy/sell) as part of the same click. A rejected switch simply cancels the action.
+- The CTA no longer shows the ticking expiry countdown (and heartbeat pulse) while the wallet prompt is open. The quote expiry itself is still tracked: a quote that dies during the prompt flips the CTA to "Quote expired" and an expired quote is never submitted.
+
 ## [2.10.1] - 2026-08-10
 
 ### Changed

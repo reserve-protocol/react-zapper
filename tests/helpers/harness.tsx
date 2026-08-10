@@ -687,6 +687,15 @@ export const setup = async ({
       [erc20Input.address]: ethBalance,
     })
   } else {
+    // Stables lead the hardcoded token lists (they are the no-wallet default),
+    // but the connected-test baseline stays the native input — select it
+    // explicitly. Disconnected setups keep the real default (USDC/USDT).
+    if (connected) {
+      const native = reducedZappableTokens[baseChain.id].find(
+        (t) => t.address === ethAddress
+      )!
+      store.set(selectedTokenAtom, native)
+    }
     store.set(balancesAtom, { [ethAddress]: ethBalance })
   }
 

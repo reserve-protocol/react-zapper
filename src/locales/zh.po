@@ -56,7 +56,7 @@ msgstr "最优"
 #~ msgid "Best Quote"
 #~ msgstr "最优报价"
 
-#: src/components/zapper.tsx:148
+#: src/components/zapper.tsx:153
 msgid "Buy"
 msgstr "买入"
 
@@ -84,7 +84,7 @@ msgstr "此 DTF 内资产的变更"
 msgid "Congratulations on purchasing a meaningful amount of this DTF. Larger holders are entitled to a direct connection with the team behind Reserve. Schedule an intro call to get to know us, get help with anything in the future, and share your thoughts as we continue to build and grow."
 msgstr "恭喜您购买了相当数量的此 DTF。大额持有者可与 Reserve 背后的团队直接联系。预约一次介绍通话，认识我们、在未来获得所需的任何帮助，并在我们持续建设与成长的过程中分享您的想法。"
 
-#: src/components/transaction-button.tsx:104
+#: src/components/transaction-button.tsx:117
 msgid "Connect Wallet"
 msgstr "连接 Wallet"
 
@@ -96,7 +96,7 @@ msgstr "已复制到剪贴板！"
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
-#: src/components/zap-mint/zap-details.tsx:102
+#: src/components/zap-mint/zap-details.tsx:151
 msgid "Current price"
 msgstr "当前价格"
 
@@ -108,7 +108,7 @@ msgstr "当前价格"
 msgid "Deep liquidity search"
 msgstr "深度流动性搜索"
 
-#: src/components/zap-mint/zap-details.tsx:94
+#: src/components/zap-mint/zap-details.tsx:143
 msgid "Details"
 msgstr "详情"
 
@@ -209,7 +209,7 @@ msgstr "预计滑点过高：{0}"
 msgid "Insufficient balance"
 msgstr "余额不足"
 
-#: src/components/transaction-button.tsx:82
+#: src/components/transaction-button.tsx:95
 msgid "Insufficient gas balance"
 msgstr "Gas 余额不足"
 
@@ -234,7 +234,7 @@ msgstr "市价卖出"
 msgid "Max"
 msgstr "最大"
 
-#: src/components/zap-mint/zap-details.tsx:127
+#: src/components/zap-mint/zap-details.tsx:181
 msgid "Max slippage"
 msgstr "最大滑点"
 
@@ -246,7 +246,7 @@ msgstr "最大滑点"
 msgid "Methodology or mandate updates"
 msgstr "方法论或授权的更新"
 
-#: src/components/zap-mint/zap-details.tsx:146
+#: src/components/zap-mint/zap-details.tsx:202
 msgid "Min Amount Out"
 msgstr "最小输出数量"
 
@@ -282,7 +282,7 @@ msgstr "请尝试刷新，或切换到手动 Mint。"
 #~ msgid "Price Impact"
 #~ msgstr "价格影响"
 
-#: src/components/zap-mint/zap-details.tsx:116
+#: src/components/zap-mint/zap-details.tsx:170
 msgid "Projected difference (%) between the value you pay and the value you receive, at current prices."
 msgstr "按当前价格计算，您支付的价值与收到的价值之间的预计差额（%）。"
 
@@ -290,7 +290,7 @@ msgstr "按当前价格计算，您支付的价值与收到的价值之间的预
 msgid "Projected proceeds"
 msgstr "预计所得"
 
-#: src/components/zap-mint/zap-details.tsx:111
+#: src/components/zap-mint/zap-details.tsx:160
 msgid "Projected slippage"
 msgstr "预计滑点"
 
@@ -298,7 +298,7 @@ msgstr "预计滑点"
 msgid "Quote expired"
 msgstr "报价已过期"
 
-#: src/components/zap-mint/zap-details.tsx:163
+#: src/components/zap-mint/zap-details.tsx:221
 msgid "Quote includes fees"
 msgstr "报价包含费用"
 
@@ -346,7 +346,7 @@ msgstr "预约介绍通话"
 #~ msgid "Select which quote provider to use. 'Best' automatically compares all enabled providers and picks the highest output. Picking a specific provider forces a single source."
 #~ msgstr "选择要使用的报价提供方。'Best' 会自动比较所有已启用的提供方并选择输出最高的。选择特定提供方则强制使用单一来源。"
 
-#: src/components/zapper.tsx:151
+#: src/components/zapper.tsx:156
 msgid "Sell"
 msgstr "卖出"
 
@@ -419,8 +419,8 @@ msgid "Successful Redemption"
 msgstr "赎回成功"
 
 #: src/components/transaction-button.tsx:120
-msgid "Switch to {chainName}"
-msgstr "切换到 {chainName}"
+#~ msgid "Switch to {chainName}"
+#~ msgstr "切换到 {chainName}"
 
 #: src/components/zap-mint/subscribe-updates.tsx:41
 #~ msgid "Telegram"
@@ -434,7 +434,7 @@ msgstr "切换到 {chainName}"
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "感谢您的参与，我们很高兴有您加入！我们会就此 DTF 的任何重要更新与您联系。"
 
-#: src/components/zap-mint/zap-details.tsx:106
+#: src/components/zap-mint/zap-details.tsx:155
 msgid "The current exchange rate between the tokens."
 msgstr "代币之间的当前兑换率。"
 
@@ -442,7 +442,7 @@ msgstr "代币之间的当前兑换率。"
 #~ msgid "The displayed quote already includes all applicable fees and price impact."
 #~ msgstr "显示的报价已包含所有适用费用和价格影响。"
 
-#: src/components/zap-mint/zap-details.tsx:167
+#: src/components/zap-mint/zap-details.tsx:225
 msgid "The displayed quote already includes all applicable fees."
 msgstr "显示的报价已包含所有适用费用。"
 
@@ -454,7 +454,7 @@ msgstr "显示的报价已包含所有适用费用。"
 #~ msgid "The maximum amount of slippage you are willing to accept when minting. Higher slippage settings will make the transaction more likely to succeed, but may result in fewer tokens minted."
 #~ msgstr "Mint 时你愿意接受的最大滑点。更高的滑点设置会使交易更有可能成功，但可能导致 Mint 出的代币更少。"
 
-#: src/components/zap-mint/zap-details.tsx:155
+#: src/components/zap-mint/zap-details.tsx:211
 msgid "The minimum amount of tokens you will receive."
 msgstr "你将收到的最少代币数量。"
 
@@ -488,8 +488,8 @@ msgstr "此交易会产生大量碎屑，这意味着你将以单项资产形式
 #~ msgid "Toggle {option}"
 #~ msgstr "切换 {option}"
 
-#: src/components/zapper.tsx:131
-#: src/components/zapper.tsx:185
+#: src/components/zapper.tsx:134
+#: src/components/zapper.tsx:194
 msgid "Transaction successful"
 msgstr "交易成功"
 
@@ -517,7 +517,7 @@ msgstr "请稍候重试，或考虑使用手动模式"
 msgid "Waiting for order to fill..."
 msgstr "等待订单成交..."
 
-#: src/components/zap-mint/zap-details.tsx:132
+#: src/components/zap-mint/zap-details.tsx:188
 msgid "Worst case: the value difference (%) if the trade executes at the minimum amount out allowed by your slippage tolerance."
 msgstr "最坏情况：如果交易以滑点容差允许的最小到手数量成交时的价值差额（%）。"
 
