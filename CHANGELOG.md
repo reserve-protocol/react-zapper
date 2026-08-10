@@ -1,3 +1,9 @@
+## [2.10.1] - 2026-08-10
+
+### Changed
+
+- The "Projected slippage" and "Max slippage" detail rows now show the dollar equivalent next to the percentage (e.g. `0.32% ($1.24)`), computed on the same Reserve-priced input-value basis as the percentages. Omitted when no USD valuation is available.
+
 ## [2.10.0] - 2026-08-07
 
 ### Added

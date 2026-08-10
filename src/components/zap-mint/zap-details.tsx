@@ -17,10 +17,39 @@ import { SwapDetails } from '../ui/swap'
 import QuoteList, { useQuoteListClock } from './quote-list'
 import { selectedTokenOrDefaultAtom, zapOngoingTxAtom } from './atom'
 
+// Slippage percentage with its dollar equivalent, e.g. "0.32% ($1.24)" —
+// a positive value is a loss (plain), a negative one a surplus ("+").
+const SlippageValue = ({
+  value,
+  usd,
+  className,
+}: {
+  value: number
+  usd: number | null
+  className?: string
+}) => (
+  <span className={className}>
+    {value > 0 ? '' : '+'}
+    {formatPercentage(Math.abs(value))}
+    {usd != null && (
+      <span className="text-muted-foreground">
+        {' '}
+        (${formatCurrency(Math.abs(usd))})
+      </span>
+    )}
+  </span>
+)
+
 // The stat formerly labeled "Price Impact", renamed: it is the projected
 // (dust-adjusted) difference between what the trade pays and what it returns,
 // valued at current prices.
-const ZapProjectedSlippage = ({ value }: { value: number }) => {
+const ZapProjectedSlippage = ({
+  value,
+  usd,
+}: {
+  value: number
+  usd: number | null
+}) => {
   const color =
     value > 10
       ? 'text-red-500'
@@ -29,12 +58,7 @@ const ZapProjectedSlippage = ({ value }: { value: number }) => {
         : value < 0
           ? 'text-green-500'
           : ''
-  return (
-    <span className={color}>
-      {value > 0 ? '' : '+'}
-      {formatPercentage(Math.abs(value))}
-    </span>
-  )
+  return <SlippageValue value={value} usd={usd} className={color} />
 }
 
 const ZapDetails = ({ data }: { data?: ZapResult }) => {
@@ -96,10 +120,22 @@ const ZapDetails = ({ data }: { data?: ZapResult }) => {
 
   const maxSlippage = computeMaxSlippage(result)
 
+  // Dollar equivalents on the same basis the percentages are computed from
+  // (the Reserve-priced input value); omitted when that value is unavailable.
+  const amountInValue = result.amountInValue ?? null
+  const projectedSlippage = result.truePriceImpact ?? 0
+  const projectedSlippageUsd =
+    amountInValue != null ? (amountInValue * projectedSlippage) / 100 : null
+  const maxSlippageUsd =
+    amountInValue != null && maxSlippage != null
+      ? (amountInValue * maxSlippage) / 100
+      : null
+
   return (
-    // -mt-2 while closed compensates the parent's flex gap-2 so the hidden
-    // section takes no space at all
-    <Collapse open={!!data} className={data ? undefined : '-mt-2'}>
+    // Open: -mt-1 tightens the gap to the slippage row above (4px instead of
+    // the parent's gap-2). Closed: -mt-2 cancels the flex gap entirely so the
+    // hidden section takes no space at all.
+    <Collapse open={!!data} className={data ? '-mt-1' : '-mt-2'}>
       <SwapDetails
         visible={{
           left: (
@@ -124,7 +160,12 @@ const ZapDetails = ({ data }: { data?: ZapResult }) => {
                 <Trans>Projected slippage</Trans>
               </span>
             ),
-            right: <ZapProjectedSlippage value={result.truePriceImpact ?? 0} />,
+            right: (
+              <ZapProjectedSlippage
+                value={projectedSlippage}
+                usd={projectedSlippageUsd}
+              />
+            ),
             help: (
               <Trans>
                 Projected difference (%) between the value you pay and the value
@@ -140,7 +181,9 @@ const ZapDetails = ({ data }: { data?: ZapResult }) => {
                       <Trans>Max slippage</Trans>
                     </span>
                   ),
-                  right: <span>{formatPercentage(maxSlippage)}</span>,
+                  right: (
+                    <SlippageValue value={maxSlippage} usd={maxSlippageUsd} />
+                  ),
                   help: (
                     <Trans>
                       Worst case: the value difference (%) if the trade executes
