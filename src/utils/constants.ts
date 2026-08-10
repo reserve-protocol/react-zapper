@@ -110,6 +110,14 @@ export const PRICE_IMPACT_THRESHOLD = 3
 // Hardcoded Mixpanel token for analytics
 export const MIXPANEL_TOKEN = 'e65e717c4fda5362acaa778bf27d9801'
 
+/**
+ * Signer used to fetch display-only quotes while no wallet is connected.
+ * Quotes fetched with it are stripped of anything executable (tx, rfq order,
+ * approval flags) before they reach the UI.
+ */
+export const PLACEHOLDER_SIGNER =
+  '0x000000000000000000000000000000000000dEaD' as const
+
 // Worker endpoint that stores user contact details for DTF updates
 export const UPDATES_STORAGE_URL =
   'https://contentful-storage.reserve-337.workers.dev/'

@@ -19,6 +19,11 @@ export type RfqQuoteContext = {
   slippage: number
   /** Reserve API base URL — for adapters whose venue is proxied through it. */
   apiUrl: string
+  /**
+   * `account` is a placeholder (no wallet connected): fetch an indicative,
+   * display-only quote — no signable order, no allowance reads.
+   */
+  signerIsPlaceholder?: boolean
   readAllowance: (
     token: Address,
     owner: Address,

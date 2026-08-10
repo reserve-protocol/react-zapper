@@ -142,11 +142,19 @@ export type FetchQuoteContext = {
   simulate?: SimulateQuote
   rfq?: RfqFetchContext
   pricing?: QuotePricing
+  /**
+   * The signer is a placeholder (no wallet connected): quotes are display-only
+   * and anything executable is stripped from every result.
+   */
+  signerIsPlaceholder?: boolean
   onUpdate?: (event: ProviderQuoteEvent) => void
 }
 
+// `selected: null` means the round produced no usable quote (every provider
+// failed or was filtered) — callers keep retrying on the refresh cadence
+// instead of surfacing an error.
 export type FetchQuoteResult = {
-  selected: ProviderQuote
+  selected: ProviderQuote | null
   attempted: ProviderId[]
   successful: ProviderId[]
   failed: { source: ProviderId; error: unknown }[]
@@ -180,6 +188,11 @@ const buildProviderUrl = (
 // Quotes without a provider-reported expiry are considered valid for 1 minute
 const DEFAULT_QUOTE_TTL = 60_000
 
+// Quotes losing more than this to price impact (dust-adjusted, Reserve-priced)
+// are toxic: they fail their provider's slot like any other quote error, so
+// they never reach the quote list or the winner selection.
+const MAX_TRUE_PRICE_IMPACT = 8
+
 // Providers report expiry inconsistently (epoch ms, epoch seconds, ISO string,
 // null, or not at all) — normalize everything to epoch ms or null.
 const normalizeValidUntil = (value: unknown): number | null => {
@@ -197,6 +210,23 @@ const rfqAvailability = (ctx: FetchQuoteContext): RfqAvailability => ({
   tokenIn: ctx.endpointParams.tokenIn,
   tokenOut: ctx.endpointParams.tokenOut,
 })
+
+// The hard guarantee behind no-wallet quoting: a placeholder-signed quote can
+// never be executed, approved against, or block on balances — even if a click
+// races a wallet connect.
+const stripExecutable = (
+  result: ZapResult,
+  ctx: FetchQuoteContext
+): ZapResult =>
+  ctx.signerIsPlaceholder
+    ? {
+        ...result,
+        tx: null,
+        rfq: undefined,
+        approvalNeeded: false,
+        insufficientFunds: false,
+      }
+    : result
 
 const fetchRfqOne = async (
   provider: ProviderConfig,
@@ -236,17 +266,21 @@ const fetchRfqOne = async (
       amountIn: endpointParams.amountIn,
       slippage: endpointParams.slippage,
       apiUrl: endpointParams.apiUrl,
+      signerIsPlaceholder: ctx.signerIsPlaceholder,
       readAllowance: ctx.rfq.readAllowance,
     })
 
-    const result = applyReservePricing(
-      {
-        ...quote,
-        validUntil:
-          normalizeValidUntil(quote.validUntil) ??
-          Date.now() + DEFAULT_QUOTE_TTL,
-      },
-      ctx.pricing
+    const result = stripExecutable(
+      applyReservePricing(
+        {
+          ...quote,
+          validUntil:
+            normalizeValidUntil(quote.validUntil) ??
+            Date.now() + DEFAULT_QUOTE_TTL,
+        },
+        ctx.pricing
+      ),
+      ctx
     )
 
     trackIndexDTFQuote({
@@ -332,14 +366,17 @@ const fetchOne = async (
   const data: ZapResponse = await response.json()
 
   const result = data?.result
-    ? applyReservePricing(
-        {
-          ...data.result,
-          validUntil:
-            normalizeValidUntil(data.result.validUntil ?? data.validUntil) ??
-            Date.now() + DEFAULT_QUOTE_TTL,
-        },
-        ctx.pricing
+    ? stripExecutable(
+        applyReservePricing(
+          {
+            ...data.result,
+            validUntil:
+              normalizeValidUntil(data.result.validUntil ?? data.validUntil) ??
+              Date.now() + DEFAULT_QUOTE_TTL,
+          },
+          ctx.pricing
+        ),
+        ctx
       )
     : data?.result
 
@@ -445,14 +482,34 @@ const pickBestQuote = (
 
 /**
  * Fetches a quote either from a specific provider or from all enabled
- * providers in parallel, returning the best by `minAmountOut`. Failures from
- * individual providers are swallowed in `best` mode unless every provider
- * failed — in which case the first rejection is re-thrown.
+ * providers in parallel, returning the best by `minAmountOut`. Provider
+ * failures never reject the round: when nothing usable comes back the result
+ * carries `selected: null` and the caller retries on its refresh cadence.
  */
 export const fetchBestZapQuote = async (
   ctx: FetchQuoteContext
 ): Promise<FetchQuoteResult> => {
   const { providers, quoteSource } = ctx
+
+  const emptyRound = (
+    reason: string,
+    attempted: ProviderId[],
+    failed: FetchQuoteResult['failed']
+  ): FetchQuoteResult => {
+    mixpanelTrack('Quote Round Empty', {
+      reason,
+      quoteSource,
+      comparedProviders: attempted.join(','),
+      ...ctx.analytics,
+    })
+    return {
+      selected: null,
+      attempted,
+      successful: [],
+      failed,
+      simulationFiltered: [],
+    }
+  }
 
   // In `best` mode, unavailable RFQ providers (native input, unsupported
   // chain, missing rfq context) drop out of the pool silently; an explicit
@@ -467,27 +524,44 @@ export const fetchBestZapQuote = async (
       : providers.filter((p) => p.id === quoteSource)
 
   if (candidates.length === 0) {
-    throw new Error(
-      `No providers available for quoteSource="${quoteSource}" on this chain`
-    )
+    return emptyRound('no_providers', [], [])
   }
 
   const emit = ctx.onUpdate
   emit?.({ type: 'round-start', sources: candidates.map((p) => p.id) })
 
   // Streams each provider's settle as it happens (the allSettled below only
-  // resolves once every provider is done).
+  // resolves once every provider is done). The toxic check runs in its own
+  // link so its throw lands in the rejection handler that emits `quote-error`.
   const fetchOneStreaming = (provider: ProviderConfig) =>
-    fetchOne(provider, ctx).then(
-      (quote) => {
-        emit?.({ type: 'quote', source: provider.id, quote })
+    fetchOne(provider, ctx)
+      .then((quote) => {
+        const impact = quote.result?.truePriceImpact ?? 0
+        if (impact > MAX_TRUE_PRICE_IMPACT) {
+          mixpanelTrack('Quote Toxic Filtered', {
+            source: provider.id,
+            truePriceImpact: impact,
+            minAmountOut: quote.result?.minAmountOut,
+            ...ctx.analytics,
+          })
+          throw new Error(
+            `${provider.label} quote discarded: ${impact.toFixed(
+              2
+            )}% price impact exceeds ${MAX_TRUE_PRICE_IMPACT}%`
+          )
+        }
         return quote
-      },
-      (error) => {
-        emit?.({ type: 'quote-error', source: provider.id, error })
-        throw error
-      }
-    )
+      })
+      .then(
+        (quote) => {
+          emit?.({ type: 'quote', source: provider.id, quote })
+          return quote
+        },
+        (error) => {
+          emit?.({ type: 'quote-error', source: provider.id, error })
+          throw error
+        }
+      )
 
   if (candidates.length === 1) {
     let selected: ProviderQuote
@@ -500,7 +574,11 @@ export const fetchBestZapQuote = async (
         reverted: [],
         failed: [candidates[0].id],
       })
-      throw error
+      return emptyRound(
+        'all_failed',
+        [candidates[0].id],
+        [{ source: candidates[0].id, error }]
+      )
     }
     emit?.({
       type: 'round-complete',
@@ -540,10 +618,11 @@ export const fetchBestZapQuote = async (
       reverted: [],
       failed: failed.map((f) => f.source),
     })
-    const firstRejection = settled.find(
-      (r): r is PromiseRejectedResult => r.status === 'rejected'
+    return emptyRound(
+      'all_failed',
+      candidates.map((p) => p.id),
+      failed
     )
-    throw firstRejection?.reason ?? new Error('No quotes available')
   }
 
   // Drop candidates whose tx reverts in simulation before picking a winner.

@@ -52,6 +52,11 @@ export interface ZapperProps {
   defaultSource?: QuoteSource
   sellOnly?: boolean
   disabled?: boolean
+  /**
+   * Show the Buy/Sell tab switcher in inline mode. Hidden by default — the
+   * swap arrow between the amount boxes still flips between buy and sell.
+   */
+  showTabs?: boolean
   /** Show the "Stay informed" contact-capture panel after a successful mint. Defaults to true. */
   showContactInfo?: boolean
   /** Offer a "schedule an intro call" panel after a large purchase. Omit to disable. */
@@ -60,7 +65,7 @@ export interface ZapperProps {
   disabledSettings?: DisabledSettingsConfig
   /** UI language. Defaults to 'en'. Falls back to English for any untranslated string. */
   locale?: SupportedLocale
-  /** Quote refresh interval in milliseconds. Defaults to 9000. */
+  /** Quote refresh interval in milliseconds. Defaults to 30000. */
   refreshRate?: number
 }
 

@@ -99,7 +99,7 @@ describe('pre-selection quote simulation (best mode)', () => {
     // zap reverted and enso can't be verified (needs approval) -> enso wins
     await waitFor(
       () => {
-        expect(getCta().textContent).toMatch(/Approve use of/i)
+        expect(getCta().textContent).toMatch(/Approve and market buy/i)
       },
       { timeout: 20_000, interval: 200 }
     )

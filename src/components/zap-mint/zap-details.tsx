@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/react/macro'
 import Decimal from 'decimal.js-light'
 import { useAtomValue } from 'jotai'
+import { useRef } from 'react'
 import { formatUnits } from 'viem'
 import { indexDTFAtom } from '../../state/atoms'
 import { ZapResult } from '../../types/api'
@@ -9,48 +10,56 @@ import {
   formatPercentage,
   formatTokenAmount,
 } from '../../utils'
-import Help from '../ui/help'
+import { computeMaxSlippage } from '../../utils/slippage'
+import { quoteListAtom } from '../../state/quote-list-atoms'
+import Collapse from '../ui/collapse'
 import { SwapDetails } from '../ui/swap'
-import { selectedTokenOrDefaultAtom } from './atom'
+import QuoteList, { useQuoteListClock } from './quote-list'
+import { selectedTokenOrDefaultAtom, zapOngoingTxAtom } from './atom'
 
-export const ZapPriceImpact = ({
-  data,
-  isDetail = false,
-  priceImpact: priceImpactOverride,
-}: {
-  data?: ZapResult
-  isDetail?: boolean
-  priceImpact?: number
-}) => {
-  const priceImpact = priceImpactOverride ?? data?.truePriceImpact ?? 0
-  const priceImpactColor =
-    priceImpact > 10
+// The stat formerly labeled "Price Impact", renamed: it is the projected
+// (dust-adjusted) difference between what the trade pays and what it returns,
+// valued at current prices.
+const ZapProjectedSlippage = ({ value }: { value: number }) => {
+  const color =
+    value > 10
       ? 'text-red-500'
-      : priceImpact > 5
-      ? 'text-yellow-500'
-      : priceImpact < 0
-      ? 'text-green-500'
-      : isDetail
-      ? ''
-      : 'text-muted-foreground'
+      : value > 5
+        ? 'text-yellow-500'
+        : value < 0
+          ? 'text-green-500'
+          : ''
   return (
-    <span className={priceImpactColor}>
-      {isDetail ? '' : '('}
-      {priceImpact > 0 ? (isDetail ? '' : '-') : '+'}
-      {formatPercentage(Math.abs(priceImpact))}
-      {!isDetail && priceImpact < 0 ? ' 😎' : ''}
-      {isDetail ? '' : ')'}
+    <span className={color}>
+      {value > 0 ? '' : '+'}
+      {formatPercentage(Math.abs(value))}
     </span>
   )
 }
 
-const ZapDetails = ({ data }: { data: ZapResult }) => {
+const ZapDetails = ({ data }: { data?: ZapResult }) => {
   const indexDTF = useAtomValue(indexDTFAtom)
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
+  const { order } = useAtomValue(quoteListAtom)
+  const ongoingTx = useAtomValue(zapOngoingTxAtom)
+
+  // The clock lives here (not in QuoteList): the list unmounts while the
+  // accordion is collapsed, but quote expiry must keep being tracked.
+  useQuoteListClock(order.length > 0 && !ongoingTx)
+
+  // The section slides open when the first quote lands and slides closed when
+  // the quote goes away (input cleared) — the last result stays rendered so
+  // the exit animation has content to collapse.
+  const lastResultRef = useRef<ZapResult | undefined>(undefined)
+  if (data) lastResultRef.current = data
+  const result = data ?? lastResultRef.current
+
+  if (!indexDTF || !result) return null
+
   const dtfAsTokenIn =
-    data.tokenIn.toLowerCase() !== selectedToken.address.toLowerCase() &&
-    data.tokenIn !== '0x4200000000000000000000000000000000000006' &&
-    data.tokenIn !== '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+    result.tokenIn.toLowerCase() !== selectedToken.address.toLowerCase() &&
+    result.tokenIn !== '0x4200000000000000000000000000000000000006' &&
+    result.tokenIn !== '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
   const tokenInSymbol = dtfAsTokenIn
     ? indexDTF?.token.symbol || ''
@@ -61,107 +70,125 @@ const ZapDetails = ({ data }: { data: ZapResult }) => {
 
   const amountIn = new Decimal(
     formatUnits(
-      BigInt(data.amountIn || 0),
+      BigInt(result.amountIn || 0),
       dtfAsTokenIn ? 18 : selectedToken.decimals
     )
   )
   const amountOut = new Decimal(
     formatUnits(
-      BigInt(data.amountOut || 0),
+      BigInt(result.amountOut || 0),
       dtfAsTokenIn ? selectedToken.decimals : 18
     )
   )
 
-  const minAmountOut = data.minAmountOut
+  const minAmountOut = result.minAmountOut
     ? formatUnits(
-        BigInt(data.minAmountOut),
+        BigInt(result.minAmountOut),
         dtfAsTokenIn ? selectedToken.decimals : 18
       )
     : undefined
 
-  // const amountInValue = new Decimal(data.amountInValue || 0)
   const ratio = amountIn.eq(0) ? undefined : amountOut.div(amountIn)
 
   const ratioText = `1 ${tokenInSymbol} = ${formatCurrency(
     ratio?.toNumber() || 0
   )} ${tokenOutSymbol}`
-  // const mintFeeValue = amountInValue.mul(indexDTF?.mintingFee || 0).toNumber()
 
-  if (!indexDTF) return null
+  const maxSlippage = computeMaxSlippage(result)
 
   return (
-    <SwapDetails
-      visible={{
-        left: (
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">
-              <Trans>Quote includes fees</Trans>
-            </span>
-            <Help
-              content={
-                <Trans>
-                  The displayed quote already includes all applicable fees and
-                  price impact.
-                </Trans>
-              }
-            />
-          </div>
-        ),
-      }}
-      details={[
-        {
+    // -mt-2 while closed compensates the parent's flex gap-2 so the hidden
+    // section takes no space at all
+    <Collapse open={!!data} className={data ? undefined : '-mt-2'}>
+      <SwapDetails
+        visible={{
           left: (
             <span className="text-muted-foreground">
-              <Trans>Exchange Rate</Trans>
+              <Trans>Details</Trans>
             </span>
           ),
-          right: <span>{ratioText}</span>,
-          help: <Trans>The current exchange rate between the tokens.</Trans>,
-        },
-        // ...(!dtfAsTokenIn
-        //   ? [
-        //       {
-        //         left: <span className="text-muted-foreground">Mint Fee</span>,
-        //         right: (
-        //           <span>
-        //             ${formatCurrency(mintFeeValue)}{' '}
-        //             <span className="text-muted-foreground">
-        //               ({formatPercentage((indexDTF.mintingFee || 0) * 100)})
-        //             </span>
-        //           </span>
-        //         ),
-        //         help: 'A one-time fee deduction from the tokens you are using to create a share of the DTF. This fee is set by the Governors of the DTF.',
-        //       },
-        //     ]
-        //   : []),
-        {
-          left: (
-            <span className="text-muted-foreground">
-              <Trans>Price Impact</Trans>
-            </span>
-          ),
-          right: <ZapPriceImpact data={data} isDetail />,
-          help: <Trans>The impact your trade has on the market price.</Trans>,
-        },
-        ...(minAmountOut
-          ? [
-              {
-                left: (
-                  <span className="text-muted-foreground">
-                    <Trans>Min Amount Out</Trans>
-                  </span>
-                ),
-                right: (
-                  <span>
-                    {formatTokenAmount(Number(minAmountOut))} {tokenOutSymbol}
-                  </span>
-                ),
-                help: <Trans>The minimum amount of tokens you will receive.</Trans>,
-              },
-            ]
-          : []),
-      ]}
-    />
+        }}
+        details={[
+          {
+            left: (
+              <span className="text-muted-foreground">
+                <Trans>Current price</Trans>
+              </span>
+            ),
+            right: <span>{ratioText}</span>,
+            help: <Trans>The current exchange rate between the tokens.</Trans>,
+          },
+          {
+            left: (
+              <span className="text-muted-foreground">
+                <Trans>Projected slippage</Trans>
+              </span>
+            ),
+            right: <ZapProjectedSlippage value={result.truePriceImpact ?? 0} />,
+            help: (
+              <Trans>
+                Projected difference (%) between the value you pay and the value
+                you receive, at current prices.
+              </Trans>
+            ),
+          },
+          ...(maxSlippage != null
+            ? [
+                {
+                  left: (
+                    <span className="text-muted-foreground">
+                      <Trans>Max slippage</Trans>
+                    </span>
+                  ),
+                  right: <span>{formatPercentage(maxSlippage)}</span>,
+                  help: (
+                    <Trans>
+                      Worst case: the value difference (%) if the trade executes
+                      at the minimum amount out allowed by your slippage
+                      tolerance.
+                    </Trans>
+                  ),
+                },
+              ]
+            : []),
+          ...(minAmountOut
+            ? [
+                {
+                  left: (
+                    <span className="text-muted-foreground">
+                      <Trans>Min Amount Out</Trans>
+                    </span>
+                  ),
+                  right: (
+                    <span>
+                      {formatTokenAmount(Number(minAmountOut))} {tokenOutSymbol}
+                    </span>
+                  ),
+                  help: (
+                    <Trans>
+                      The minimum amount of tokens you will receive.
+                    </Trans>
+                  ),
+                },
+              ]
+            : []),
+          {
+            left: (
+              <span className="text-muted-foreground">
+                <Trans>Quote includes fees</Trans>
+              </span>
+            ),
+            help: (
+              <Trans>
+                The displayed quote already includes all applicable fees.
+              </Trans>
+            ),
+          },
+        ]}
+      >
+        <QuoteList />
+      </SwapDetails>
+    </Collapse>
   )
 }
 

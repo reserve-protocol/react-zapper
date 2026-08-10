@@ -32,12 +32,12 @@ const ZapPriceImpactWarningCheckbox = ({
         <div className="max-w-sm">
           <div className="font-bold">
             <Trans>
-              High price impact: {formatPercentage(Math.abs(priceImpact))}
+              High projected slippage: {formatPercentage(Math.abs(priceImpact))}
             </Trans>
           </div>
           <div className="text-sm text-legend">
             <Trans>
-              The price impact for this trade is very high. You will get
+              The projected slippage for this trade is very high. You will get
               significantly less value than expected.
             </Trans>
           </div>

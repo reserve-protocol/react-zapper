@@ -27,6 +27,7 @@ import { ZapperI18nProvider } from '../../src/i18n/provider'
 import {
   balancesAtom,
   chainIdAtom,
+  connectWalletAtom,
   indexDTFAtom,
   QuoteSource,
   quoteSourceAtom,
@@ -632,16 +633,22 @@ export const setup = async ({
   chain: chainName = 'mainnet',
   refreshRate,
   pickedSource,
+  connected = true,
+  connectWallet,
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
   // an ERC-20 input instead of the native default (RFQ gasless flows need it)
   inputToken?: 'eth' | 'weth' | 'wbnb'
   chain?: 'mainnet' | 'bsc'
-  // quote refetch interval override (default 9s)
+  // quote refetch interval override (default 30s)
   refreshRate?: number
   // seeds the quote-list pick, like the `defaultSource` prop does
   pickedSource?: ProviderId
+  // false renders the widget without a connected wallet (placeholder signer)
+  connected?: boolean
+  // spy for the connect prompt fired by the disconnected CTA
+  connectWallet?: () => void
 } = {}) => {
   const baseChain = chainName === 'bsc' ? bsc : mainnet
   scenario.chainId = baseChain.id
@@ -657,13 +664,16 @@ export const setup = async ({
     storage: null,
     batch: { multicall: false },
   })
-  await connect(config, { connector: config.connectors[0] })
+  if (connected) {
+    await connect(config, { connector: config.connectors[0] })
+  }
   const queryClient = new QueryClient()
   lastQueryClient = queryClient
 
   const store = createStore()
   store.set(chainIdAtom, baseChain.id)
-  store.set(walletAtom, ACCOUNT)
+  if (connected) store.set(walletAtom, ACCOUNT)
+  if (connectWallet) store.set(connectWalletAtom, { fn: connectWallet })
   store.set(indexDTFAtom, makeDtf(baseChain.id))
   store.set(quoteSourceAtom, quoteSource)
   if (refreshRate != null) store.set(refreshRateAtom, refreshRate)
@@ -702,7 +712,7 @@ export const setup = async ({
 }
 
 const ctaMatcher =
-  /Buy TEST|Quote expired|Simulation failed|Fetching quote|Loading|Insufficient|Approve use of|Waiting for order/i
+  /Market Buy|Market Sell|Quote expired|Simulation failed|Fetching quote|Loading|Insufficient|Approve and market|Waiting for order/i
 
 export const getCta = () => {
   const buttons = screen.getAllByRole('button')
@@ -732,7 +742,7 @@ export const waitForReadyCta = async () => {
   await waitFor(
     () => {
       const cta = getCta()
-      expect(cta.textContent).toMatch(/Buy TEST/i)
+      expect(cta.textContent).toMatch(/Market Buy/i)
       expect(cta.disabled).toBe(false)
       expect(cta.querySelector('.animate-spin')).toBeNull()
     },

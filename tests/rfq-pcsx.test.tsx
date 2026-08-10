@@ -95,13 +95,16 @@ describe('pcsx RFQ flow', () => {
     )
   })
 
-  it('surfaces a clear error when pcsx is selected with a native input', async () => {
+  it('stays in the sourcing state when pcsx is selected with a native input', async () => {
     await setup({ quoteSource: 'pcsx', chain: 'bsc' }) // default input: native BNB
 
+    // Unusable source → empty rounds forever: no error copy, just the
+    // slow-loading "Sourcing liquidity" treatment while retries continue.
     await waitFor(
-      () =>
-        expect(screen.getByText(/cannot sell the native token/i)).toBeTruthy(),
+      () => expect(screen.getByText(/Sourcing liquidity/i)).toBeTruthy(),
       { timeout: 60_000, interval: 500 }
     )
+    expect(screen.queryByText(/cannot sell the native token/i)).toBeNull()
+    expect(screen.queryByText(/hard time finding a route/i)).toBeNull()
   })
 })

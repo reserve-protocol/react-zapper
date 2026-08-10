@@ -48,6 +48,15 @@ const rowIds = () =>
 const trackedEvents = (name: string) =>
   vi.mocked(mixpanel.track).mock.calls.filter((call) => call[0] === name)
 
+// Rows live inside the Details accordion (collapsed by default) — open it
+// before querying them. The trigger appears once the first quote resolves.
+const openDetails = async () => {
+  await waitFor(() => expect(screen.getByText('Details')).toBeTruthy(), {
+    timeout: 15_000,
+  })
+  fireEvent.click(screen.getByText('Details'))
+}
+
 const originalProviders = { ...PROVIDER_ENABLED[1]! }
 
 describe('quote list', () => {
@@ -74,13 +83,13 @@ describe('quote list', () => {
       return zapQuote()
     })
     await setup({ quoteSource: 'best', refreshRate: 60_000 })
+    await openDetails()
 
-    // zap's quote shows while enso is still loading (skeleton row, in place)
+    // zap's quote shows while enso is still absent — rows only appear once
+    // their quote resolves (no loading skeletons)
     await waitFor(() => {
-      const zapRow = screen.getByTestId('quote-row-zap')
-      const ensoRow = screen.getByTestId('quote-row-enso')
-      expect(zapRow.querySelector('.animate-pulse')).toBeNull()
-      expect(ensoRow.querySelector('.animate-pulse')).not.toBeNull()
+      expect(screen.getByTestId('quote-row-zap')).toBeTruthy()
+      expect(screen.queryByTestId('quote-row-enso')).toBeNull()
     })
 
     await waitForReadyCta()
@@ -101,6 +110,7 @@ describe('quote list', () => {
   it('picks a source without refetching, keeps it across refreshes, and only tracks at submit', async () => {
     await setup({ quoteSource: 'best', refreshRate: 3_000 })
     await waitForReadyCta()
+    await openDetails()
     expect(wonEndpoint()).toContain('enso/swap')
 
     const fetchesBeforePick = scenario.quoteFetches
@@ -166,6 +176,7 @@ describe('quote list', () => {
     })
     await setup({ quoteSource: 'best', refreshRate: 1_500 })
     await waitForReadyCta()
+    await openDetails()
 
     fireEvent.click(screen.getByTestId('quote-row-zap'))
     await waitFor(() => expect(wonEndpoint()).toContain('api/zapper'))
@@ -194,6 +205,7 @@ describe('quote list', () => {
   it('resets the pick when the input amount changes', async () => {
     const utils = await setup({ quoteSource: 'best', refreshRate: 60_000 })
     await waitForReadyCta()
+    await openDetails()
 
     fireEvent.click(screen.getByTestId('quote-row-zap'))
     await waitFor(() => expect(wonEndpoint()).toContain('api/zapper'))
@@ -210,15 +222,16 @@ describe('quote list', () => {
     scenario.quoteTtlMs = 2_500
     await setup({ quoteSource: 'best', refreshRate: 60_000 })
     await waitForReadyCta()
+    await openDetails()
     expect(wonEndpoint()).toContain('enso/swap')
 
     // hang the expiry-triggered refetch so the expired window is observable
     scenario.quoteDelayMs = 30_000
 
+    // expired rows dim (no "Expired" copy anymore) and stop being selectable
     await waitFor(
       () => {
         const zapRow = screen.getByTestId('quote-row-zap')
-        expect(within(zapRow).getByText('Expired')).toBeTruthy()
         expect(zapRow.getAttribute('aria-disabled')).toBe('true')
       },
       { timeout: 10_000 }
@@ -233,6 +246,7 @@ describe('quote list', () => {
     scenario.quoteTtlMs = 2_500
     await setup({ quoteSource: 'best', refreshRate: 60_000 })
     await waitForReadyCta()
+    await openDetails()
     const fetchesAfterFirstRound = scenario.quoteFetches
 
     // quotes expire ~2.5s in; a fresh round replaces them long before the
@@ -247,8 +261,8 @@ describe('quote list', () => {
     await waitForReadyCta()
     await waitFor(() => {
       expect(
-        within(screen.getByTestId('quote-row-enso')).queryByText('Expired')
-      ).toBeNull()
+        screen.getByTestId('quote-row-enso').getAttribute('aria-disabled')
+      ).toBe('false')
     })
   })
 

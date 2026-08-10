@@ -1,4 +1,4 @@
-import { ethAddress, type Address, type Hex } from 'viem'
+import { ethAddress, zeroAddress, type Address, type Hex } from 'viem'
 import type { ZapResult } from '../../types/api'
 import { ChainId } from '../chains'
 import { applySlippage } from './cowswap'
@@ -94,15 +94,47 @@ export const pcsxAdapter: RfqAdapter = {
     quoteEndpoint(apiUrl ?? 'https://api.reserve.org/', chainId),
 
   fetchQuote: async (ctx: RfqQuoteContext): Promise<ZapResult> => {
+    // Without a real signer the quote is requested indicatively (no `signer`
+    // param → PCSX returns pricing only, no signable order).
     const url =
       `${quoteEndpoint(ctx.apiUrl, ctx.chainId)}` +
       `&tokenIn=${ctx.tokenIn}&tokenOut=${ctx.tokenOut}` +
-      `&amountIn=${ctx.amountIn}&signer=${ctx.account}&slippage=${ctx.slippage}`
+      `&amountIn=${ctx.amountIn}&slippage=${ctx.slippage}` +
+      (ctx.signerIsPlaceholder ? '' : `&signer=${ctx.account}`)
     const { result } = await fetchJson<PcsxQuoteResponse>(url)
 
     if (!result?.available) {
       throw new Error('PancakeSwap X has no quote for this trade')
     }
+
+    if (ctx.signerIsPlaceholder) {
+      if (!result.amountOut) {
+        throw new Error('PancakeSwap X has no quote for this trade')
+      }
+      const minAmountOut = result.minAmountOut
+        ? BigInt(result.minAmountOut)
+        : applySlippage(BigInt(result.amountOut), ctx.slippage)
+      return {
+        tokenIn: ctx.tokenIn,
+        amountIn: ctx.amountIn,
+        amountInValue: null,
+        tokenOut: ctx.tokenOut,
+        amountOut: result.amountOut,
+        amountOutValue: null,
+        minAmountOut: minAmountOut.toString(),
+        approvalAddress: zeroAddress,
+        approvalNeeded: false,
+        insufficientFunds: false,
+        dust: [],
+        dustValue: null,
+        gas: null,
+        priceImpact: 0,
+        truePriceImpact: 0,
+        tx: null,
+        validUntil: result.validUntil ?? null,
+      }
+    }
+
     const order = result.order
     if (!order?.encodedOrder || !order.permitData?.domain?.verifyingContract) {
       throw new Error('PancakeSwap X returned no signable order for this trade')

@@ -11,6 +11,7 @@ A React component library for integrating DTF (Decentralized Token Folio) zap fu
 - 🎨 **Flexible UI**: Three display modes - modal popup, inline embedded, and simple launcher
 - 🎯 **Modern Stack**: Built with Wagmi v2, Viem, RainbowKit v2, and TanStack Query v5
 - ⚡ **Optimized**: Real-time price updates and slippage protection
+- 👀 **Browse before connecting**: quotes work without a wallet; the CTA prompts the connect flow
 - 🛡️ **Type Safe**: Full TypeScript support
 - 🎨 **Styled**: Uses Tailwind CSS with CSS injection
 
@@ -159,13 +160,14 @@ Simple mode features:
 | `apiUrl`         | `string`                        | ❌       | Custom API endpoint (defaults to Reserve API)  |
 | `zapperApiUrl`   | `string`                        | ❌       | Custom zapper service endpoint for zapper-specific API calls (falls back to `apiUrl`) |
 | `sellOnly`       | `boolean`                       | ❌       | Only show the sell (redeem) flow               |
+| `showTabs`       | `boolean`                       | ❌       | Show the Buy/Sell tab switcher in inline mode. Hidden by default — the swap arrow between the amount boxes still flips between buy and sell |
 | `disabled`       | `boolean`                       | ❌       | Disable primary zap actions, wallet/chain actions, amount inputs, and Max buttons |
 | `showContactInfo`| `boolean`                       | ❌       | Show the "Stay informed" contact-capture panel after a successful mint (defaults to `true`) |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Initial selection in the quote list. All enabled providers are always fetched; a provider id pre-selects that route, `'best'` (default) follows the best quote automatically |
-| `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `9000`) |
-| `disabledSettings` | `DisabledSettingsConfig`      | ❌       | Disable individual zap settings (`deepLiquidity`, `forceMint`); disabled options render frozen unchecked and the behavior is forced off |
+| `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `30000`) |
+| `disabledSettings` | `DisabledSettingsConfig`      | ❌       | Hide individual power-user toggles (`deepLiquidity`, `forceMint`). These now live in the debug panel (`debug` prop) — the settings page was removed |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
 | `locale`         | `'en' \| 'es' \| 'ko' \| 'zh'`  | ❌       | UI language. Defaults to `'en'`; untranslated strings fall back to English |
 
@@ -203,9 +205,11 @@ The zapper supports five quote providers: the Reserve-native `zap`, two external
 
 #### Route list
 
-All quotes are shown in a route list under the swap panel (modal and inline modes), streaming in as each provider responds and sorted best→worst once the comparison round settles. The best route is selected automatically; the user can pick any other route, and the pick is sticky across the auto-refresh cycles — if the picked provider fails or its quote expires, the widget falls back to the best route until the pick recovers. Each quote shows an expiry countdown; failed providers are hidden from the list (they reappear when they produce a quote again). Picking resets to automatic when the amount, token, or other swap settings change.
+All quotes are shown in a route list inside the collapsible **Details** section (modal and inline modes), with each row appearing as its provider's quote resolves — no loading skeletons, so the panel never expands and shrinks. Rows are sorted best→worst once the comparison round settles. The best route is selected automatically; the user can pick any other route, and the pick is sticky across the auto-refresh cycles — if the picked provider fails or its quote expires, the widget falls back to the best route until the pick recovers. Failed providers are hidden from the list (they reappear when they produce a quote again), and quotes losing more than 8% of value to price impact are discarded as toxic. Picking resets to automatic when the amount, token, or other swap settings change.
 
-Quotes refresh on the global interval (`refreshRate`, 9s by default) **and** whenever the earliest displayed quote expires — the API may cache a provider's quote until its `validUntil` (e.g. enso), so the widget refetches right after expiry instead of leaving a dead quote on screen until the next tick.
+The Details section also shows the current price, the projected slippage (the dust-adjusted value difference between what the trade pays and returns), the max slippage derived from the quote's `minAmountOut`, and the minimum amount out. Slippage tolerance is picked from a fixed-option dropdown above Details (0.1% / 0.5% / 1% / 5%, default 0.5%).
+
+Quotes refresh on the global interval (`refreshRate`, 30s by default) **and** whenever the earliest displayed quote expires — the API may cache a provider's quote until its `validUntil` (e.g. enso), so the widget refetches right after expiry instead of leaving a dead quote on screen until the next tick. Background refetches keep the previous quote displayed and the CTA clickable — no loading flicker; only the first quote of a new input shows a loading state.
 
 #### RFQ (intent) providers — CoW Swap and PancakeSwap X
 
