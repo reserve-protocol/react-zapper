@@ -50,8 +50,16 @@ const ZAPPER_API_URLS = [
     value: 'https://api.reserve.org/',
   },
   {
-    label: 'Staging',
-    value: 'https://zapper-staging.reserve-api.com/',
+    label: 'ZRS-1',
+    value: 'https://zrs-1.reserve-api.com/',
+  },
+  {
+    label: 'ZRS-2',
+    value: 'https://zrs-2.reserve-api.com/',
+  },
+  {
+    label: 'ZRS-3',
+    value: 'https://zrs-3.reserve-api.com/',
   },
   {
     label: 'Local',
