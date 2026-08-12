@@ -1,13 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Address, erc20Abi, parseUnits } from 'viem'
-import {
-  useAccount,
-  useConfig,
-  useReadContracts,
-  useSwitchChain,
-  useWriteContract,
-} from 'wagmi'
+import { useAccount, useConfig, useSwitchChain, useWriteContract } from 'wagmi'
 import { waitForTransactionReceipt } from 'wagmi/actions'
 import { AvailableChain, CHAIN_TAGS } from '@/utils/chains'
 import { Button } from './ui/button'
@@ -18,8 +12,8 @@ type ApproveInputsProps = {
   inputs: Record<number, ChainInput>
   /**
    * Zapper spender per chain, as reported by that chain's quotes
-   * (`ZapResult.approvalAddress`) — a chain can't be approved before it has
-   * quoted at least once.
+   * (`ZapResult.approvalAddress`) — it isn't a constant anywhere in the
+   * package, so a chain can't be approved before it has quoted once.
    */
   approvalTargets: Record<number, Address | undefined>
 }
@@ -27,7 +21,9 @@ type ApproveInputsProps = {
 /**
  * Simulation is the reason this exists: an unapproved input makes every row on
  * that chain unverifiable, so the inputs are approved once, for the whole
- * table, instead of per row.
+ * table, instead of per row. Every configured input is approved — re-approving
+ * an already-approved token is harmless, and checking allowances first would
+ * only trade a redundant transaction for extra state.
  */
 const ApproveInputs = ({
   chains,
@@ -42,57 +38,31 @@ const ApproveInputs = ({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // The widget approves 20% above the quoted input; matching it means a small
-  // amount bump doesn't demand a new approval.
-  const required = (chainId: number) => {
-    const input = inputs[chainId]
-    if (!input || !(Number(input.amount) > 0)) return null
-    return (parseUnits(input.amount, input.token.decimals) * 120n) / 100n
-  }
-
-  // Only the chains whose spender is known can be read; the rest simply stay
-  // out of the allowance query (and out of `missing`).
-  const readable = address
-    ? chains.filter((chainId) => !!approvalTargets[chainId])
-    : []
-
-  const { data: allowances, refetch: refetchAllowances } = useReadContracts({
-    allowFailure: false,
-    contracts: readable.map((chainId) => ({
-      chainId,
-      abi: erc20Abi,
-      address: inputs[chainId].token.address,
-      functionName: 'allowance' as const,
-      args: [address!, approvalTargets[chainId]!] as const,
-    })),
-  })
-
-  const missing = readable.filter((chainId, index) => {
-    const needed = required(chainId)
-    if (needed == null) return false
-    const allowance = allowances?.[index]
-    return allowance == null || allowance < needed
-  })
+  const pending = chains.filter(
+    (chainId) => approvalTargets[chainId] && Number(inputs[chainId].amount) > 0
+  )
 
   const approveAll = async () => {
     setBusy(true)
     setError(null)
     try {
-      for (const chainId of missing) {
-        const target = approvalTargets[chainId]
-        const needed = required(chainId)
-        if (!target || needed == null) continue
+      for (const chainId of pending) {
+        const { token, amount } = inputs[chainId]
         if (connectedChain !== chainId) await switchChainAsync({ chainId })
         const hash = await writeContractAsync({
           chainId,
           abi: erc20Abi,
-          address: inputs[chainId].token.address,
+          address: token.address,
           functionName: 'approve',
-          args: [target, needed],
+          // The widget approves 20% above the quoted input; matching it means a
+          // small amount bump doesn't demand a new approval.
+          args: [
+            approvalTargets[chainId]!,
+            (parseUnits(amount, token.decimals) * 120n) / 100n,
+          ],
         })
         await waitForTransactionReceipt(config, { hash, chainId })
       }
-      await refetchAllowances()
       // Re-quote so the simulation column moves off "approval needed".
       await queryClient.invalidateQueries({ queryKey: ['dtf-zap-quote'] })
     } catch (e) {
@@ -109,21 +79,20 @@ const ApproveInputs = ({
       <Button
         variant="outline"
         className="w-full"
-        disabled={busy || missing.length === 0}
+        disabled={busy || pending.length === 0}
         onClick={approveAll}
       >
-        {busy
-          ? 'Approving…'
-          : missing.length === 0
-            ? 'Inputs approved'
-            : `Create approvals (${missing.length})`}
+        {busy ? 'Approving…' : `Create approvals (${pending.length})`}
       </Button>
       <p className="text-xs text-muted-foreground">
-        {missing.length === 0
-          ? 'Every chain input is approved for the zapper.'
-          : `Needs approval: ${missing
-              .map((chainId) => `${CHAIN_TAGS[chainId]} ${inputs[chainId].token.symbol}`)
-              .join(', ')}. One transaction per chain.`}
+        {pending.length === 0
+          ? 'Quote once so the zapper reports its spender for each chain.'
+          : `Approves ${pending
+              .map(
+                (chainId) =>
+                  `${CHAIN_TAGS[chainId]} ${inputs[chainId].token.symbol}`
+              )
+              .join(', ')} — one transaction per chain.`}
       </p>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
