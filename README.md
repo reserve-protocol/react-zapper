@@ -495,9 +495,10 @@ latency and a link to the raw quote URL.
   simulated with `estimateGas`, giving a Simulation column of `ok` / `reverts` /
   the reason it couldn't be proven (`approval needed`, `insufficient balance`,
   RPC noise). The only transaction this page ever sends is an approval:
-  "Create approvals" under the input selector approves each chain's input token
-  for that chain's zapper spender (`ZapResult.approvalAddress`, so a chain must
-  have quoted once), one transaction per chain, at the widget's `amountIn * 1.2`.
+  "Create approvals" under the input selector approves every configured input
+  token for that chain's zapper spender (`ZapResult.approvalAddress`, so a chain
+  must have quoted once), one transaction per chain, at the widget's
+  `amountIn * 1.2`.
   Zaps themselves are never submitted here — use the widget page for that.
 
 ## License
