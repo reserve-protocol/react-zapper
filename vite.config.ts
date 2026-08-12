@@ -37,6 +37,13 @@ export default defineConfig(({ mode, command }) => {
       build: {
         outDir: '../dist-demo',
         emptyOutDir: true,
+        rollupOptions: {
+          // Two tools, two pages: the zapper demo and the quote table.
+          input: {
+            index: resolve(__dirname, 'demo/index.html'),
+            quotes: resolve(__dirname, 'demo/quotes.html'),
+          },
+        },
       },
       resolve: {
         alias: {
