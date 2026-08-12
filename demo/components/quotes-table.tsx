@@ -48,6 +48,11 @@ export type QuotesTableProps = {
    */
   account?: Address
   /**
+   * Reports the chain's zapper spender as soon as a quote reveals it, so the
+   * inputs can be approved without a per-row approve button.
+   */
+  onApprovalTarget: (chainId: number, approvalAddress: Address) => void
+  /**
    * Bumped by "Refresh now": part of every row's query key, so a click always
    * fetches a new round instead of re-serving the last one.
    */
@@ -108,6 +113,7 @@ const QuoteRow = ({
   forceMint,
   deepLiquidity,
   account,
+  onApprovalTarget,
   round,
   armed,
   autoRefreshMs,
@@ -176,6 +182,11 @@ const QuoteRow = ({
   })
 
   const result = query.data?.result
+  const approvalAddress = result?.approvalAddress
+
+  React.useEffect(() => {
+    if (approvalAddress) onApprovalTarget(dtf.chainId, approvalAddress)
+  }, [approvalAddress, dtf.chainId, onApprovalTarget])
 
   return (
     <TableRow>

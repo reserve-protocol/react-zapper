@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Address } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Moon, RefreshCw, Sun } from 'lucide-react'
 import { useAccount } from 'wagmi'
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './components/ui/select'
+import ApproveInputs from './components/approve-inputs'
 import QuotesTable, { ChainInput } from './components/quotes-table'
 import { useDiscoverDTFs } from './lib/dtf-discover'
 
@@ -78,6 +80,9 @@ function QuotesApp() {
   const [inputs, setInputs] = useState<Record<number, ChainInput>>(defaultInputs)
   const [autoRefreshMs, setAutoRefreshMs] = useState(0)
   const [round, setRound] = useState(0)
+  const [approvalTargets, setApprovalTargets] = useState<
+    Record<number, Address | undefined>
+  >({})
   const [armed, setArmed] = useState(false)
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('theme')
@@ -97,6 +102,16 @@ function QuotesApp() {
   // Connecting a wallet upgrades every row from a display-only quote to a real
   // signer's quote plus a simulation of its transaction.
   const { address } = useAccount()
+
+  const onApprovalTarget = useCallback(
+    (chainId: number, approvalAddress: Address) =>
+      setApprovalTargets((current) =>
+        current[chainId] === approvalAddress
+          ? current
+          : { ...current, [chainId]: approvalAddress }
+      ),
+    []
+  )
 
   // One price per chain — the input side of every row on that chain. The DTF
   // side is priced from the discover payload.
@@ -362,6 +377,11 @@ function QuotesApp() {
                     </div>
                   </div>
                 ))}
+                <ApproveInputs
+                  chains={CHAINS}
+                  inputs={inputs}
+                  approvalTargets={approvalTargets}
+                />
               </div>
             </CardContent>
           </Card>
@@ -429,6 +449,7 @@ function QuotesApp() {
                   forceMint={forceMint}
                   deepLiquidity={deepLiquidity}
                   account={address}
+                  onApprovalTarget={onApprovalTarget}
                   round={round}
                   armed={armed}
                   autoRefreshMs={autoRefreshMs > 0 ? autoRefreshMs : null}
