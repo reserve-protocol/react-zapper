@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Moon, RefreshCw, Sun } from 'lucide-react'
+import { useAccount } from 'wagmi'
 import { zappableTokens } from '@reserve-protocol/react-zapper'
 import { AvailableChain, CHAIN_TAGS, ChainId } from '@/utils/chains'
 import { usePrice } from '@/hooks/usePrice'
@@ -92,6 +94,10 @@ function QuotesApp() {
     includeDeprecated,
   })
 
+  // Connecting a wallet upgrades every row from a display-only quote to a real
+  // signer's quote plus a simulation of its transaction.
+  const { address } = useAccount()
+
   // One price per chain — the input side of every row on that chain. The DTF
   // side is priced from the discover payload.
   const mainnetPrice = usePrice(
@@ -142,6 +148,7 @@ function QuotesApp() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <ConnectButton showBalance={false} />
             <Button variant="outline" asChild>
               <a href="/">Zapper demo</a>
             </Button>
@@ -166,7 +173,10 @@ function QuotesApp() {
               <CardTitle className="text-lg">Configuration</CardTitle>
               <CardDescription>
                 Quotes come from the native zap provider only — aggregator and
-                RFQ sources are not requested
+                RFQ sources are not requested.{' '}
+                {address
+                  ? 'Quoted for the connected wallet and simulated.'
+                  : 'Connect a wallet to quote for a real signer and simulate each row.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -418,6 +428,7 @@ function QuotesApp() {
                   slippage={slippage}
                   forceMint={forceMint}
                   deepLiquidity={deepLiquidity}
+                  account={address}
                   round={round}
                   armed={armed}
                   autoRefreshMs={autoRefreshMs > 0 ? autoRefreshMs : null}

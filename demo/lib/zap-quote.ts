@@ -1,6 +1,10 @@
 import { Address, formatUnits } from 'viem'
 import zapper, { ZapResponse, ZapResult } from '@/types/api'
-import { PLACEHOLDER_SIGNER } from '@/utils/constants'
+import {
+  classifyEstimateGasError,
+  SIMULATION_TIMEOUT_MS,
+  SimulationTimeoutError,
+} from '@/hooks/zap-quote-simulation'
 
 /**
  * Only the native zap provider (the ZRS services) is quoted here: the
@@ -49,12 +53,28 @@ export type QuoteRequest = {
   slippage: number
   forceMint: boolean
   deepLiquidity: boolean
+  /**
+   * The connected wallet when there is one, otherwise the placeholder signer.
+   * A real signer is what makes the response executable (`tx`, real `gas`,
+   * `approvalNeeded`, `insufficientFunds`) and therefore simulatable.
+   */
+  signer: Address
 }
+
+export type Simulation =
+  | { status: 'ok' }
+  | { status: 'reverted'; error: string }
+  /** Nothing was proven about the quote — the reason says why. */
+  | { status: 'unverifiable'; reason: string }
+
+/** `estimateGas` against the quote's own tx; the wallet is never touched. */
+export type SimulateTx = (tx: NonNullable<ZapResult['tx']>) => Promise<void>
 
 export type QuoteRow = {
   result: ZapResult
   endpoint: string
   durationMs: number
+  simulation: Simulation | null
 }
 
 /**
@@ -91,6 +111,47 @@ const priceQuote = (result: ZapResult, request: QuoteRequest): ZapResult => {
   }
 }
 
+/**
+ * Single-quote flavour of `filterQuotesBySimulation`: the table wants to *show*
+ * why a row is unproven, not silently keep it, so the outcome is reported
+ * instead of collapsed into keep/drop.
+ */
+const simulateQuote = async (
+  result: ZapResult,
+  simulate: SimulateTx
+): Promise<Simulation> => {
+  if (!result.tx) return { status: 'unverifiable', reason: 'no transaction' }
+  // Without the approval in place the swap tx is guaranteed to revert, so the
+  // simulation would say nothing about the quote itself.
+  if (result.approvalNeeded) {
+    return { status: 'unverifiable', reason: 'approval needed' }
+  }
+  if (result.insufficientFunds) {
+    return { status: 'unverifiable', reason: 'insufficient balance' }
+  }
+
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new SimulationTimeoutError('simulation timed out')),
+        SIMULATION_TIMEOUT_MS
+      )
+    })
+    const run = simulate(result.tx)
+    run.catch(() => {})
+    await Promise.race([run, timeout])
+    return { status: 'ok' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return classifyEstimateGasError(error) === 'revert'
+      ? { status: 'reverted', error: message }
+      : { status: 'unverifiable', reason: message.split('\n')[0] }
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export const buildZapEndpoint = (request: QuoteRequest): string =>
   zapper.zap({
     url: request.zapperApiUrl,
@@ -99,17 +160,20 @@ export const buildZapEndpoint = (request: QuoteRequest): string =>
     tokenOut: request.tokenOut,
     amountIn: request.amountIn,
     slippage: request.slippage,
-    signer: PLACEHOLDER_SIGNER,
+    signer: request.signer,
     trade: !request.forceMint,
     deepLiquidity: request.deepLiquidity,
   })
 
 /**
- * Display-only mint quote: the placeholder signer keeps the response free of
- * anything executable, so no wallet is needed to watch the table.
+ * Fetches one mint quote and, when a simulator is supplied (i.e. a wallet is
+ * connected), checks whether its transaction would actually go through.
+ * With the placeholder signer the response carries nothing executable, so the
+ * table works read-only with no wallet at all.
  */
 export const fetchZapQuote = async (
-  request: QuoteRequest
+  request: QuoteRequest,
+  simulate?: SimulateTx
 ): Promise<QuoteRow> => {
   const endpoint = buildZapEndpoint(request)
 
@@ -125,10 +189,12 @@ export const fetchZapQuote = async (
         data?.error || `zap error: ${response.status} ${response.statusText}`
       )
     }
+    const durationMs = Date.now() - startedAt
     return {
       result: priceQuote(data.result, request),
       endpoint,
-      durationMs: Date.now() - startedAt,
+      durationMs,
+      simulation: simulate ? await simulateQuote(data.result, simulate) : null,
     }
   } finally {
     release()

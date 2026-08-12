@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
-import { formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, Hex, parseUnits } from 'viem'
+import { useConfig } from 'wagmi'
+import { estimateGas } from 'wagmi/actions'
 import { CHAIN_TAGS } from '@/utils/chains'
 import {
   formatCurrency,
@@ -8,12 +10,15 @@ import {
   formatToSignificantDigits,
 } from '@/utils/format'
 import { Token } from '@/types'
+import { PLACEHOLDER_SIGNER } from '@/utils/constants'
 import { DiscoverDTF } from '../lib/dtf-discover'
 import {
   buildZapEndpoint,
   DTF_DECIMALS,
   fetchZapQuote,
   QuoteRequest,
+  Simulation,
+  SimulateTx,
 } from '../lib/zap-quote'
 import {
   Table,
@@ -38,6 +43,11 @@ export type QuotesTableProps = {
   forceMint: boolean
   deepLiquidity: boolean
   /**
+   * Connected wallet, when there is one: quotes are then signed for a real
+   * account and each row's transaction is simulated.
+   */
+  account?: Address
+  /**
    * Bumped by "Refresh now": part of every row's query key, so a click always
    * fetches a new round instead of re-serving the last one.
    */
@@ -45,6 +55,29 @@ export type QuotesTableProps = {
   /** Rows stay idle until the first refresh — nothing is quoted on page load. */
   armed: boolean
   autoRefreshMs: number | null
+}
+
+const SimulationCell = ({
+  simulation,
+}: {
+  simulation: Simulation | null
+}) => {
+  if (!simulation) {
+    return <span className="text-muted-foreground">no wallet</span>
+  }
+  if (simulation.status === 'ok') return <span className="text-success">ok</span>
+  if (simulation.status === 'reverted') {
+    return (
+      <span className="text-destructive" title={simulation.error}>
+        reverts
+      </span>
+    )
+  }
+  return (
+    <span className="text-muted-foreground" title={simulation.reason}>
+      {simulation.reason}
+    </span>
+  )
 }
 
 const impactClass = (value: number) =>
@@ -74,6 +107,7 @@ const QuoteRow = ({
   slippage,
   forceMint,
   deepLiquidity,
+  account,
   round,
   armed,
   autoRefreshMs,
@@ -101,8 +135,23 @@ const QuoteRow = ({
           slippage,
           forceMint,
           deepLiquidity,
+          signer: account ?? PLACEHOLDER_SIGNER,
         }
       : null
+
+  const config = useConfig()
+  // Pure revert check: chainId and account are explicit so wagmi uses the
+  // public client for the DTF's chain and never prompts the wallet.
+  const simulate: SimulateTx | undefined = account
+    ? (tx) =>
+        estimateGas(config, {
+          chainId: dtf.chainId as (typeof config)['chains'][number]['id'],
+          account,
+          to: tx.to,
+          data: tx.data as Hex,
+          value: BigInt(tx.value || 0),
+        }).then(() => undefined)
+    : undefined
 
   const query = useQuery({
     queryKey: [
@@ -115,9 +164,10 @@ const QuoteRow = ({
       forceMint,
       deepLiquidity,
       zapperApiUrl,
+      account,
       round,
     ],
-    queryFn: () => fetchZapQuote(request!),
+    queryFn: () => fetchZapQuote(request!, simulate),
     enabled: armed && !!request,
     refetchInterval: autoRefreshMs ?? false,
     retry: false,
@@ -143,16 +193,16 @@ const QuoteRow = ({
         {input ? `${input.amount} ${input.token.symbol}` : '–'}
       </TableCell>
       {!armed ? (
-        <TableCell colSpan={6} className="text-muted-foreground">
+        <TableCell colSpan={8} className="text-muted-foreground">
           Idle — hit Refresh now to quote
         </TableCell>
       ) : query.isPending ? (
-        <TableCell colSpan={6} className="text-muted-foreground">
+        <TableCell colSpan={8} className="text-muted-foreground">
           Quoting…
         </TableCell>
       ) : query.error ? (
         <TableCell
-          colSpan={6}
+          colSpan={8}
           className="max-w-md truncate text-destructive"
           title={
             query.error instanceof Error ? query.error.message : undefined
@@ -183,6 +233,12 @@ const QuoteRow = ({
             {result!.dustValue != null
               ? `$${formatCurrency(result!.dustValue)}`
               : '–'}
+          </TableCell>
+          <TableCell>
+            <SimulationCell simulation={query.data!.simulation} />
+          </TableCell>
+          <TableCell className="text-muted-foreground">
+            {result!.gas ? formatCurrency(Number(result!.gas), 0) : '–'}
           </TableCell>
           <TableCell className="text-muted-foreground">
             {query.data!.durationMs}ms
@@ -220,6 +276,8 @@ const QuotesTable = ({ dtfs, inputs, prices, ...rowProps }: QuotesTableProps) =>
         <TableHead>Price impact</TableHead>
         <TableHead>True price impact</TableHead>
         <TableHead>Dust</TableHead>
+        <TableHead>Simulation</TableHead>
+        <TableHead>Gas</TableHead>
         <TableHead>Latency</TableHead>
         <TableHead>Updated</TableHead>
         <TableHead>Quote</TableHead>

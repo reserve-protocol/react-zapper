@@ -488,8 +488,13 @@ latency and a link to the raw quote URL.
   queued a few requests at a time so a cycle never fans out one request per DTF
   at once.
 - The **input side is configured per chain** (amount + token from
-  `zappableTokens`) since the supported inputs differ; quotes use a placeholder
-  signer, so no wallet is needed.
+  `zappableTokens`) since the supported inputs differ.
+- **Wallet is optional.** Without one, quotes use `PLACEHOLDER_SIGNER` and are
+  display-only. Connect one and every row is quoted for that signer — so the
+  response carries a real transaction and gas — and each transaction is
+  simulated with `estimateGas`, giving a Simulation column of `ok` / `reverts` /
+  the reason it couldn't be proven (`approval needed`, `insufficient balance`,
+  RPC noise). Nothing is ever submitted from this page.
 
 ## License
 
