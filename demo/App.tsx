@@ -119,6 +119,9 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="outline" asChild>
+              <a href="/quotes.html">Quote table</a>
+            </Button>
             <Button
               variant="outline"
               size="icon"

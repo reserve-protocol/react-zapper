@@ -471,6 +471,36 @@ pnpm dev
 
 Visit `http://localhost:5173` to see the demo.
 
+### Quote Table
+
+`http://localhost:5173/quotes.html` (`/quotes.html` in the deployed demo) is a
+second page for watching quotes across the whole DTF universe instead of one DTF
+at a time: every Index DTF from the Reserve API's discover endpoint, one row
+each, with output amount, USD value, price impact, true price impact, dust,
+latency and a link to the raw quote URL.
+
+- Only the **native zap provider** is quoted (the endpoint selector picks which
+  zapper service answers — Default, ZRS-1/2/3 or local). Aggregator and RFQ
+  sources are deliberately not requested: they don't exercise the zapper, and a
+  full source comparison per DTF per interval hits their rate limits.
+- **Auto-refresh is off on load** and nothing is quoted until "Refresh now" is
+  pressed; the dropdown next to it starts a 15s / 60s / 300s cadence. Rounds are
+  queued a few requests at a time so a cycle never fans out one request per DTF
+  at once.
+- The **input side is configured per chain** (amount + token from
+  `zappableTokens`) since the supported inputs differ.
+- **Wallet is optional.** Without one, quotes use `PLACEHOLDER_SIGNER` and are
+  display-only. Connect one and every row is quoted for that signer — so the
+  response carries a real transaction and gas — and each transaction is
+  simulated with `estimateGas`, giving a Simulation column of `ok` / `reverts` /
+  the reason it couldn't be proven (`approval needed`, `insufficient balance`,
+  RPC noise). The only transaction this page ever sends is an approval:
+  "Create approvals" under the input selector approves every configured input
+  token for that chain's zapper spender (`ZapResult.approvalAddress`, so a chain
+  must have quoted once), one transaction per chain, at the widget's
+  `amountIn * 1.2`.
+  Zaps themselves are never submitted here — use the widget page for that.
+
 ## License
 
 MIT License - see LICENSE file for details.
