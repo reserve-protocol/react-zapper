@@ -70,34 +70,58 @@ export type Simulation =
 /** `estimateGas` against the quote's own tx; the wallet is never touched. */
 export type SimulateTx = (tx: NonNullable<ZapResult['tx']>) => Promise<void>
 
+/**
+ * A quote valued from the Reserve price API only, so every figure below is
+ * `null` whenever the API has no price for one of the two sides.
+ */
+export type PricedResult = Omit<
+  ZapResult,
+  'amountInValue' | 'amountOutValue' | 'priceImpact' | 'truePriceImpact'
+> & {
+  amountInValue: number | null
+  amountOutValue: number | null
+  priceImpact: number | null
+  truePriceImpact: number | null
+}
+
 export type QuoteRow = {
-  result: ZapResult
+  result: PricedResult
   endpoint: string
   durationMs: number
   simulation: Simulation | null
 }
 
 /**
- * Values both sides of the quote from Reserve prices (input token price and the
- * DTF's own price), the same way the widget does — provider values only stand
- * in when a Reserve price is missing.
+ * Values both sides of the quote from Reserve API prices (the input token price
+ * and the DTF's price, both from `current/prices`). The zapper's own
+ * `amountInValue` / `amountOutValue` / impacts are never used: the table exists
+ * to judge the zapper's routing, so its numbers can't be the yardstick.
+ * A missing API price leaves the row's values and impacts empty.
  */
-const priceQuote = (result: ZapResult, request: QuoteRequest): ZapResult => {
+const priceQuote = (result: ZapResult, request: QuoteRequest): PricedResult => {
   const { tokenInPrice, tokenInDecimals, tokenOutPrice } = request
   const amountInValue =
     tokenInPrice != null
       ? tokenInPrice *
         Number(formatUnits(BigInt(result.amountIn || 0), tokenInDecimals))
-      : result.amountInValue
+      : null
   const amountOutValue =
     tokenOutPrice != null
       ? tokenOutPrice *
         Number(formatUnits(BigInt(result.amountOut || 0), DTF_DECIMALS))
-      : result.amountOutValue
+      : null
 
   const bothPriced =
     amountInValue != null && amountInValue > 0 && amountOutValue != null
-  if (!bothPriced) return { ...result, amountInValue, amountOutValue }
+  if (!bothPriced) {
+    return {
+      ...result,
+      amountInValue,
+      amountOutValue,
+      priceImpact: null,
+      truePriceImpact: null,
+    }
+  }
 
   return {
     ...result,
