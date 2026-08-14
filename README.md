@@ -489,6 +489,12 @@ latency and a link to the raw quote URL.
   at once.
 - The **input side is configured per chain** (amount + token from
   `zappableTokens`) since the supported inputs differ.
+- **Both sides are valued from the Reserve price API** (`current/prices`, from
+  the "API Endpoint" selector): the input token price per chain and the DTF price
+  per row, so the USD value and both impact columns measure the zapper against an
+  independent price source. The zapper's own `amountInValue` / `amountOutValue` /
+  impacts are never displayed, and a row whose sides aren't both priced by the
+  API shows `–` instead of falling back to them.
 - **Wallet is optional.** Without one, quotes use `PLACEHOLDER_SIGNER` and are
   display-only. Connect one and every row is quoted for that signer — so the
   response carries a real transaction and gas — and each transaction is

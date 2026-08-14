@@ -25,6 +25,7 @@ import {
 import ApproveInputs from './components/approve-inputs'
 import QuotesTable, { ChainInput } from './components/quotes-table'
 import { useDiscoverDTFs } from './lib/dtf-discover'
+import { useDTFPrices } from './lib/dtf-prices'
 
 const API_URLS = [
   { label: 'Default', value: 'https://api.reserve.org/' },
@@ -114,7 +115,7 @@ function QuotesApp() {
   )
 
   // One price per chain — the input side of every row on that chain. The DTF
-  // side is priced from the discover payload.
+  // side comes from the same price API, one request per chain.
   const mainnetPrice = usePrice(
     ChainId.Mainnet,
     inputs[ChainId.Mainnet].token.address,
@@ -138,6 +139,7 @@ function QuotesApp() {
     }),
     [mainnetPrice, basePrice, bscPrice]
   )
+  const { data: dtfPrices } = useDTFPrices(apiUrl, dtfs ?? [])
 
   const refreshNow = () => {
     setArmed(true)
@@ -232,7 +234,8 @@ function QuotesApp() {
                   </SelectContent>
                 </Select>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Reserve API endpoint (DTF list, prices)
+                  Reserve API endpoint (DTF list, and the prices both sides of
+                  every quote are valued with)
                 </p>
               </div>
               <div>
@@ -444,6 +447,7 @@ function QuotesApp() {
                   dtfs={dtfs ?? []}
                   inputs={inputs}
                   prices={prices}
+                  dtfPrices={dtfPrices ?? {}}
                   zapperApiUrl={zapperApiUrl}
                   slippage={slippage}
                   forceMint={forceMint}

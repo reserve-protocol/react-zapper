@@ -12,6 +12,7 @@ import {
 import { Token } from '@/types'
 import { PLACEHOLDER_SIGNER } from '@/utils/constants'
 import { DiscoverDTF } from '../lib/dtf-discover'
+import { PriceKey, priceKey } from '../lib/dtf-prices'
 import {
   buildZapEndpoint,
   DTF_DECIMALS,
@@ -37,7 +38,10 @@ export type ChainInput = {
 export type QuotesTableProps = {
   dtfs: DiscoverDTF[]
   inputs: Record<number, ChainInput>
+  /** Input token price per chain, from the Reserve price API. */
   prices: Record<number, number | null>
+  /** DTF price per chain/address, from the same Reserve price API. */
+  dtfPrices: Record<PriceKey, number>
   zapperApiUrl: string
   slippage: number
   forceMint: boolean
@@ -85,12 +89,17 @@ const SimulationCell = ({
   )
 }
 
-const impactClass = (value: number) =>
-  value > 3
-    ? 'text-destructive'
-    : value > 1
-      ? 'text-warning'
-      : 'text-foreground'
+const impactClass = (value: number | null) =>
+  value == null
+    ? 'text-muted-foreground'
+    : value > 3
+      ? 'text-destructive'
+      : value > 1
+        ? 'text-warning'
+        : 'text-foreground'
+
+const Impact = ({ value }: { value: number | null }) =>
+  value == null ? <>–</> : <>{formatPercentage(value)}</>
 
 const Age = ({ updatedAt }: { updatedAt: number }) => {
   const [, forceRender] = React.useState(0)
@@ -108,6 +117,7 @@ const QuoteRow = ({
   dtf,
   input,
   tokenInPrice,
+  tokenOutPrice,
   zapperApiUrl,
   slippage,
   forceMint,
@@ -117,10 +127,11 @@ const QuoteRow = ({
   round,
   armed,
   autoRefreshMs,
-}: Omit<QuotesTableProps, 'dtfs' | 'inputs' | 'prices'> & {
+}: Omit<QuotesTableProps, 'dtfs' | 'inputs' | 'prices' | 'dtfPrices'> & {
   dtf: DiscoverDTF
   input?: ChainInput
   tokenInPrice: number | null
+  tokenOutPrice: number | null
 }) => {
   const amountIn =
     input && Number(input.amount) > 0
@@ -137,7 +148,7 @@ const QuoteRow = ({
           tokenInPrice,
           amountIn,
           tokenOut: dtf.address,
-          tokenOutPrice: dtf.price ?? null,
+          tokenOutPrice,
           slippage,
           forceMint,
           deepLiquidity,
@@ -235,10 +246,10 @@ const QuoteRow = ({
               : '–'}
           </TableCell>
           <TableCell className={impactClass(result!.priceImpact)}>
-            {formatPercentage(result!.priceImpact)}
+            <Impact value={result!.priceImpact} />
           </TableCell>
           <TableCell className={impactClass(result!.truePriceImpact)}>
-            {formatPercentage(result!.truePriceImpact)}
+            <Impact value={result!.truePriceImpact} />
           </TableCell>
           <TableCell>
             {result!.dustValue != null
@@ -275,7 +286,13 @@ const QuoteRow = ({
   )
 }
 
-const QuotesTable = ({ dtfs, inputs, prices, ...rowProps }: QuotesTableProps) => (
+const QuotesTable = ({
+  dtfs,
+  inputs,
+  prices,
+  dtfPrices,
+  ...rowProps
+}: QuotesTableProps) => (
   <Table>
     <TableHeader>
       <TableRow>
@@ -301,6 +318,7 @@ const QuotesTable = ({ dtfs, inputs, prices, ...rowProps }: QuotesTableProps) =>
           dtf={dtf}
           input={inputs[dtf.chainId]}
           tokenInPrice={prices[dtf.chainId] ?? null}
+          tokenOutPrice={dtfPrices[priceKey(dtf.chainId, dtf.address)] ?? null}
           {...rowProps}
         />
       ))}
