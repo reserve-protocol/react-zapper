@@ -95,7 +95,6 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
       forceMint,
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'sell',
-      inputValue,
       insufficientBalance,
       tokenInPrice: indexDTFPrice,
       tokenInDecimals: indexDTF?.token.decimals ?? 18,

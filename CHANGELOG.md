@@ -1,3 +1,9 @@
+## [2.10.3] - 2026-08-24
+
+### Changed
+
+- Removed the per-DTF minimum input value rule that excluded the Zapper from the `best` provider pool for inputs under $1,000 (only applied to `0x2f8a339b5889ffac4c5a956787cda593b3c36867` on BSC). The Zapper now always participates in the parallel quote round for every DTF.
+
 ## [2.10.2] - 2026-08-10
 
 ### Changed

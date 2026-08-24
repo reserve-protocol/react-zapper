@@ -95,7 +95,6 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
       forceMint,
       dtfTicker: indexDTF?.token.symbol || '',
       type: 'buy',
-      inputValue,
       insufficientBalance,
       tokenInPrice: selectedTokenPrice,
       tokenInDecimals: selectedToken.decimals,

@@ -12,7 +12,6 @@ import {
   apiUrlAtom,
   chainIdAtom,
   deepLiquidityAtom,
-  indexDTFAtom,
   quoteSourceAtom,
   refreshRateAtom,
   walletAtom,
@@ -54,7 +53,6 @@ import {
   trackSubmitButtonReady,
 } from '../utils/tracking'
 import useDebounce from './useDebounce'
-import { ChainId } from '@/utils/chains'
 import { PLACEHOLDER_SIGNER } from '@/utils/constants'
 
 // Expiry-triggered refetch: the API may cache a provider's quote until its
@@ -65,13 +63,6 @@ import { PLACEHOLDER_SIGNER } from '@/utils/constants'
 const EXPIRY_REFETCH_BUFFER = 500
 const MIN_EXPIRY_REFETCH = 1_000
 
-const MIN_INPUT_VALUE_FOR_ZAP = 1000
-const DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP: Record<number, string[]> = {
-  [ChainId.BSC]: ['0x2f8a339b5889ffac4c5a956787cda593b3c36867'].map((address) =>
-    address.toLowerCase()
-  ),
-}
-
 const useZapSwapQuery = ({
   tokenIn,
   tokenOut,
@@ -81,7 +72,6 @@ const useZapSwapQuery = ({
   forceMint,
   dtfTicker,
   type,
-  inputValue,
   insufficientBalance,
   tokenInPrice,
   tokenInDecimals,
@@ -96,7 +86,6 @@ const useZapSwapQuery = ({
   forceMint: boolean
   dtfTicker: string
   type: 'buy' | 'sell'
-  inputValue: number
   insufficientBalance: boolean
   // Reserve prices for both sides of the trade: every quote's USD values and
   // price impact are computed from these (uniform across sources); the
@@ -119,7 +108,6 @@ const useZapSwapQuery = ({
   const setQuoteId = useSetAtom(quoteIdAtom)
   const setRetryId = useSetAtom(retryIdAtom)
   const setSourceId = useSetAtom(sourceIdAtom)
-  const dtf = useAtomValue(indexDTFAtom)
   const refreshRate = useAtomValue(refreshRateAtom)
   const beginRound = useSetAtom(beginQuoteRoundAtom)
   const updateRow = useSetAtom(providerQuoteUpdateAtom)
@@ -129,21 +117,10 @@ const useZapSwapQuery = ({
   const bestSource = useAtomValue(bestSourceAtom)
   const earliestValidUntil = useAtomValue(earliestValidUntilAtom)
 
-  const shouldSkipZapper =
-    (DTFS_WITH_MIN_INPUT_VALUE_FOR_ZAP[chainId]?.includes(
-      dtf?.id?.toLowerCase() ?? ''
-    ) ?? false) && inputValue < MIN_INPUT_VALUE_FOR_ZAP
-
-  // Providers available on this chain. The `shouldSkipZapper` rule only
-  // affects the parallel `best` pool — when the user explicitly picks a
-  // provider, honor that choice regardless of the skip rule.
-  const availableProviders = useMemo<ProviderConfig[]>(() => {
-    const providers = getEnabledProviders(chainId)
-    if (quoteSource !== 'best') return providers
-    return shouldSkipZapper
-      ? providers.filter((p) => p.id !== 'zap')
-      : providers
-  }, [chainId, shouldSkipZapper, quoteSource])
+  const availableProviders = useMemo<ProviderConfig[]>(
+    () => getEnabledProviders(chainId),
+    [chainId]
+  )
 
   // Without a wallet, quotes are still fetched (display-only) using a
   // placeholder signer; anything executable is stripped from the results.
