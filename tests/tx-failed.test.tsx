@@ -66,6 +66,33 @@ describe('CTA recovery after failed transaction', () => {
     }
   })
 
+  it('recovers when the tx reverts and the replayed call yields no reason', async () => {
+    // wagmi re-runs a reverted tx's calldata via eth_call to extract the reason.
+    // If that call does not revert (state moved on, or a replaying mock), the
+    // reason decodes to '' and wagmi throws Error('') — an error whose message
+    // is falsy. Recovery must key off the error's presence, not its text.
+    scenario.send = 'accept'
+    scenario.receiptStatus = '0x0'
+    scenario.replayCall = 'zero'
+    await setup()
+    await waitForReadyCta()
+
+    fireEvent.click(getCta())
+    await new Promise((r) => setTimeout(r, 12_000))
+    dumpState('after empty-reason revert settled')
+
+    try {
+      await waitForReadyCta()
+    } catch (e) {
+      dumpState('STUCK after empty-reason revert')
+      throw e
+    }
+    // The CTA alone can look ready while the tx-freeze is still on (inputs
+    // disabled, no re-quote) — the freeze itself must be lifted.
+    const probe = JSON.parse(screen.getByTestId('probe').textContent ?? '{}')
+    expect(probe.ongoingTx).toBe(false)
+  })
+
   it('recovers when the quote expires while signing and the user rejects', async () => {
     scenario.send = 'reject'
     scenario.quoteTtlMs = 2_000

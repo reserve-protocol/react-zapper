@@ -1,3 +1,9 @@
+## [2.10.4] - 2026-08-25
+
+### Fixed
+
+- A reverted transaction whose replayed `eth_call` yields no revert reason no longer leaves the widget stuck in its in-flight state (inputs and CTA disabled, no re-quote). wagmi surfaces that case as an error with an empty message, and the failure-recovery path keyed off the message's truthiness; `useWatchTransaction` now reports a non-empty error for any receipt error so the form always recovers.
+
 ## [2.10.3] - 2026-08-24
 
 ### Changed
