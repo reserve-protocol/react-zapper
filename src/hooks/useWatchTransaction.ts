@@ -70,7 +70,11 @@ const useWatchTransaction = ({ hash, label }: WatchOptions): WatchResult => {
     data,
     isMining,
     status,
-    error: error?.message,
+    // A reverted tx whose replayed call yields no reason surfaces as an Error
+    // with an EMPTY message (wagmi's waitForTransactionReceipt). Consumers key
+    // recovery off this string's truthiness, so never hand back '' for a
+    // real error.
+    error: error ? error.message || 'Transaction reverted' : undefined,
   }
 }
 

@@ -63,6 +63,10 @@ export type Scenario = {
   send: 'reject' | 'accept'
   // receipt status once mined
   receiptStatus: '0x0' | '0x1'
+  // what the replay eth_call of a reverted tx answers: a revert with a reason
+  // (a node re-running the calldata) or a plain zero word (state moved on /
+  // a mock) — the latter yields an EMPTY reason
+  replayCall: 'revert' | 'zero'
   // delay before eth_sendTransaction responds (wallet prompt open)
   sendDelayMs: number
   // eth_estimateGas fails for this many ms after the first send attempt
@@ -118,6 +122,7 @@ let lastQueryClient: QueryClient
 const defaultScenario = (): Scenario => ({
   send: 'accept',
   receiptStatus: '0x1',
+  replayCall: 'revert',
   sendDelayMs: 0,
   estimateFailWindowMs: 0,
   sendAttempted: false,
@@ -309,6 +314,7 @@ const rpcHandler = async (
         return `0x${BigInt(scenario.allowance).toString(16).padStart(64, '0')}`
       }
       // replaying a reverted tx for the revert reason
+      if (scenario.replayCall === 'zero') return `0x${'0'.repeat(64)}`
       throw { code: 3, message: 'execution reverted: SLIPPAGE', data: '0x' }
     }
     default:
