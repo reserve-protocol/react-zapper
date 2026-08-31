@@ -616,7 +616,11 @@ const SubmitZapButton = ({
               : rfqWaitingFill
                 ? t`Waiting for order to fill...`
                 : readyToSubmit
-                  ? buttonLabel
+                  ? approvalReceipt?.status === 'success'
+                    ? currentTab === 'buy'
+                      ? t`Step 2: Buy`
+                      : t`Step 2: Sell`
+                    : buttonLabel
                   : currentTab === 'buy'
                     ? t`Approve and market buy`
                     : t`Approve and market sell`}

@@ -1,3 +1,9 @@
+## [2.10.5] - 2026-08-31
+
+### Changed
+
+- When a trade needs an approval first, the CTA reads "Step 2: Buy" / "Step 2: Sell" once the approval confirms, instead of "Market Buy" / "Market Sell". Trades that need no approval keep the "Market Buy" / "Market Sell" label.
+
 ## [2.10.4] - 2026-08-25
 
 ### Fixed

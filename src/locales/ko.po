@@ -14,8 +14,8 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: formatCurrency(dustValue)
-#: src/components/zap-mint/buy/index.tsx:234
-#: src/components/zap-mint/sell/index.tsx:235
+#: src/components/zap-mint/buy/index.tsx:233
+#: src/components/zap-mint/sell/index.tsx:234
 msgid " + ${0} in dust"
 msgstr " + ${0} 더스트"
 
@@ -28,11 +28,11 @@ msgstr " + ${0} 더스트"
 msgid "A direct line to the team"
 msgstr "팀과의 직접 소통 채널"
 
-#: src/components/zap-mint/submit-zap.tsx:633
+#: src/components/zap-mint/submit-zap.tsx:625
 msgid "Approve and market buy"
 msgstr "승인 후 시장가 매수"
 
-#: src/components/zap-mint/submit-zap.tsx:634
+#: src/components/zap-mint/submit-zap.tsx:626
 msgid "Approve and market sell"
 msgstr "승인 후 시장가 매도"
 
@@ -158,7 +158,7 @@ msgstr "이메일을 입력하세요"
 msgid "Failed to send. Try again."
 msgstr "전송에 실패했습니다. 다시 시도하세요."
 
-#: src/components/zap-mint/submit-zap.tsx:624
+#: src/components/zap-mint/submit-zap.tsx:613
 msgid "Fetching quote..."
 msgstr "견적 가져오는 중..."
 
@@ -174,7 +174,7 @@ msgstr "DTF 강제 Mint"
 msgid "Get relevant updates about changes that may affect this DTF."
 msgstr "이 DTF에 영향을 줄 수 있는 변경 사항에 대한 관련 소식을 받아보세요."
 
-#: src/components/zap-mint/submit-zap.tsx:97
+#: src/components/zap-mint/submit-zap.tsx:90
 msgid "Get started"
 msgstr "시작하기"
 
@@ -205,7 +205,7 @@ msgstr "높은 더스트 가치: ${0} (출력 가치의 {1})"
 msgid "High projected slippage: {0}"
 msgstr "높은 예상 슬리피지: {0}"
 
-#: src/components/zap-mint/submit-zap.tsx:121
+#: src/components/zap-mint/submit-zap.tsx:114
 msgid "Insufficient balance"
 msgstr "잔액이 부족합니다"
 
@@ -217,16 +217,16 @@ msgstr "가스 잔액 부족"
 #~ msgid "Loading DTF"
 #~ msgstr "DTF 로딩 중"
 
-#: src/components/zap-mint/submit-zap.tsx:97
-#: src/components/zap-mint/submit-zap.tsx:119
+#: src/components/zap-mint/submit-zap.tsx:90
+#: src/components/zap-mint/submit-zap.tsx:112
 msgid "Loading..."
 msgstr "로딩 중..."
 
-#: src/components/zap-mint/buy/index.tsx:250
+#: src/components/zap-mint/buy/index.tsx:249
 msgid "Market Buy"
 msgstr "시장가 매수"
 
-#: src/components/zap-mint/sell/index.tsx:257
+#: src/components/zap-mint/sell/index.tsx:256
 msgid "Market Sell"
 msgstr "시장가 매도"
 
@@ -294,7 +294,7 @@ msgstr "예상 수령액"
 msgid "Projected slippage"
 msgstr "예상 슬리피지"
 
-#: src/components/zap-mint/submit-zap.tsx:622
+#: src/components/zap-mint/submit-zap.tsx:611
 msgid "Quote expired"
 msgstr "견적 만료됨"
 
@@ -366,7 +366,7 @@ msgstr "전송 중..."
 msgid "Show details"
 msgstr "세부 정보 보기"
 
-#: src/components/zap-mint/submit-zap.tsx:626
+#: src/components/zap-mint/submit-zap.tsx:615
 msgid "Simulation failed - Refetching quote"
 msgstr "시뮬레이션 실패 - 견적 다시 가져오는 중"
 
@@ -401,6 +401,14 @@ msgstr "이 DTF에 대한 소식 받기"
 #: src/components/zap-mint/submit-zap.tsx:623
 #~ msgid "Step 1. "
 #~ msgstr "1단계. "
+
+#: src/components/zap-mint/submit-zap.tsx:621
+msgid "Step 2: Buy"
+msgstr "2단계: 매수"
+
+#: src/components/zap-mint/submit-zap.tsx:622
+msgid "Step 2: Sell"
+msgstr "2단계: 매도"
 
 #: src/components/zap-mint/submit-zap.tsx:622
 #~ msgid "Step 2. "
@@ -513,7 +521,7 @@ msgstr "주문 보기"
 msgid "Wait and try again or consider using manual mode"
 msgstr "잠시 후 다시 시도하거나 수동 모드 사용을 고려하세요"
 
-#: src/components/zap-mint/submit-zap.tsx:628
+#: src/components/zap-mint/submit-zap.tsx:617
 msgid "Waiting for order to fill..."
 msgstr "주문 체결 대기 중..."
 
