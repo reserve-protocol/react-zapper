@@ -1,3 +1,9 @@
+## [2.10.6] - 2026-09-01
+
+### Added
+
+- Hosts can provide `onTransactionConfirmed` to receive one callback after a buy or sell has a confirmed onchain transaction hash. The payload includes side, chain, DTF, wallet, transaction hash, DTF amount, and best available USD estimate.
+
 ## [2.10.5] - 2026-08-31
 
 ### Changed

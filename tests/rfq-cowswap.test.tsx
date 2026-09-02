@@ -9,10 +9,12 @@
 import { decodeFunctionData, type Abi, type Hex } from 'viem'
 import { EthFlowAbi } from '@cowprotocol/cow-sdk'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   COW_UID,
+  ACCOUNT,
+  DTF,
   getCta,
   harnessAfterEach,
   harnessBeforeEach,
@@ -46,7 +48,12 @@ describe('cowswap RFQ flow', () => {
 
   it('signs, posts and waits for the fill, then lands on the success path', async () => {
     scenario.cowStatuses = ['open', 'fulfilled']
-    await setup({ quoteSource: 'cowswap', inputToken: 'weth' })
+    const onTransactionConfirmed = vi.fn()
+    await setup({
+      quoteSource: 'cowswap',
+      inputToken: 'weth',
+      onTransactionConfirmed,
+    })
     await waitForReadyCta()
 
     fireEvent.click(getCta())
@@ -90,6 +97,17 @@ describe('cowswap RFQ flow', () => {
     expect(
       scenario.calls.filter((c) => c === 'eth_sendTransaction')
     ).toHaveLength(0)
+    expect(onTransactionConfirmed).toHaveBeenCalledTimes(1)
+    expect(onTransactionConfirmed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'buy',
+        chainId: 1,
+        dtfAddress: DTF,
+        wallet: ACCOUNT,
+        transactionHash: TX_HASH,
+        amount: '1000',
+      })
+    )
   })
 
   it('resets and refetches the quote when the order expires unfilled', async () => {
@@ -115,6 +133,32 @@ describe('cowswap RFQ flow', () => {
       },
       { timeout: 30_000, interval: 200 }
     )
+  })
+
+  it('reports the settlement hash when trade indexing lags fulfillment', async () => {
+    scenario.cowStatuses = ['fulfilled']
+    scenario.cowTradeHashDelay = 1
+    const onTransactionConfirmed = vi.fn()
+    await setup({
+      quoteSource: 'cowswap',
+      inputToken: 'weth',
+      onTransactionConfirmed,
+    })
+    await waitForReadyCta()
+
+    fireEvent.click(getCta())
+
+    await waitFor(() => expect(probe().success).toBe(true), {
+      timeout: 15_000,
+    })
+    await waitFor(
+      () =>
+        expect(onTransactionConfirmed).toHaveBeenCalledWith(
+          expect.objectContaining({ transactionHash: TX_HASH })
+        ),
+      { timeout: 15_000 }
+    )
+    expect(onTransactionConfirmed).toHaveBeenCalledTimes(1)
   })
 
   it('routes native inputs through eth-flow: one createOrder tx, no approval, then the fill wait', async () => {

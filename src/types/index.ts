@@ -1,7 +1,7 @@
 import { QuoteSource } from '@/state/atoms'
 import { AvailableChain } from '@/utils/chains'
 import { SupportedLocale } from '@/i18n/provider'
-import { Address } from 'viem'
+import { Address, Hash } from 'viem'
 export interface Token {
   address: Address
   symbol: string
@@ -33,6 +33,18 @@ export interface DisabledSettingsConfig {
   deepLiquidity?: boolean
   /** Hide the "Force minting DTF" setting and force the behavior off. */
   forceMint?: boolean
+}
+
+export interface ZapperTransactionConfirmed {
+  type: 'buy' | 'sell'
+  chainId: number
+  dtfAddress: Address
+  wallet: Address
+  transactionHash: Hash
+  /** Formatted DTF token amount bought or sold. */
+  amount: string
+  /** Best available USD estimate at confirmation time. */
+  usdValue?: number
 }
 
 export interface ZapperProps {
@@ -67,6 +79,8 @@ export interface ZapperProps {
   locale?: SupportedLocale
   /** Quote refresh interval in milliseconds. Defaults to 30000. */
   refreshRate?: number
+  /** Called once when a zap has a confirmed onchain transaction hash. */
+  onTransactionConfirmed?: (event: ZapperTransactionConfirmed) => void
 }
 
 export interface UseZapperModalReturn {

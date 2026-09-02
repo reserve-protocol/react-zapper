@@ -37,4 +37,5 @@ export type {
   Token,
   TokenBalance,
   DisabledSettingsConfig,
+  ZapperTransactionConfirmed,
 } from './types'

@@ -24,6 +24,8 @@ import {
   zapSwapEndpointAtom,
 } from '../../src/components/zap-mint/atom'
 import { ZapperI18nProvider } from '../../src/i18n/provider'
+import { ZapperEventsProvider } from '../../src/components/zapper-events'
+import type { ZapperTransactionConfirmed } from '../../src/types'
 import {
   balancesAtom,
   chainIdAtom,
@@ -91,6 +93,7 @@ export type Scenario = {
   // CoW order status sequence served per GET orders/{uid}; last entry repeats
   cowStatuses: string[]
   cowExecutedBuyAmount: string
+  cowTradeHashDelay: number
   // recorded POST /orders bodies (the signed order creation payloads)
   cowPostedOrders: Record<string, unknown>[]
   // count of CoW quote requests served by the fetch mock
@@ -136,6 +139,7 @@ const defaultScenario = (): Scenario => ({
   allowance: MAX_UINT256.toString(),
   cowStatuses: ['open', 'fulfilled'],
   cowExecutedBuyAmount: '1000000000000000000000',
+  cowTradeHashDelay: 0,
   cowPostedOrders: [],
   cowQuoteFetches: 0,
   cowQuoteBodies: [],
@@ -486,6 +490,10 @@ const handleCowFetch = async (
     })
   }
   if (url.includes('/trades')) {
+    if (scenario.cowTradeHashDelay > 0) {
+      scenario.cowTradeHashDelay--
+      return jsonResponse([])
+    }
     return jsonResponse([{ orderUid: COW_UID, txHash: TX_HASH }])
   }
   return jsonResponse({})
@@ -641,6 +649,7 @@ export const setup = async ({
   pickedSource,
   connected = true,
   connectWallet,
+  onTransactionConfirmed,
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
@@ -655,6 +664,8 @@ export const setup = async ({
   connected?: boolean
   // spy for the connect prompt fired by the disconnected CTA
   connectWallet?: () => void
+  // receives confirmed zap metadata from the host callback seam
+  onTransactionConfirmed?: (event: ZapperTransactionConfirmed) => void
 } = {}) => {
   const baseChain = chainName === 'bsc' ? bsc : mainnet
   scenario.chainId = baseChain.id
@@ -710,8 +721,10 @@ export const setup = async ({
       <QueryClientProvider client={queryClient}>
         <JotaiProvider store={store}>
           <ZapperI18nProvider>
-            <Probe />
-            <Buy mode="modal" />
+            <ZapperEventsProvider events={{ onTransactionConfirmed }}>
+              <Probe />
+              <Buy mode="modal" />
+            </ZapperEventsProvider>
           </ZapperI18nProvider>
         </JotaiProvider>
       </QueryClientProvider>

@@ -52,6 +52,7 @@ import ZapErrorMsg, { ZapTxErrorMsg } from './zap-error-msg'
 import ZapPriceImpactWarningCheckbox from './zap-warning-checkbox'
 import { cn } from '../../utils/cn'
 import { minBigInt } from '@/utils'
+import { useZapperEvents } from '../zapper-events'
 
 // EIP-7825: Transaction Gas Limit Cap
 const FUSAKA_GAS_LIMIT = 2n ** 24n
@@ -162,6 +163,7 @@ const SubmitZapButton = ({
   disabled?: boolean
 }) => {
   const { t } = useLingui()
+  const { onTransactionConfirmed } = useZapperEvents()
   const warningAccepted = useAtomValue(zapPriceImpactWarningCheckboxAtom)
   const dustWarningAccepted = useAtomValue(zapDustWarningCheckboxAtom)
   const highPriceImpact = useAtomValue(zapHighPriceImpactAtom)
@@ -292,16 +294,13 @@ const SubmitZapButton = ({
   // `track` changes identity each render, so guard with a ref to handle success
   // exactly once per tx (otherwise it re-sets the snapshot after a close reset).
   const successHandledRef = useRef(false)
+  const transactionConfirmedHandledRef = useRef(false)
 
   // RFQ success mirrors the receipt path: the fill amount comes from the order
   // book instead of tx logs, and the tx hash may lag the fill (explorer link
   // covers it meanwhile).
   const handleRfqFilled = useCallback(
     (fill: RfqFillResult) => {
-      if (successHandledRef.current) return
-      successHandledRef.current = true
-      track('zap_success_notification', inputSymbol, outputSymbol, source)
-
       const outputDecimals = currentTab === 'buy' ? 18 : selectedToken.decimals
       const receivedAmount =
         fill.executedBuyAmount > 0n
@@ -312,6 +311,25 @@ const SubmitZapButton = ({
       )
       const unitPrice =
         amountOutValue && quotedOut ? amountOutValue / quotedOut : 0
+
+      if (account && fill.txHash && !transactionConfirmedHandledRef.current) {
+        transactionConfirmedHandledRef.current = true
+        onTransactionConfirmed?.({
+          type: currentTab,
+          chainId,
+          dtfAddress: currentTab === 'buy' ? tokenOut : tokenIn,
+          wallet: account,
+          transactionHash: fill.txHash as Hex,
+          amount: currentTab === 'buy' ? receivedAmount : inputAmount,
+          usdValue:
+            currentTab === 'buy'
+              ? Number(receivedAmount) * unitPrice
+              : (amountInValue ?? undefined),
+        })
+      }
+      if (successHandledRef.current) return
+      successHandledRef.current = true
+      track('zap_success_notification', inputSymbol, outputSymbol, source)
 
       setZapSuccess({
         isMint: currentTab === 'buy',
@@ -326,6 +344,7 @@ const SubmitZapButton = ({
         receivedAmount,
         receivedValue: Number(receivedAmount) * unitPrice,
       })
+
       onSuccess?.()
     },
     [
@@ -343,6 +362,9 @@ const SubmitZapButton = ({
       tokenOut,
       setZapSuccess,
       onSuccess,
+      onTransactionConfirmed,
+      account,
+      inputAmount,
     ]
   )
 
@@ -494,6 +516,20 @@ const SubmitZapButton = ({
       receivedAmount,
       receivedValue: Number(receivedAmount) * unitPrice,
     })
+    if (account) {
+      onTransactionConfirmed?.({
+        type: currentTab,
+        chainId,
+        dtfAddress: currentTab === 'buy' ? tokenOut : tokenIn,
+        wallet: account,
+        transactionHash: receipt.transactionHash,
+        amount: currentTab === 'buy' ? receivedAmount : inputAmount,
+        usdValue:
+          currentTab === 'buy'
+            ? Number(receivedAmount) * unitPrice
+            : (amountInValue ?? undefined),
+      })
+    }
     onSuccess?.()
   }, [
     receipt,
@@ -502,6 +538,7 @@ const SubmitZapButton = ({
     source,
     track,
     onSuccess,
+    onTransactionConfirmed,
     setZapSuccess,
     currentTab,
     selectedToken,
@@ -512,6 +549,7 @@ const SubmitZapButton = ({
     amountOut,
     amountOutValue,
     chainId,
+    inputAmount,
   ])
 
   useEffect(() => {

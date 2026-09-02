@@ -167,6 +167,7 @@ Simple mode features:
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Initial selection in the quote list. All enabled providers are always fetched; a provider id pre-selects that route, `'best'` (default) follows the best quote automatically |
 | `refreshRate`    | `number`                        | ❌       | Quote refresh interval in milliseconds (defaults to `30000`) |
+| `onTransactionConfirmed` | `(event: ZapperTransactionConfirmed) => void` | ❌ | Called once after a buy or sell has a confirmed onchain transaction hash |
 | `disabledSettings` | `DisabledSettingsConfig`      | ❌       | Hide individual power-user toggles (`deepLiquidity`, `forceMint`). These now live in the debug panel (`debug` prop) — the settings page was removed |
 | `className`      | `string`                        | ❌       | Additional CSS classes                         |
 | `locale`         | `'en' \| 'es' \| 'ko' \| 'zh'`  | ❌       | UI language. Defaults to `'en'`; untranslated strings fall back to English |

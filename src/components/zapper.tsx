@@ -30,6 +30,7 @@ import RefreshQuote from './zap-mint/refresh-quote'
 import Sell from './zap-mint/sell'
 import ZapHealthcheck from './zap-mint/zap-healthcheck'
 import ZapSuccessView from './zap-mint/zap-success-view'
+import { ZapperEventsProvider } from './zapper-events'
 
 interface ZapperContentProps {
   mode: 'modal' | 'inline' | 'simple'
@@ -258,30 +259,33 @@ export const Zapper: React.FC<ZapperProps> = ({
   disabledSettings,
   locale,
   refreshRate,
+  onTransactionConfirmed,
 }) => {
   return (
     <ZapperI18nProvider locale={locale}>
-      <Updaters
-        dtfAddress={dtfAddress}
-        chainId={chain}
-        apiUrl={apiUrl}
-        zapperApiUrl={zapperApiUrl}
-        connectWallet={connectWallet}
-        defaultSource={defaultSource}
-        debug={debug}
-        mode={mode}
-        sellOnly={sellOnly}
-        showContactInfo={showContactInfo}
-        scheduleCall={scheduleCall}
-        disabledSettings={disabledSettings}
-        refreshRate={refreshRate}
-      />
-      <ZapperContent
-        mode={mode}
-        sellOnly={sellOnly}
-        disabled={disabled}
-        showTabs={showTabs}
-      />
+      <ZapperEventsProvider events={{ onTransactionConfirmed }}>
+        <Updaters
+          dtfAddress={dtfAddress}
+          chainId={chain}
+          apiUrl={apiUrl}
+          zapperApiUrl={zapperApiUrl}
+          connectWallet={connectWallet}
+          defaultSource={defaultSource}
+          debug={debug}
+          mode={mode}
+          sellOnly={sellOnly}
+          showContactInfo={showContactInfo}
+          scheduleCall={scheduleCall}
+          disabledSettings={disabledSettings}
+          refreshRate={refreshRate}
+        />
+        <ZapperContent
+          mode={mode}
+          sellOnly={sellOnly}
+          disabled={disabled}
+          showTabs={showTabs}
+        />
+      </ZapperEventsProvider>
     </ZapperI18nProvider>
   )
 }

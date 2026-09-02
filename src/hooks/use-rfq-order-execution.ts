@@ -157,26 +157,35 @@ const useRfqOrderExecution = ({
       setPhase('filling')
       const startedAt = Date.now()
       const deadline = prepared.validTo * 1000 + POLL_GRACE_MS
+      let fulfilledWithoutHash = false
       while (active()) {
         try {
           const status = await adapter.getOrderStatus(order, uid)
           if (!active()) return
           if (status.state === 'fulfilled') {
-            trackRfqOrder({
-              status: 'order_filled',
-              orderUid: uid,
-              waitMs: Date.now() - startedAt,
-              ...analytics,
-            })
-            // Keep phase 'filling': the success snapshot swaps the view out,
-            // so the button never flashes back to an actionable state.
-            onFilledRef.current({
+            const fill = {
               executedBuyAmount: status.executedBuyAmount,
               txHash: status.txHash,
               orderUid: uid,
               explorerUrl: adapter.orderExplorerUrl(order.chainId, uid),
-            })
-            return
+            }
+            if (!fulfilledWithoutHash) {
+              trackRfqOrder({
+                status: 'order_filled',
+                orderUid: uid,
+                waitMs: Date.now() - startedAt,
+                ...analytics,
+              })
+              // Keep phase 'filling': the success snapshot swaps the view out,
+              // so the button never flashes back to an actionable state.
+              onFilledRef.current(fill)
+              if (status.txHash) return
+              fulfilledWithoutHash = true
+            } else if (status.txHash) {
+              // Settlement indexing may lag fulfillment; notify when the verifiable hash appears.
+              onFilledRef.current(fill)
+              return
+            }
           }
           if (status.state === 'expired' || status.state === 'cancelled') {
             trackRfqOrder({
@@ -199,6 +208,7 @@ const useRfqOrderExecution = ({
           // Transient order-book errors: keep polling until the deadline.
         }
         if (Date.now() >= deadline) {
+          if (fulfilledWithoutHash) return
           trackRfqOrder({
             status: 'order_timeout',
             orderUid: uid,
