@@ -1,3 +1,9 @@
+## [2.10.6] - 2026-09-04
+
+### Fixed
+
+- The selected input/output token is now derived against the current chain: a selection that does not belong to the chain's zappable list falls back to the chain default synchronously, instead of being reset by an effect after the first render. Previously, switching the mounted widget to a DTF on another chain (e.g. Base → BSC in a host SPA) priced and quoted the previous chain's token against the new chain for one render.
+
 ## [2.10.5] - 2026-08-31
 
 ### Changed
