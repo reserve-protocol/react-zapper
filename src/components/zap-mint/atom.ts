@@ -79,8 +79,21 @@ export const defaultSelectedTokenAtom = atom<Token>((get) => {
     tokens[0]
   )
 })
-export const selectedTokenOrDefaultAtom = atom<Token>((get) => {
+// A selection only counts while it belongs to the current chain's zappable
+// list. Derived, not reset in an effect: a chain switch must never render or
+// quote the previous chain's token, not even for one render.
+const selectedTokenOnChainAtom = atom<Token | undefined>((get) => {
   const selectedToken = get(selectedTokenAtom)
+  if (!selectedToken) return undefined
+  const chainId = get(chainIdAtom)
+  const address = selectedToken.address.toLowerCase()
+  const onChain = reducedZappableTokens[chainId]?.some(
+    (token) => token.address.toLowerCase() === address
+  )
+  return onChain ? selectedToken : undefined
+})
+export const selectedTokenOrDefaultAtom = atom<Token>((get) => {
+  const selectedToken = get(selectedTokenOnChainAtom)
   const defaultToken = get(defaultSelectedTokenAtom)
   return selectedToken || defaultToken
 })
@@ -113,9 +126,7 @@ export const tokenInAtom = atom<Token | undefined>((get) => {
   const indexDTF = get(indexDTFAtom)
   const indexDTFToken = indexDTF?.token as unknown as Token
   const currentTab = get(zapperCurrentTabAtom)
-  const selectedToken = get(selectedTokenAtom)
-  const defaultToken = get(defaultSelectedTokenAtom)
-  return currentTab === 'buy' ? selectedToken || defaultToken : indexDTFToken
+  return currentTab === 'buy' ? get(selectedTokenOrDefaultAtom) : indexDTFToken
 })
 
 export const tokenOutAtom = atom<Token | undefined>((get) => {
@@ -124,9 +135,7 @@ export const tokenOutAtom = atom<Token | undefined>((get) => {
     ? { ...indexDTF.token, address: indexDTF.id }
     : undefined
   const currentTab = get(zapperCurrentTabAtom)
-  const selectedToken = get(selectedTokenAtom)
-  const defaultToken = get(defaultSelectedTokenAtom)
-  return currentTab === 'buy' ? indexDTFToken : selectedToken || defaultToken
+  return currentTab === 'buy' ? indexDTFToken : get(selectedTokenOrDefaultAtom)
 })
 
 /**
