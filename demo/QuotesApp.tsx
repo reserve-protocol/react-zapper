@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Moon, RefreshCw, Sun } from 'lucide-react'
@@ -44,6 +45,51 @@ const ZAPPER_API_URLS = [
   { label: 'ZRSX-3', value: 'https://zrsx-3.reserve-api.com/' },
   { label: 'Local', value: 'http://localhost:3005/' },
 ]
+
+type ReadyResponse = {
+  ready: boolean
+  chains?: Record<string, { ready: boolean }>
+}
+
+const ZapperReadyStatus = ({ apiUrl }: { apiUrl: string }) => {
+  const readyUrl = new URL('ready', apiUrl).toString()
+  const { data, isError, isPending } = useQuery({
+    queryKey: ['zapper-ready', readyUrl],
+    queryFn: async (): Promise<ReadyResponse> => {
+      const res = await fetch(readyUrl)
+      return res.json()
+    },
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: false,
+    retry: false,
+  })
+
+  let color = 'bg-muted-foreground'
+  let text = 'Checking readiness…'
+  if (isError) {
+    color = 'bg-destructive'
+    text = 'Unreachable'
+  } else if (!isPending && data) {
+    const chains = Object.entries(data.chains ?? {})
+    const notReady = chains.filter(([, c]) => !c.ready).map(([name]) => name)
+    color = data.ready ? 'bg-green-500' : 'bg-yellow-500'
+    text = data.ready
+      ? 'Ready'
+      : `Not ready${notReady.length ? ` (${notReady.join(', ')})` : ''}`
+  }
+
+  return (
+    <a
+      href={readyUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:underline"
+    >
+      <span className={`h-2 w-2 rounded-full ${color}`} />
+      {text}
+    </a>
+  )
+}
 
 // Reserve slippage convention: a value S means a fraction of 1/S.
 const SLIPPAGE_OPTIONS = [
@@ -218,6 +264,7 @@ function QuotesApp() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   Zapper service quoted for every row
                 </p>
+                <ZapperReadyStatus apiUrl={zapperApiUrl} />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium">
