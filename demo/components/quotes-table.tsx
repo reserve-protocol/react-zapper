@@ -187,6 +187,7 @@ const QuoteRow = ({
     queryFn: () => fetchZapQuote(request!, simulate),
     enabled: armed && !!request,
     refetchInterval: autoRefreshMs ?? false,
+    refetchOnWindowFocus: false,
     retry: false,
     // quotes are short-lived: never re-serve a previous round's numbers
     gcTime: 0,
