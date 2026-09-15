@@ -208,8 +208,8 @@ function QuotesApp() {
               React Zapper Quote Table
             </h1>
             <p className="mt-1 text-muted-foreground">
-              Live mint quotes for every Index DTF, from the same zapper the
-              widget calls
+              Live mint quotes for every Index and Yield DTF, from the same
+              zapper the widget calls
             </p>
           </div>
           <div className="flex items-center gap-3">
