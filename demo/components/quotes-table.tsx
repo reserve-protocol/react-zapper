@@ -205,6 +205,9 @@ const QuoteRow = ({
       <TableCell className="font-medium">
         <span>{dtf.symbol}</span>
         <span className="ml-2 text-xs text-muted-foreground">{dtf.name}</span>
+        <span className="ml-2 rounded border border-border-secondary px-1 text-xs text-muted-foreground">
+          {dtf.type}
+        </span>
         {dtf.status !== 'active' && (
           <span className="ml-2 text-xs text-warning">{dtf.status}</span>
         )}

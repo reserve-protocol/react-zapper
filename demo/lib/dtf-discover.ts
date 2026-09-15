@@ -13,8 +13,9 @@ export type DiscoverDTF = {
   status: 'active' | 'deprecated' | 'unsupported'
 }
 
-// Same list the app's discover page is built from. Index DTFs only: the zapper
-// widget is an Index DTF surface (yield DTFs use the legacy zap v2 flow).
+// Same list the app's discover page is built from. Index and yield DTFs are
+// both shown; the zapper only quotes Index DTFs (yield DTFs use the legacy
+// zap v2 flow), so yield rows surface whatever the zapper answers.
 export const useDiscoverDTFs = (
   apiUrl: string,
   { includeDeprecated }: { includeDeprecated: boolean }
@@ -28,7 +29,6 @@ export const useDiscoverDTFs = (
       }
       const data: DiscoverDTF[] = await response.json()
       return data
-        .filter((dtf) => dtf.type === 'index')
         .filter((dtf) => includeDeprecated || dtf.status === 'active')
         .sort((a, b) => b.marketCap - a.marketCap)
     },
