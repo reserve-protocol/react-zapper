@@ -55,6 +55,9 @@ const useContractWrite = <
   //   )
   // }
 
+  // Estimate on the call's chain, not the wallet's current network: the
+  // switch to the target chain happens on the CTA click, and a limit
+  // estimated elsewhere (no contract there) makes the tx run out of gas.
   const { data: gas } = useEstimateGas(
     data?.request && enabled
       ? {
@@ -64,6 +67,7 @@ const useContractWrite = <
             functionName: call.functionName,
             args: call.args as readonly unknown[],
           }),
+          chainId: call.chainId,
         }
       : undefined
   )
