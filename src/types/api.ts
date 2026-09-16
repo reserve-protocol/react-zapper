@@ -4,8 +4,10 @@ import type { RfqOrder } from '../utils/rfq/types'
 // Default API URL - can be overridden via config
 export const DEFAULT_API_URL = 'https://api.reserve.org/'
 
-const getBaseZapApiUrl = (url: string, chain: number) =>
-  url + `api/zapper/${chain}`
+// `service` selects the reserve-api proxy slug: `zapper` (TS zapper) or
+// `zapper2` (Rust zapper). Both serve the same swap contract.
+const getBaseZapApiUrl = (url: string, chain: number, service = 'zapper') =>
+  url + `api/${service}/${chain}`
 
 export type ZapPayload = {
   url: string
@@ -99,22 +101,26 @@ export type ZapResponse = {
 export const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 const zapper = {
-  zap: ({
-    url,
-    chainId,
-    tokenIn,
-    tokenOut,
-    amountIn,
-    slippage,
-    signer,
-    trade = true,
-    bypassCache = false,
-    debug = false,
-    deepLiquidity = false,
-  }: ZapPayload) =>
+  zap: (
+    {
+      url,
+      chainId,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      slippage,
+      signer,
+      trade = true,
+      bypassCache = false,
+      debug = false,
+      deepLiquidity = false,
+    }: ZapPayload,
+    service = 'zapper'
+  ) =>
     `${getBaseZapApiUrl(
       url,
-      chainId
+      chainId,
+      service
     )}/swap?chainId=${chainId}&signer=${signer}&tokenIn=${tokenIn}&amountIn=${amountIn}&tokenOut=${tokenOut}&slippage=${slippage}&trade=${trade}&bypassCache=${bypassCache}&deepLiquidity=${deepLiquidity}${
       debug ? '&debug=true' : ''
     }`,
