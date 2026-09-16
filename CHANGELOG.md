@@ -1,3 +1,13 @@
+## [2.11.0] - 2026-09-16
+
+### Added
+
+- 1inch as a new quote source on Ethereum, Base, Arbitrum and BSC, competing with the other sources in the quote round. Quotes go through the Reserve API, which must serve the new `/1inch/swap` route.
+
+### Fixed
+
+- Token approvals no longer fail with an out-of-gas error when the wallet starts on a different network than the DTF.
+
 ## [2.10.6] - 2026-09-04
 
 ### Fixed

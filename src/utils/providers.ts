@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { Zap } from 'lucide-react'
 import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
+import OneInchIcon from '../components/icons/oneinch'
 import PancakeSwapIcon from '../components/icons/pancakeswap'
 import VeloraIcon from '../components/icons/velora'
 import zapper, { ZapPayload } from '../types/api'
@@ -10,7 +11,7 @@ import { pcsxAdapter } from './rfq/pcsx'
 import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
 
-export type ProviderId = 'zap' | 'velora' | 'enso' | 'cowswap' | 'pcsx'
+export type ProviderId = 'zap' | 'velora' | 'enso' | '1inch' | 'cowswap' | 'pcsx'
 
 export type ProviderKind = 'native' | 'aggregator' | 'rfq'
 
@@ -59,6 +60,7 @@ export const PROVIDER_ENABLED: Partial<
     zap: true,
     velora: true,
     enso: true,
+    '1inch': true,
     cowswap: true,
     pcsx: false,
   },
@@ -66,6 +68,7 @@ export const PROVIDER_ENABLED: Partial<
     zap: true,
     velora: true,
     enso: true,
+    '1inch': true,
     cowswap: true,
     pcsx: false,
   },
@@ -73,6 +76,7 @@ export const PROVIDER_ENABLED: Partial<
     zap: true,
     velora: true,
     enso: true,
+    '1inch': true,
     cowswap: true,
     pcsx: false,
   },
@@ -81,6 +85,7 @@ export const PROVIDER_ENABLED: Partial<
     zap: true,
     velora: true,
     enso: true,
+    '1inch': true,
     cowswap: true,
     pcsx: true,
   },
@@ -138,6 +143,14 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     Icon: EnsoIcon,
     buildEndpoint: buildAggregatorEndpoint('enso'),
   },
+  '1inch': {
+    id: '1inch',
+    label: '1inch',
+    kind: 'aggregator',
+    apiSlug: '1inch',
+    Icon: OneInchIcon,
+    buildEndpoint: buildAggregatorEndpoint('1inch'),
+  },
   cowswap: {
     id: 'cowswap',
     label: 'CoW Swap',
@@ -160,6 +173,7 @@ export const ALL_PROVIDER_IDS: ProviderId[] = [
   'zap',
   'velora',
   'enso',
+  '1inch',
   'cowswap',
   'pcsx',
 ]
