@@ -1,3 +1,9 @@
+## [2.12.0] - 2026-09-16
+
+### Added
+
+- New quote provider `zap2`: the Rust zapper, quoted through the Reserve API's `api/zapper2/{chain}/swap` endpoint (same query string and response contract as `zap`, so it goes through the same `zapperApiUrl`). Enabled on Ethereum, Base and BSC; it shows as "Zap v2" in the route list and competes like an external venue: `zap` keeps the tie-break preference, `zap2` gets none. `ProviderId` gains the `'zap2'` member; hosts that build exhaustive `Record<ProviderId, …>` maps need the new key.
+
 ## [2.11.0] - 2026-09-16
 
 ### Added
