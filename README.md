@@ -480,7 +480,7 @@ each, with output amount, USD value, price impact, true price impact, dust,
 latency and a link to the raw quote URL.
 
 - Only the **native zap provider** is quoted (the endpoint selector picks which
-  zapper service answers — Default, ZRS-1/2/3 or local). Aggregator and RFQ
+  zapper service answers — Default, ZRSX-1 through 5 or local). Aggregator and RFQ
   sources are deliberately not requested: they don't exercise the zapper, and a
   full source comparison per DTF per interval hits their rate limits.
 - **Auto-refresh is off on load** and nothing is quoted until "Refresh now" is
