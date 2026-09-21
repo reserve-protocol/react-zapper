@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { Zap } from 'lucide-react'
+import AlphaIcon from '../components/icons/alpha'
 import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
 import OneInchIcon from '../components/icons/oneinch'
@@ -11,7 +12,14 @@ import { pcsxAdapter } from './rfq/pcsx'
 import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
 
-export type ProviderId = 'zap' | 'velora' | 'enso' | '1inch' | 'cowswap' | 'pcsx'
+export type ProviderId =
+  | 'zap'
+  | 'zap2'
+  | 'velora'
+  | 'enso'
+  | '1inch'
+  | 'cowswap'
+  | 'pcsx'
 
 export type ProviderKind = 'native' | 'aggregator' | 'rfq'
 
@@ -58,6 +66,7 @@ export const PROVIDER_ENABLED: Partial<
 > = {
   [ChainId.Mainnet]: {
     zap: true,
+    zap2: true,
     velora: true,
     enso: true,
     '1inch': true,
@@ -66,14 +75,17 @@ export const PROVIDER_ENABLED: Partial<
   },
   [ChainId.Base]: {
     zap: true,
+    zap2: true,
     velora: true,
     enso: true,
     '1inch': true,
     cowswap: true,
     pcsx: false,
   },
+  // The Rust zapper serves Ethereum, Base and BSC only
   [ChainId.Arbitrum]: {
     zap: true,
+    zap2: false,
     velora: true,
     enso: true,
     '1inch': true,
@@ -83,6 +95,7 @@ export const PROVIDER_ENABLED: Partial<
   // PCSX only prices BSC pairs (and only those including an RWA-program token)
   [ChainId.BSC]: {
     zap: true,
+    zap2: true,
     velora: true,
     enso: true,
     '1inch': true,
@@ -106,18 +119,20 @@ const buildAggregatorEndpoint =
     return zapper.aggregator(slug, params)
   }
 
-const buildZapEndpoint = (params: EndpointParams): string | null => {
-  if (
-    !params.tokenIn ||
-    !params.tokenOut ||
-    !params.signer ||
-    isNaN(Number(params.amountIn)) ||
-    Number(params.amountIn) === 0
-  ) {
-    return null
+const buildZapEndpoint =
+  (service: string) =>
+  (params: EndpointParams): string | null => {
+    if (
+      !params.tokenIn ||
+      !params.tokenOut ||
+      !params.signer ||
+      isNaN(Number(params.amountIn)) ||
+      Number(params.amountIn) === 0
+    ) {
+      return null
+    }
+    return zapper.zap(params, service)
   }
-  return zapper.zap(params)
-}
 
 export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
   zap: {
@@ -125,7 +140,16 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     label: 'Zap',
     kind: 'native',
     Icon: Zap,
-    buildEndpoint: buildZapEndpoint,
+    buildEndpoint: buildZapEndpoint('zapper'),
+  },
+  // Alpha: the Rust zapper, proxied by reserve-api as `api/zapper2`. Competes
+  // like an outside venue: no tie-break preference (see compareQuotes).
+  zap2: {
+    id: 'zap2',
+    label: 'Alpha',
+    kind: 'native',
+    Icon: AlphaIcon,
+    buildEndpoint: buildZapEndpoint('zapper2'),
   },
   velora: {
     id: 'velora',
@@ -171,6 +195,7 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 
 export const ALL_PROVIDER_IDS: ProviderId[] = [
   'zap',
+  'zap2',
   'velora',
   'enso',
   '1inch',

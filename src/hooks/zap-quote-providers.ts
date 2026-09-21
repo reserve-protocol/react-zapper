@@ -422,7 +422,8 @@ const parseMinOut = (q: ProviderQuote): bigint => {
  * Sort comparator matching `pickBestQuote`'s selection: higher `minAmountOut`
  * first, ties prefer `zap`, otherwise stable. Sorting with this comparator
  * puts the round winner at index 0, so list ordering can never disagree with
- * the `Quote Source Winner` event.
+ * the `Quote Source Winner` event. `zap2` (the Rust zapper) deliberately gets
+ * no preference: it competes like an outside venue.
  */
 export const compareQuotes = (a: ProviderQuote, b: ProviderQuote): number => {
   const amountA = parseMinOut(a)
@@ -435,8 +436,8 @@ export const compareQuotes = (a: ProviderQuote, b: ProviderQuote): number => {
 
 /**
  * Selects the best quote by `minAmountOut`. Ties go to `zap` to preserve
- * historical behaviour; if no `zap` quote is in the list, the first candidate
- * wins the tie.
+ * historical behaviour (never to `zap2`); if no `zap` quote is in the list,
+ * the first candidate wins the tie.
  */
 const pickBestQuote = (
   quotes: ProviderQuote[],
