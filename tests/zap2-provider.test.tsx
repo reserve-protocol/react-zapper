@@ -101,6 +101,10 @@ describe('zap2 provider', () => {
         within(screen.getByTestId('quote-row-zap2')).getByText('Best')
       ).toBeTruthy()
     })
+    // the route list names it Alpha
+    expect(
+      within(screen.getByTestId('quote-row-zap2')).getByText('Alpha')
+    ).toBeTruthy()
     expect(wonEndpoint()).toContain('api/zapper2/1/swap')
   })
 

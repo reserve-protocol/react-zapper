@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
-import { Bolt, Zap } from 'lucide-react'
+import { Zap } from 'lucide-react'
+import AlphaIcon from '../components/icons/alpha'
 import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
 import OneInchIcon from '../components/icons/oneinch'
@@ -141,13 +142,13 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     Icon: Zap,
     buildEndpoint: buildZapEndpoint('zapper'),
   },
-  // The Rust zapper, proxied by reserve-api as `api/zapper2`. Competes like an
-  // outside venue: no tie-break preference (see compareQuotes).
+  // Alpha: the Rust zapper, proxied by reserve-api as `api/zapper2`. Competes
+  // like an outside venue: no tie-break preference (see compareQuotes).
   zap2: {
     id: 'zap2',
-    label: 'Zap v2',
+    label: 'Alpha',
     kind: 'native',
-    Icon: Bolt,
+    Icon: AlphaIcon,
     buildEndpoint: buildZapEndpoint('zapper2'),
   },
   velora: {
