@@ -3,7 +3,7 @@
  * normalization (fee folding, validUntil, approval), availability rules, and
  * the eth-flow order uid computation.
  */
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ethAddress, type Address } from 'viem'
 import type { OrderQuoteResponse } from '@cowprotocol/cow-sdk'
 
@@ -12,8 +12,10 @@ import {
   computeEthFlowOrderUid,
   cowswapAdapter,
   mapCowQuoteToZapResult,
+  oneInchFusionAdapter,
   pcsxAdapter,
   type CowRfqOrder,
+  type OneInchFusionRfqOrder,
 } from '../src/utils/rfq'
 import type { RfqQuoteContext } from '../src/utils/rfq/types'
 
@@ -234,5 +236,168 @@ describe('expiryNotice', () => {
     expect(
       cowswapAdapter.expiryNotice!({ ...base, flow: 'gasless' } as CowRfqOrder)
     ).toBeNull()
+  })
+})
+
+describe('1inch Fusion adapter', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const LOP = '0x111111125421ca6dc452d289314280a0f8842a65'
+  const FACTORY = '0xe12e0f117d23a5ccc57f8935cd8c4e80cd91ff01'
+  const serverQuote = {
+    available: true,
+    amountOut: '1000000000000000000000',
+    minAmountOut: '990000000000000000000',
+    approvalAddress: LOP,
+    approvalNeeded: true,
+    insufficientFunds: true,
+    validUntil: 1_790_000_149,
+  }
+  const signable = {
+    kind: 'signature',
+    orderHash: `0x${'cd'.repeat(32)}`,
+    quoteId: 'q-1',
+    order: { salt: '1', maker: ACCOUNT },
+    extension: '0x0d',
+    deadline: 1_790_000_209,
+    typedData: {
+      domain: { name: '1inch Aggregation Router', version: '6', chainId: 56, verifyingContract: LOP },
+      types: { Order: [{ name: 'salt', type: 'uint256' }] },
+      primaryType: 'Order',
+      message: { salt: '1' },
+    },
+  }
+  const respond = (result: unknown) => {
+    const fetchMock = vi.fn(
+      async (_url: string) =>
+        new Response(JSON.stringify({ status: 'success', result }), { status: 200 })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  it('accepts ERC-20 and native sells on the four supported chains', () => {
+    for (const chainId of [1, 8453, 42161, 56]) {
+      expect(oneInchFusionAdapter.isAvailable({ chainId, tokenIn: WETH, tokenOut: DTF })).toBe(true)
+      expect(oneInchFusionAdapter.isAvailable({ chainId, tokenIn: ethAddress, tokenOut: DTF })).toBe(true)
+    }
+    const polygon = { chainId: 137, tokenIn: WETH, tokenOut: DTF }
+    expect(oneInchFusionAdapter.isAvailable(polygon)).toBe(false)
+    expect(oneInchFusionAdapter.unavailableReason(polygon)).toMatch(/not available on this chain/i)
+  })
+
+  it('maps the server quote: its floor, spender and wallet flags, no USD values, the order as the rfq payload', async () => {
+    const fetchMock = respond({ ...serverQuote, order: signable })
+
+    const quote = await oneInchFusionAdapter.fetchQuote(makeCtx({ chainId: 56 }))
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      `https://api.reserve.org/1inch/fusion/quote?chainId=56&tokenIn=${WETH}&tokenOut=${DTF}&amountIn=1000000000000000000&slippage=100&signer=${ACCOUNT}`
+    )
+    expect(quote).toMatchObject({
+      amountOut: serverQuote.amountOut,
+      minAmountOut: serverQuote.minAmountOut,
+      approvalAddress: LOP,
+      approvalNeeded: true,
+      insufficientFunds: true,
+      amountInValue: null,
+      amountOutValue: null,
+      priceImpact: 0,
+      truePriceImpact: 0,
+      gas: null,
+      tx: null,
+      validUntil: serverQuote.validUntil,
+    })
+    expect(quote.rfq).toMatchObject({
+      adapter: '1inch',
+      chainId: 56,
+      kind: 'signature',
+      quoteId: 'q-1',
+      minAmountOut: serverQuote.minAmountOut,
+      request: { account: ACCOUNT, tokenIn: WETH, tokenOut: DTF, amountIn: '1000000000000000000', slippage: 100 },
+    })
+  })
+
+  it('asks for an indicative quote without a wallet: no signer, nothing executable', async () => {
+    const fetchMock = respond({ ...serverQuote, approvalNeeded: false, insufficientFunds: false, validUntil: null })
+
+    const quote = await oneInchFusionAdapter.fetchQuote(makeCtx({ chainId: 56, signerIsPlaceholder: true }))
+
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain('signer=')
+    expect(quote.rfq).toBeUndefined()
+    expect(quote.approvalNeeded).toBe(false)
+    expect(quote.minAmountOut).toBe(serverQuote.minAmountOut)
+  })
+
+  it('surfaces the reason when 1inch cannot quote, and refuses a signer quote with nothing to sign', async () => {
+    respond({ available: false, reason: 'insufficient liquidity' })
+    await expect(oneInchFusionAdapter.fetchQuote(makeCtx({ chainId: 56 }))).rejects.toThrow('insufficient liquidity')
+
+    respond(serverQuote)
+    await expect(oneInchFusionAdapter.fetchQuote(makeCtx({ chainId: 56 }))).rejects.toThrow(/no order/i)
+  })
+
+  const displayed = {
+    adapter: '1inch',
+    chainId: 56,
+    apiUrl: 'https://api.reserve.org/',
+    ...signable,
+    minAmountOut: serverQuote.minAmountOut,
+    request: { account: ACCOUNT, tokenIn: WETH, tokenOut: DTF, amountIn: '1000000000000000000', slippage: 100 },
+  } as OneInchFusionRfqOrder
+  const fresh = {
+    ...signable,
+    orderHash: `0x${'ef'.repeat(32)}`,
+    quoteId: 'q-2',
+    deadline: signable.deadline + 40,
+    typedData: { ...signable.typedData, message: { salt: '2' } },
+  }
+
+  it('re-quotes at click time and signs the fresh order: a Fusion auction starts seconds after the order is built', async () => {
+    const fetchMock = respond({ ...serverQuote, order: fresh })
+
+    const prepared = await oneInchFusionAdapter.prepareOrder(displayed)
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      `https://api.reserve.org/1inch/fusion/quote?chainId=56&tokenIn=${WETH}&tokenOut=${DTF}&amountIn=1000000000000000000&slippage=100&signer=${ACCOUNT}`
+    )
+    expect(prepared).toMatchObject({ mode: 'signature', typedData: fresh.typedData, validTo: fresh.deadline })
+  })
+
+  it('relays the fresh order, not the displayed one', async () => {
+    respond({ ...serverQuote, order: fresh })
+    const prepared = await oneInchFusionAdapter.prepareOrder(displayed)
+    const relayed: Record<string, unknown>[] = []
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => {
+      relayed.push(JSON.parse(String(init?.body)))
+      return new Response(JSON.stringify({ status: 'success', result: { orderHash: fresh.orderHash } }))
+    }))
+
+    const uid = await oneInchFusionAdapter.submitOrder(displayed, prepared, '0xabc', ACCOUNT)
+
+    expect(uid).toBe(fresh.orderHash)
+    expect(relayed[0]).toMatchObject({ quoteId: 'q-2', signature: '0xabc' })
+  })
+
+  it('accepts a fresh floor a hair below the displayed minimum, but not a real price move', async () => {
+    const floor = BigInt(serverQuote.minAmountOut)
+    respond({ ...serverQuote, minAmountOut: ((floor * 9_995n) / 10_000n).toString(), order: fresh })
+    await expect(oneInchFusionAdapter.prepareOrder(displayed)).resolves.toMatchObject({ mode: 'signature' })
+
+    respond({ ...serverQuote, minAmountOut: ((floor * 9_980n) / 10_000n).toString(), order: fresh })
+    await expect(oneInchFusionAdapter.prepareOrder(displayed)).rejects.toThrow(/price moved/i)
+  })
+
+  it('does not sign when 1inch can no longer quote the trade', async () => {
+    respond({ available: false, reason: 'insufficient liquidity' })
+
+    await expect(oneInchFusionAdapter.prepareOrder(displayed)).rejects.toThrow('insufficient liquidity')
+  })
+
+  it('explains the refund for native orders only', () => {
+    expect(oneInchFusionAdapter.expiryNotice!(displayed)).toBeNull()
+    const native = { ...displayed, kind: 'native', tx: { to: FACTORY, data: '0x', value: '1' } }
+    expect(oneInchFusionAdapter.expiryNotice!(native as OneInchFusionRfqOrder)).toMatch(/refund your BNB/i)
+    expect(oneInchFusionAdapter.expiryNotice!({ ...native, chainId: 1 } as OneInchFusionRfqOrder)).toMatch(/refund your ETH/i)
   })
 })

@@ -1,5 +1,6 @@
 import type { ProviderId } from '../providers'
 import { cowswapAdapter } from './cowswap'
+import { oneInchFusionAdapter } from './oneinch-fusion'
 import { pcsxAdapter } from './pcsx'
 import type { RfqAdapter } from './types'
 
@@ -16,12 +17,17 @@ export {
   type CowRfqOrder,
 } from './cowswap'
 export {
+  oneInchFusionAdapter,
+  type OneInchFusionRfqOrder,
+} from './oneinch-fusion'
+export {
   pcsxAdapter,
   type PcsxPermitData,
   type PcsxRfqOrder,
 } from './pcsx'
 
 export const RFQ_ADAPTERS: Partial<Record<ProviderId, RfqAdapter>> = {
+  '1inch': oneInchFusionAdapter,
   cowswap: cowswapAdapter,
   pcsx: pcsxAdapter,
 }

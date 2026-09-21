@@ -1,3 +1,11 @@
+## [2.13.0] - 2026-09-21
+
+### Changed
+
+- **1inch now quotes through 1inch Fusion (intent mode) instead of 1inch Classic.** Classic cannot route through pools that only admit allowlisted senders (it quoted a BSC DTF at ~84% price impact where Fusion quotes ~1%); Fusion orders are filled by resolvers that can. The provider id stays `'1inch'`, so `PROVIDER_ENABLED[chain]['1inch']` keeps working, and the Reserve API must serve the new `/1inch/fusion/quote`, `/1inch/fusion/order` and `/1inch/fusion/order/{chainId}/{orderHash}` routes (the widget no longer calls `/1inch/swap`). The order is built by the API, so the widget gains no dependency. The order that is signed or placed is re-quoted at click time (a Fusion auction starts seconds after the order is built), and the click is refused if the fresh floor is more than 0.1% below the displayed minimum. ERC-20 inputs sign a gasless order; native inputs (ETH/BNB) send one transaction to 1inch's native order factory and are refunded by 1inch resolvers if the order expires unfilled.
+- For host apps: `PROVIDERS['1inch']` is now `kind: 'rfq'` (`buildEndpoint()` returns `null`, no `apiSlug`, `rfq` holds the adapter), `getEnabledAggregators()` no longer lists `1inch`,, `isRfqProvider('1inch')` is `true` and `RFQ_ADAPTERS['1inch']` holds the adapter. `ProviderId` is unchanged.
+- Tracking: the `1inch` source in `Quote Source Winner` / `Quote Source Picked` now means Fusion, and it emits the RFQ order events (`order_submitted`, `order_filled`, `order_expired`, ...). Like every RFQ source, its quotes carry no transaction, so the pre-selection simulation filter and gas estimation do not apply to them.
+
 ## [2.12.0] - 2026-09-16
 
 ### Added
