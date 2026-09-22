@@ -19,6 +19,10 @@ export const DTF_BY_CHAIN: Record<number, DTFConfig[]> = {
   ],
   [base.id]: [
     {
+      address: '0x4da9a0f397db1397902070f93a4d6ddbc0e0e6e8',
+      symbol: 'LCAP',
+    },
+    {
       address: '0x44551ca46fa5592bb572e20043f7c3d54c85cad7',
       symbol: 'CLX',
     },

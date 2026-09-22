@@ -201,7 +201,7 @@ import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zappe
 
 ### Quote Providers
 
-The zapper supports seven quote providers: the Reserve-native `zap`, its Rust successor `zap2` (shown as **Alpha**; proxied by the Reserve API as `api/zapper2`, Ethereum/Base/BSC), three external aggregators — `velora`, `enso` and `1inch` (Classic Swap, proxied through the Reserve API so the 1inch key and quota stay server-side) — and two RFQ/intent venues, `cowswap` and `pcsx` (PancakeSwap X, BSC only). `zap2` competes like an external venue: it gets none of the tie-break preference `zap` has. Every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
+The zapper supports seven quote providers: the Reserve-native `zap`, its Rust successor `zap2` (shown as **Alpha**; proxied by the Reserve API as `api/zapper2`, Ethereum/Base/BSC), two external aggregators — `velora` and `enso` — and three RFQ/intent venues: `cowswap`, `pcsx` (PancakeSwap X, BSC only) and `1inch` (1inch Fusion, built and relayed by the Reserve API so the 1inch key and quota stay server-side). `zap2` competes like an external venue: it gets none of the tie-break preference `zap` has. Every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
 
 #### Route list
 
@@ -211,7 +211,7 @@ The Details section also shows the current price, the projected slippage (the du
 
 Quotes refresh on the global interval (`refreshRate`, 30s by default) **and** whenever the earliest displayed quote expires — the API may cache a provider's quote until its `validUntil` (e.g. enso), so the widget refetches right after expiry instead of leaving a dead quote on screen until the next tick. Background refetches keep the previous quote displayed and the CTA clickable — no loading flicker; only the first quote of a new input shows a loading state.
 
-#### RFQ (intent) providers — CoW Swap and PancakeSwap X
+#### RFQ (intent) providers — CoW Swap, PancakeSwap X and 1inch
 
 `cowswap` is an RFQ source: instead of an atomic transaction, the user places an order that CoW Protocol solvers fill off-chain. The flow differs from the aggregators only after the submit click:
 
@@ -224,8 +224,14 @@ Native inputs (ETH/BNB) go through CoW's **eth-flow** instead: a single `createO
 
 `pcsx` (PancakeSwap X, **BSC only**) works the same way as CoW's gasless flow but is proxied through the Reserve API (`{apiUrl}pcsx/*`): the quote response carries a ready-to-sign Permit2 Dutch order (`PermitWitnessTransferFrom` typed data), the approval spender is the Permit2 contract, and the signed order is submitted and polled through the same API. Native BNB inputs are not supported by PCSX (Permit2 requires an ERC-20 input).
 
+`1inch` uses **1inch Fusion** (intent mode), also entirely through the Reserve API (`{apiUrl}1inch/fusion/*`), which must serve those routes: resolvers fill a limit order, so it reaches liquidity the 1inch Classic router cannot — notably pools that only admit allowlisted senders, where Classic quotes absurd price impact. The API builds the order, so there is no 1inch SDK in the widget:
+
+1. The quote carries the ready-to-sign `Order` typed data (spender: 1inch's Limit Order Protocol, the same address Classic approved), the auction floor as `minAmountOut`, and the wallet's approval/balance flags. In the wallet prompt the order's `receiver` is 1inch's settlement contract whenever a 1inch fee applies; the real receiver is encoded in the order's extension.
+2. On submit the widget **re-quotes first** and signs that fresh order, never the one on screen: a Fusion order's auction starts ~17 s after the order is built and resolvers take it right then, so an order built when the quote was displayed (up to a refresh interval plus an approval earlier) reaches 1inch with its auction already running and tends to expire unfilled. The click is refused with a "price moved" message if the fresh floor is more than 0.1% below the displayed minimum. The wallet then signs the order (gasless) and the widget relays it through `POST 1inch/fusion/order`; the fill is polled at `1inch/fusion/order/{chainId}/{orderHash}` until the order's deadline (a ~3-minute auction).
+3. Native inputs (ETH/BNB) are placed on-chain instead, like CoW's eth-flow: the quote carries a transaction to 1inch's native order factory with the sold amount as value — no approval, nothing signed. The order is registered with 1inch right before the transaction is sent. If it expires unfilled, 1inch resolvers normally refund the escrow in full within a few minutes (the UI explains this); the order can also be cancelled from the same wallet.
+
 Notes:
-- `cowswap` is enabled on all supported chains (Ethereum, Base, Arbitrum, and BSC); `pcsx` only on BSC.
+- `cowswap` and `1inch` are enabled on all supported chains (Ethereum, Base, Arbitrum, and BSC); `pcsx` only on BSC.
 - The architecture is adapter-based (`RfqAdapter`) so more intent venues can be added without touching the pipeline.
 
 USD values and price impact are computed uniformly across all sources from Reserve API token prices (each provider's own valuation is only a fallback when a Reserve price is missing), so the displayed impact doesn't jump when the winning source changes.
@@ -244,7 +250,7 @@ Note: as of v1.7.0 `PROVIDER_ENABLED` is a mutable module-level object — mutat
 Other helpers exported for host apps that want to build custom provider UI:
 - `PROVIDERS` — `Record<ProviderId, ProviderConfig>` with label + icon + endpoint builder
 - `getEnabledProviders(chainId)` — enabled providers for a given chain
-- `getEnabledAggregators(chainId)` — same, excluding the native zap providers
+- `getEnabledAggregators(chainId)` — enabled calldata aggregators only (`velora`, `enso`); as of v2.13.0 `1inch` is an RFQ provider and is not listed here
 - `isProviderEnabled(chainId, id)` — boolean check
 - `RFQ_ADAPTERS` / `isRfqProvider(id)` — RFQ adapter registry (plus the `RfqAdapter`, `RfqOrder`, and `RfqOrderStatus` types)
 

@@ -47,6 +47,12 @@ export const COW_UID = `0x${'cd'.repeat(56)}`
 export const PCSX_ORDER_HASH = `0x${'ef'.repeat(32)}`
 export const PCSX_PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3'
 export const PCSX_ENCODED_ORDER = `0x${'aa'.repeat(64)}`
+export const FUSION_ORDER_HASH = `0x${'cd'.repeat(32)}`
+export const FUSION_LIMIT_ORDER_PROTOCOL =
+  '0x111111125421ca6dc452d289314280a0f8842a65'
+export const FUSION_NATIVE_FACTORY = '0xe12e0f117d23a5ccc57f8935cd8c4e80cd91ff01'
+export const FUSION_EXTENSION = `0x${'0d'.repeat(48)}`
+export const FUSION_NATIVE_SIGNATURE = `0x${'5a'.repeat(256)}`
 export const WETH_TOKEN = reducedZappableTokens[1].find(
   (t) => t.symbol === 'WETH'
 )!
@@ -110,6 +116,12 @@ export type Scenario = {
   // recorded POST pcsx/order bodies
   pcsxSubmittedOrders: Record<string, unknown>[]
   pcsxQuoteFetches: number
+  // 1inch Fusion (normalized by reserve-api) status sequence; last entry repeats
+  fusionStatuses: string[]
+  fusionExecutedBuyAmount: string
+  // recorded POST 1inch/fusion/order bodies
+  fusionSubmittedOrders: Record<string, unknown>[]
+  fusionQuoteFetches: number
 }
 
 export let scenario: Scenario
@@ -145,6 +157,10 @@ const defaultScenario = (): Scenario => ({
   pcsxStatuses: ['OPEN', 'FILLED'],
   pcsxSubmittedOrders: [],
   pcsxQuoteFetches: 0,
+  fusionStatuses: ['open', 'fulfilled'],
+  fusionExecutedBuyAmount: '1001000000000000000000',
+  fusionSubmittedOrders: [],
+  fusionQuoteFetches: 0,
 })
 
 export const queryStates = () => {
@@ -568,6 +584,139 @@ const handlePcsxFetch = async (
   return jsonResponse({ status: 'error', error: 'unhandled pcsx route' }, 404)
 }
 
+// Mocked reserve-api 1inch Fusion endpoints. The order is built server-side:
+// an ERC-20 sale carries typed data to sign, a native sale carries the factory
+// transaction to send plus the relayer signature (nothing is signed).
+const NATIVE_PLACEHOLDER = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+export const FUSION_ORDER_STRUCT = {
+  salt: '111754422551431494617992162674975624226283517169091640100211849194508605855481',
+  maker: '0x8e0507c16435caca6cb71a7fb0e0636fd3891df4',
+  receiver: '0x2ad5004c60e16e54d5007c80ce329adde5b51ef5',
+  makerAsset: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+  takerAsset: '0xa0fe4e0aeca5479705ce996615b2eacb6b6a10fb',
+  makingAmount: '1000000000000000000',
+  takingAmount: '990000000000000000000',
+  makerTraits: '62419173104490761595518734107614110421135728653765830767682099470856450211840',
+}
+export const makeFusionQuote = (url: string): Record<string, unknown> => {
+  const query = new URL(url).searchParams
+  const tokenIn = String(query.get('tokenIn'))
+  const sellsNative = tokenIn.toLowerCase() === NATIVE_PLACEHOLDER
+  const deadline = Math.floor(Date.now() / 1000) + 209
+  const quote = {
+    available: true,
+    tokenIn,
+    tokenOut: DTF,
+    amountIn: '1000000000000000000',
+    amountOut: '1000000000000000000000',
+    minAmountOut: '990000000000000000000',
+    amountInValue: null,
+    amountOutValue: null,
+    priceImpact: 0,
+    truePriceImpact: 0,
+    approvalAddress: sellsNative ? FUSION_NATIVE_FACTORY : FUSION_LIMIT_ORDER_PROTOCOL,
+    approvalNeeded: false,
+    insufficientFunds: false,
+    validUntil: query.has('signer') ? deadline - 60 : null,
+  }
+  if (!query.has('signer')) return quote
+  const order = {
+    orderHash: FUSION_ORDER_HASH,
+    quoteId: `fusion-quote-${scenario.fusionQuoteFetches}`,
+    order: FUSION_ORDER_STRUCT,
+    extension: FUSION_EXTENSION,
+    preset: 'fast',
+    auctionStartTime: deadline - 192,
+    auctionEndTime: deadline - 12,
+    deadline,
+  }
+  if (sellsNative) {
+    return {
+      ...quote,
+      order: {
+        ...order,
+        kind: 'native',
+        signature: FUSION_NATIVE_SIGNATURE,
+        tx: { to: FUSION_NATIVE_FACTORY, data: '0xc0ffee', value: '1000000000000000000' },
+      },
+    }
+  }
+  return {
+    ...quote,
+    order: {
+      ...order,
+      kind: 'signature',
+      typedData: {
+        domain: {
+          name: '1inch Aggregation Router',
+          version: '6',
+          chainId: 56,
+          verifyingContract: FUSION_LIMIT_ORDER_PROTOCOL,
+        },
+        types: {
+          Order: [
+            { name: 'salt', type: 'uint256' },
+            { name: 'maker', type: 'address' },
+            { name: 'receiver', type: 'address' },
+            { name: 'makerAsset', type: 'address' },
+            { name: 'takerAsset', type: 'address' },
+            { name: 'makingAmount', type: 'uint256' },
+            { name: 'takingAmount', type: 'uint256' },
+            { name: 'makerTraits', type: 'uint256' },
+          ],
+        },
+        primaryType: 'Order',
+        message: FUSION_ORDER_STRUCT,
+      },
+    },
+  }
+}
+
+type FusionQuoteBuilder = (url: string) => Record<string, unknown>
+let fusionQuoteBuilder: FusionQuoteBuilder = makeFusionQuote
+export const setFusionQuoteBuilder = (builder: FusionQuoteBuilder) => {
+  fusionQuoteBuilder = builder
+}
+
+const handleFusionFetch = async (
+  url: string,
+  init?: RequestInit
+): Promise<Response> => {
+  const method = (init?.method ?? 'GET').toUpperCase()
+
+  if (url.includes('1inch/fusion/quote')) {
+    scenario.fusionQuoteFetches++
+    if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
+    return jsonResponse({ status: 'success', result: fusionQuoteBuilder(url) })
+  }
+  if (url.includes('1inch/fusion/order') && method === 'POST') {
+    scenario.fusionSubmittedOrders.push(
+      init?.body ? JSON.parse(String(init.body)) : {}
+    )
+    return jsonResponse({
+      status: 'success',
+      result: { orderHash: FUSION_ORDER_HASH },
+    })
+  }
+  if (url.includes('1inch/fusion/order/')) {
+    const status =
+      scenario.fusionStatuses.length > 1
+        ? scenario.fusionStatuses.shift()!
+        : scenario.fusionStatuses[0]
+    const fulfilled = status === 'fulfilled'
+    return jsonResponse({
+      status: 'success',
+      result: {
+        status,
+        rawStatus: fulfilled ? 'filled' : status,
+        executedBuyAmount: fulfilled ? scenario.fusionExecutedBuyAmount : null,
+        txHash: fulfilled ? TX_HASH : null,
+      },
+    })
+  }
+  return jsonResponse({ status: 'error', error: 'unhandled fusion route' }, 404)
+}
+
 const realFetch = globalThis.fetch.bind(globalThis)
 const installFetchMock = () => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -575,6 +724,8 @@ const installFetchMock = () => {
     if (url.startsWith('http://127.0.0.1')) return realFetch(input, init)
     if (url.includes('api.cow.fi')) return handleCowFetch(url, init)
     if (url.includes('pcsx/')) return handlePcsxFetch(url, init)
+    // before the `tokenIn=` branch: the Fusion quote url carries it too
+    if (url.includes('1inch/fusion/')) return handleFusionFetch(url, init)
     if (url.includes('tokenIn=')) {
       scenario.quoteFetches++
       if (scenario.quoteDelayMs) await sleep(scenario.quoteDelayMs)
@@ -770,6 +921,7 @@ export const harnessBeforeEach = async (): Promise<Scenario> => {
   scenario = defaultScenario()
   quoteBuilder = () => makeQuote()
   pcsxQuoteBuilder = () => makePcsxQuote()
+  fusionQuoteBuilder = makeFusionQuote
   installFetchMock()
   await startRpcServer()
   return scenario

@@ -8,6 +8,7 @@ import PancakeSwapIcon from '../components/icons/pancakeswap'
 import VeloraIcon from '../components/icons/velora'
 import zapper, { ZapPayload } from '../types/api'
 import { cowswapAdapter } from './rfq/cowswap'
+import { oneInchFusionAdapter } from './rfq/oneinch-fusion'
 import { pcsxAdapter } from './rfq/pcsx'
 import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
@@ -167,13 +168,16 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     Icon: EnsoIcon,
     buildEndpoint: buildAggregatorEndpoint('enso'),
   },
+  // 1inch Fusion (intent mode), built and relayed by reserve-api. The Classic
+  // calldata route (`1inch/swap`) cannot reach pools gated to allowlisted
+  // senders and is no longer used.
   '1inch': {
     id: '1inch',
     label: '1inch',
-    kind: 'aggregator',
-    apiSlug: '1inch',
+    kind: 'rfq',
     Icon: OneInchIcon,
-    buildEndpoint: buildAggregatorEndpoint('1inch'),
+    buildEndpoint: () => null,
+    rfq: oneInchFusionAdapter,
   },
   cowswap: {
     id: 'cowswap',
