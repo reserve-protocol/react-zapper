@@ -28,7 +28,6 @@ import { pickedSourceAtom } from '../state/quote-list-atoms'
 import {
   DEFAULT_API_URL,
   DisabledSettingsConfig,
-  ScheduleCallConfig,
   Token,
 } from '../types'
 import { PROVIDERS, type ProviderId } from '../utils/providers'
@@ -37,7 +36,6 @@ import SessionTracker from './updaters/session-tracker'
 import {
   disabledSettingsAtom,
   forceMintAtom,
-  scheduleCallAtom,
   sellOnlyAtom,
   showContactInfoAtom,
   zapperCurrentTabAtom,
@@ -62,7 +60,6 @@ interface UpdatersProps {
   sellOnly?: boolean
   showContactInfo?: boolean
   turnstileSiteKey?: string
-  scheduleCall?: ScheduleCallConfig
   disabledSettings?: DisabledSettingsConfig
   refreshRate?: number
 }
@@ -294,20 +291,6 @@ const TurnstileUpdater = ({ siteKey }: { siteKey?: string }) => {
   return null
 }
 
-const ScheduleCallUpdater = ({
-  scheduleCall,
-}: {
-  scheduleCall?: ScheduleCallConfig
-}) => {
-  const setScheduleCall = useSetAtom(scheduleCallAtom)
-
-  useEffect(() => {
-    setScheduleCall(scheduleCall)
-  }, [scheduleCall, setScheduleCall])
-
-  return null
-}
-
 const DisabledSettingsUpdater = ({
   disabledSettings,
 }: {
@@ -342,7 +325,6 @@ const Updaters: React.FC<UpdatersProps> = ({
   sellOnly,
   showContactInfo,
   turnstileSiteKey,
-  scheduleCall,
   disabledSettings,
   refreshRate,
 }) => {
@@ -361,7 +343,6 @@ const Updaters: React.FC<UpdatersProps> = ({
       <SellOnlyUpdater sellOnly={sellOnly} />
       <ContactInfoUpdater showContactInfo={showContactInfo} />
       <TurnstileUpdater siteKey={turnstileSiteKey} />
-      <ScheduleCallUpdater scheduleCall={scheduleCall} />
       <DisabledSettingsUpdater disabledSettings={disabledSettings} />
       <RefreshRateUpdater refreshRate={refreshRate} />
       <SessionTracker mode={mode} />

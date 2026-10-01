@@ -17,17 +17,6 @@ export interface TokenBalance {
   decimals: number
 }
 
-export interface ScheduleCallConfig {
-  /** Where the CTA sends the user (e.g. a Calendly link). */
-  url: string
-  /** Minimum purchase size (USD) that qualifies as a "larger holder". Defaults to 500. */
-  minUsd?: number
-  /** Consumer already recorded this wallet scheduling — hide the offer. */
-  scheduled?: boolean
-  /** Fired when the user clicks the CTA (consumer records the click + tracks). */
-  onSchedule?: () => void
-}
-
 export interface DisabledSettingsConfig {
   /** Hide the "Deep liquidity search" setting and force the behavior off. */
   deepLiquidity?: boolean
@@ -66,8 +55,6 @@ export interface ZapperProps {
    * informed" panel are not rendered.
    */
   turnstileSiteKey?: string
-  /** Offer a "schedule an intro call" panel after a large purchase. Omit to disable. */
-  scheduleCall?: ScheduleCallConfig
   /** Disable individual zap settings. Disabled options are hidden from the settings panel. */
   disabledSettings?: DisabledSettingsConfig
   /** UI language. Defaults to 'en'. Falls back to English for any untranslated string. */

@@ -1,3 +1,13 @@
+## [2.14.1] - 2026-10-01
+
+### Removed
+
+- The `scheduleCall` prop, the `ScheduleCallConfig` type and the post-purchase "schedule an intro call" panel (Calendly). Hosts that still pass `scheduleCall` get a TypeScript error; drop the prop, nothing replaces it.
+
+### Security
+
+- Dev and build dependencies bumped for open Dependabot alerts: `vitest` 3.2.6 (critical), `vite` 7.3.6 and `postcss` 8.5.28, plus scoped pnpm `overrides` (in `pnpm-workspace.yaml`) that lift transitive packages pinned by wallet/tooling dependencies to their patched releases within the same major (axios, brace-expansion, browserslist, fast-uri, form-data, hono, js-yaml, nanoid, socket.io-parser, undici, ws, among others). The published bundle's runtime dependencies are unchanged. Still open (major upgrades, medium severity): vitest 4 / @vitest/mocker, uuid 11, decode-uri-component 0.5.
+
 ## [2.14.0] - 2026-09-30
 
 ### Changed

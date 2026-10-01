@@ -10,7 +10,6 @@ import {
 import { resetQuoteListAtom } from '../../state/quote-list-atoms'
 import {
   DisabledSettingsConfig,
-  ScheduleCallConfig,
   Token,
   TokenBalance,
 } from '../../types'
@@ -30,7 +29,6 @@ export const zapperDebugAtom = atom<boolean>(false)
 export const sellOnlyAtom = atom<boolean>(false)
 export const openingFromSimpleModeAtom = atom<boolean>(false)
 export const showContactInfoAtom = atom<boolean>(true)
-export const scheduleCallAtom = atom<ScheduleCallConfig | undefined>(undefined)
 export const disabledSettingsAtom = atom<DisabledSettingsConfig | undefined>(
   undefined
 )
