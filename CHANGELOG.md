@@ -1,3 +1,10 @@
+## [2.14.0] - 2026-09-30
+
+### Changed
+
+- **New `turnstileSiteKey` prop.** The Report button on zap errors and the "Stay informed" panel only render when the host passes a Cloudflare Turnstile site key registered for its own domains; without it both are hidden (the Reserve API rejects those requests without a token).
+- **Update subscriptions and error reports now go through the Reserve API with a Cloudflare Turnstile check.** The "Stay informed" email form posts to `{apiUrl}forms/dtf-minter` and the post-zap registration check reads `{apiUrl}forms/dtf-minter/status/{account}`, replacing the standalone `contentful-storage` worker. The Report button on zap errors now sends a `turnstileToken` with `zapper/report`, which the Reserve API requires (older widget versions get 403 on Report). Both render an invisible-unless-needed Turnstile widget with the host's site key and stay disabled until it yields a token; the Reserve API behind `apiUrl` must serve the new `/forms/*` routes. The subscription now carries `dtfAddress` (the DTF bought or sold) and omits `txHash` when a fill reports none; the API only subscribes a wallet with a transfer of that DTF in the latest 1,000 blocks, so the form must be submitted shortly after the swap.
+
 ## [2.13.0] - 2026-09-21
 
 ### Changed

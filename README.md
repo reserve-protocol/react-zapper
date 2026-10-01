@@ -163,6 +163,7 @@ Simple mode features:
 | `showTabs`       | `boolean`                       | ❌       | Show the Buy/Sell tab switcher in inline mode. Hidden by default — the swap arrow between the amount boxes still flips between buy and sell |
 | `disabled`       | `boolean`                       | ❌       | Disable primary zap actions, wallet/chain actions, amount inputs, and Max buttons |
 | `showContactInfo`| `boolean`                       | ❌       | Show the "Stay informed" contact-capture panel after a successful mint (defaults to `true`) |
+| `turnstileSiteKey`| `string`                       | ❌       | Cloudflare Turnstile site key registered for your domains. Required for the zap-error "Report" button and the "Stay informed" panel; both are hidden without it |
 | `connectWallet`  | `() => void`                    | ❌       | Function to trigger wallet connection          |
 | `debug`          | `boolean`                       | ❌       | Enable debug mode to show additional info      |
 | `defaultSource`  | `QuoteSource`                   | ❌       | Initial selection in the quote list. All enabled providers are always fetched; a provider id pre-selects that route, `'best'` (default) follows the best quote automatically |
@@ -337,7 +338,7 @@ Details are collapsible and the close button is preserved. Errors are rendered
 inline as well. The state resets when the Zapper is closed/reopened.
 
 The success view also shows a "Stay informed" section where users can leave an
-email or Telegram contact for DTF updates. Hide it with `showContactInfo={false}`.
+email or Telegram contact for DTF updates. Hide it with `showContactInfo={false}`. It only renders when `turnstileSiteKey` is set, because the Reserve API requires a Turnstile token for the subscription.
 Submissions fail silently for the user and emit Mixpanel events
 (`zap_contact_submit`, `zap_contact_subscribed`, `zap_contact_error`).
 

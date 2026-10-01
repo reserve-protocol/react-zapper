@@ -2,9 +2,14 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { useAtomValue } from 'jotai'
 import { Mail } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import { walletAtom } from '../../state/atoms'
+import useTurnstile from '../../hooks/use-turnstile'
+import {
+  apiUrlAtom,
+  turnstileSiteKeyAtom,
+  walletAtom,
+} from '../../state/atoms'
+import zapper from '../../types/api'
 import { cn } from '../../utils/cn'
-import { UPDATES_STORAGE_URL } from '../../utils/constants'
 import { formatCurrency } from '../../utils/format'
 import { useTrackIndexDTFContact } from '../../utils/tracking'
 import { Button } from '../ui/button'
@@ -23,6 +28,9 @@ const SubscribeUpdates = ({
   const { t } = useLingui()
   const account = useAtomValue(walletAtom)
   const success = useAtomValue(zapSuccessAtom)
+  const apiUrl = useAtomValue(apiUrlAtom)
+  const turnstileSiteKey = useAtomValue(turnstileSiteKeyAtom)
+  const turnstile = useTurnstile(turnstileSiteKey, 'dtf-minter')
 
   const [value, setValue] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -30,22 +38,28 @@ const SubscribeUpdates = ({
   const { trackContact } = useTrackIndexDTFContact()
 
   const handleSubmit = useCallback(async () => {
-    if (!value) return
+    if (!value || !turnstile.token) return
     setSubmitted(true)
     onStatusChange?.('submitting')
     trackContact('zap_contact_submit', 'email')
     try {
-      const res = await fetch(UPDATES_STORAGE_URL, {
+      const res = await fetch(zapper.subscribeUpdates(apiUrl), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           address: account,
           value: `$${formatCurrency(success?.receivedValue ?? 0)}`,
-          dtf: success?.outputSymbol ?? '',
+          // The API subscribes only a wallet that just moved this DTF
+          dtf:
+            (success?.isMint ? success?.outputSymbol : success?.inputSymbol) ??
+            '',
+          dtfAddress: success?.isMint
+            ? success?.outputAddress
+            : success?.inputAddress,
           chainId: success?.chainId,
-          txHash: success?.txHash ?? '',
-          telegram: '',
+          ...(success?.txHash ? { txHash: success.txHash } : {}),
           email: value,
+          turnstileToken: turnstile.token,
         }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -54,9 +68,10 @@ const SubscribeUpdates = ({
     } catch {
       trackContact('zap_contact_error', 'email')
       setSubmitted(false)
+      turnstile.reset()
       onStatusChange?.('error')
     }
-  }, [value, account, success, trackContact, onStatusChange])
+  }, [value, account, success, apiUrl, turnstile, trackContact, onStatusChange])
 
   return (
     <div className={cn(className)}>
@@ -77,12 +92,13 @@ const SubscribeUpdates = ({
         />
         <Button
           className="absolute right-1.5 top-1/2 h-9 -translate-y-1/2 rounded-lg"
-          disabled={!value || submitted}
+          disabled={!value || submitted || !turnstile.token}
           onClick={handleSubmit}
         >
           <Trans>Subscribe</Trans>
         </Button>
       </div>
+      <div ref={turnstile.containerRef} />
     </div>
   )
 }

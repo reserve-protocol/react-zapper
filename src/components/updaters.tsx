@@ -7,6 +7,7 @@ import { useIndexBasket } from '../hooks/use-index-basket'
 import { useIndexDTF } from '../hooks/use-index-dtf'
 import {
   apiUrlAtom,
+  turnstileSiteKeyAtom,
   chainIdAtom,
   connectWalletAtom,
   deepLiquidityAtom,
@@ -60,6 +61,7 @@ interface UpdatersProps {
   mode?: 'modal' | 'inline' | 'simple'
   sellOnly?: boolean
   showContactInfo?: boolean
+  turnstileSiteKey?: string
   scheduleCall?: ScheduleCallConfig
   disabledSettings?: DisabledSettingsConfig
   refreshRate?: number
@@ -282,6 +284,16 @@ const ContactInfoUpdater = ({
   return null
 }
 
+const TurnstileUpdater = ({ siteKey }: { siteKey?: string }) => {
+  const setSiteKey = useSetAtom(turnstileSiteKeyAtom)
+
+  useEffect(() => {
+    setSiteKey(siteKey || undefined)
+  }, [siteKey, setSiteKey])
+
+  return null
+}
+
 const ScheduleCallUpdater = ({
   scheduleCall,
 }: {
@@ -329,6 +341,7 @@ const Updaters: React.FC<UpdatersProps> = ({
   mode = 'modal',
   sellOnly,
   showContactInfo,
+  turnstileSiteKey,
   scheduleCall,
   disabledSettings,
   refreshRate,
@@ -347,6 +360,7 @@ const Updaters: React.FC<UpdatersProps> = ({
       <DebugUpdater debug={debug} />
       <SellOnlyUpdater sellOnly={sellOnly} />
       <ContactInfoUpdater showContactInfo={showContactInfo} />
+      <TurnstileUpdater siteKey={turnstileSiteKey} />
       <ScheduleCallUpdater scheduleCall={scheduleCall} />
       <DisabledSettingsUpdater disabledSettings={disabledSettings} />
       <RefreshRateUpdater refreshRate={refreshRate} />
