@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useContactRegistration } from '../../hooks/useContactRegistration'
-import { walletAtom } from '../../state/atoms'
+import { turnstileSiteKeyAtom, walletAtom } from '../../state/atoms'
 import { AvailableChain } from '../../utils/chains'
 import {
   formatCurrency,
@@ -56,7 +56,10 @@ const ConfirmationBlock = ({ children }: { children: React.ReactNode }) => (
 const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
   const { t } = useLingui()
   const success = useAtomValue(zapSuccessAtom)
-  const showContactInfo = useAtomValue(showContactInfoAtom)
+  const contactInfoEnabled = useAtomValue(showContactInfoAtom)
+  const turnstileSiteKey = useAtomValue(turnstileSiteKeyAtom)
+  // Subscribing needs a Turnstile token, so the panel needs the host's site key
+  const showContactInfo = contactInfoEnabled && !!turnstileSiteKey
   const scheduleCall = useAtomValue(scheduleCallAtom)
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [contactStatus, setContactStatus] = useState<ContactStatus>('idle')

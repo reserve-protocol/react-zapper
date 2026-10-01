@@ -59,6 +59,13 @@ export interface ZapperProps {
   showTabs?: boolean
   /** Show the "Stay informed" contact-capture panel after a successful mint. Defaults to true. */
   showContactInfo?: boolean
+  /**
+   * Cloudflare Turnstile site key, registered for the host's domains. The
+   * Reserve API only accepts error reports and update subscriptions carrying
+   * a Turnstile token, so without it the Report button and the "Stay
+   * informed" panel are not rendered.
+   */
+  turnstileSiteKey?: string
   /** Offer a "schedule an intro call" panel after a large purchase. Omit to disable. */
   scheduleCall?: ScheduleCallConfig
   /** Disable individual zap settings. Disabled options are hidden from the settings panel. */

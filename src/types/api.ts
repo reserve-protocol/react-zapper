@@ -88,6 +88,7 @@ export type ReportPayload = {
   }
   amount: string
   value: string
+  turnstileToken?: string
 }
 
 export type ZapResponse = {
@@ -146,6 +147,11 @@ const zapper = {
     `${getBaseZapApiUrl(url, chainId)}/deploy-ungoverned?chainId=${chainId}`,
 
   report: (url: string) => `${url}zapper/report`,
+
+  subscribeUpdates: (url: string) => `${url}forms/dtf-minter`,
+
+  updatesStatus: (url: string, account: string) =>
+    `${url}forms/dtf-minter/status/${account}`,
 }
 
 export default zapper

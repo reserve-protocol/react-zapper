@@ -1,3 +1,4 @@
+import useTurnstile from '@/hooks/use-turnstile'
 import { usePrice } from '@/hooks/usePrice'
 import { quoteIdAtom, retryIdAtom, sessionIdAtom } from '@/state/tracking-atoms'
 import zapper, { ReportPayload } from '@/types/api'
@@ -12,6 +13,7 @@ import {
   chainIdAtom,
   indexDTFAtom,
   indexDTFPriceAtom,
+  turnstileSiteKeyAtom,
 } from '../../state/atoms'
 import { Button } from '../ui/button'
 import Copy from '../ui/copy'
@@ -57,12 +59,22 @@ const ReportButton = ({ error }: { error?: string }) => {
   const selectedToken = useAtomValue(selectedTokenOrDefaultAtom)
   const selectedTokenPrice = usePrice(chainId, selectedToken.address)
   const indexDTFPrice = useAtomValue(indexDTFPriceAtom)
+  const turnstileSiteKey = useAtomValue(turnstileSiteKeyAtom)
+  const turnstile = useTurnstile(turnstileSiteKey, 'zapper-report')
 
   const tokenInPrice = operation === 'buy' ? selectedTokenPrice : indexDTFPrice
   const inputValue = (tokenInPrice || 0) * Number(amount)
 
   const handleReport = async () => {
-    if (hasReported || !error || !sessionId || !quoteId || !retryId) return
+    if (
+      hasReported ||
+      !error ||
+      !sessionId ||
+      !quoteId ||
+      !retryId ||
+      !turnstile.token
+    )
+      return
 
     setIsLoading(true)
     setReportFailed(false)
@@ -83,6 +95,7 @@ const ReportButton = ({ error }: { error?: string }) => {
         },
         amount: formatToSignificantDigits(Number(amount) || 0),
         value: formatCurrency(inputValue || 0, 0),
+        turnstileToken: turnstile.token,
       }
 
       const response = await fetch(zapper.report(apiUrl), {
@@ -97,10 +110,12 @@ const ReportButton = ({ error }: { error?: string }) => {
         setHasReported(true)
       } else {
         setReportFailed(true)
+        turnstile.reset()
       }
     } catch (err) {
       console.error('Error sending report:', err)
       setReportFailed(true)
+      turnstile.reset()
     } finally {
       setIsLoading(false)
     }
@@ -115,7 +130,12 @@ const ReportButton = ({ error }: { error?: string }) => {
         className="rounded-full h-8 px-3"
         onClick={handleReport}
         disabled={
-          isLoading || hasReported || !sessionId || !quoteId || !retryId
+          isLoading ||
+          hasReported ||
+          !sessionId ||
+          !quoteId ||
+          !retryId ||
+          !turnstile.token
         }
       >
         {/* Overlay every state's label so the button keeps the width of the
@@ -129,6 +149,7 @@ const ReportButton = ({ error }: { error?: string }) => {
           <span className="col-start-1 row-start-1">{label}</span>
         </span>
       </Button>
+      <div ref={turnstile.containerRef} />
       {reportFailed && (
         <span className="text-red-500 text-[10px]">
           <Trans>Failed to send. Try again.</Trans>
@@ -146,6 +167,7 @@ const CopySwapButton = ({
   errorMsgDisplayed?: string
 }) => {
   const endpoint = useAtomValue(zapSwapEndpointAtom)
+  const canReport = !!useAtomValue(turnstileSiteKeyAtom)
   const sessionId = useAtomValue(sessionIdAtom)
   const quoteId = useAtomValue(quoteIdAtom)
   const retryId = useAtomValue(retryIdAtom)
@@ -164,7 +186,7 @@ const CopySwapButton = ({
   return (
     <div className="flex items-center gap-1.5 text-xs mx-auto">
       <Copy value={copyText} size={14} outline />
-      <ReportButton error={errorMsg} />
+      {canReport && <ReportButton error={errorMsg} />}
     </div>
   )
 }

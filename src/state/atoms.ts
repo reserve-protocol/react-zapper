@@ -10,6 +10,11 @@ import type { ProviderId } from '../utils/providers'
 export const apiUrlAtom = atom<string>(DEFAULT_API_URL)
 
 /**
+ * Turnstile site key from the host; features that need a bot check are off without it
+ */
+export const turnstileSiteKeyAtom = atom<string | undefined>(undefined)
+
+/**
  * Zapper API URL atom - configurable api url for zapper service endpoints (api/zapper/*)
  * Falls back to apiUrlAtom when not explicitly set
  */
