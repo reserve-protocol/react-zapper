@@ -24,7 +24,7 @@ import {
 import { transactionUrl } from '../../utils/urls'
 import TokenLogo from '../token-logo'
 import { Button } from '../ui/button'
-import { scheduleCallAtom, showContactInfoAtom, zapSuccessAtom } from './atom'
+import { showContactInfoAtom, zapSuccessAtom } from './atom'
 import SubscribeUpdates, { type ContactStatus } from './subscribe-updates'
 
 const DetailRow = ({
@@ -60,7 +60,6 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
   const turnstileSiteKey = useAtomValue(turnstileSiteKeyAtom)
   // Subscribing needs a Turnstile token, so the panel needs the host's site key
   const showContactInfo = contactInfoEnabled && !!turnstileSiteKey
-  const scheduleCall = useAtomValue(scheduleCallAtom)
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [contactStatus, setContactStatus] = useState<ContactStatus>('idle')
   const account = useAtomValue(walletAtom)
@@ -81,21 +80,6 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
     receivedAmount,
     orderExplorerUrl,
   } = success
-
-  // Intro-call offer: large *purchases* only, once per wallet (consumer-tracked
-  // via `scheduled`, plus an optimistic local hide once they click).
-  const showSchedule =
-    !!scheduleCall &&
-    !scheduleCall.scheduled &&
-    isMint &&
-    inputValue >= (scheduleCall.minUsd ?? 500)
-
-  // Persist the flag but keep the panel visible in THIS view — if the user
-  // closed the Calendly tab by mistake they can click again. It's hidden on the
-  // next modal render, when the consumer re-reads the flag into `scheduled`.
-  const handleSchedule = () => {
-    scheduleCall?.onSchedule?.()
-  }
 
   // "Stay informed" is hidden entirely once the wallet is already subscribed.
   const justSubscribed = contactStatus === 'success'
@@ -192,35 +176,6 @@ const ZapSuccessView = ({ onClose }: { onClose: () => void }) => {
             </div>
           )}
         </div>
-
-        {showSchedule && (
-          <div className="flex flex-col gap-4 rounded-2xl border border-border-secondary bg-background p-4 opacity-0 animate-fade-in [animation-delay:150ms]">
-            <div className="flex flex-col gap-1">
-              <p className="text-xl font-medium leading-7 text-primary">
-                <Trans>A direct line to the team</Trans>
-              </p>
-              <p className="text-base text-foreground">
-                <Trans>
-                  Congratulations on purchasing a meaningful amount of this DTF.
-                  Larger holders are entitled to a direct connection with the
-                  team behind Reserve. Schedule an intro call to get to know us,
-                  get help with anything in the future, and share your thoughts
-                  as we continue to build and grow.
-                </Trans>
-              </p>
-            </div>
-            <Button asChild className="rounded-xl">
-              <a
-                href={scheduleCall?.url}
-                target="_blank"
-                rel="noreferrer"
-                onClick={handleSchedule}
-              >
-                <Trans>Schedule an intro call</Trans>
-              </a>
-            </Button>
-          </div>
-        )}
 
         {showSubscribe && (
           <div className="flex flex-col gap-4 rounded-2xl border border-border-secondary bg-background p-4 opacity-0 animate-fade-in [animation-delay:300ms]">

@@ -255,7 +255,6 @@ export const Zapper: React.FC<ZapperProps> = ({
   showTabs,
   showContactInfo,
   turnstileSiteKey,
-  scheduleCall,
   disabledSettings,
   locale,
   refreshRate,
@@ -274,7 +273,6 @@ export const Zapper: React.FC<ZapperProps> = ({
         sellOnly={sellOnly}
         showContactInfo={showContactInfo}
         turnstileSiteKey={turnstileSiteKey}
-        scheduleCall={scheduleCall}
         disabledSettings={disabledSettings}
         refreshRate={refreshRate}
       />
