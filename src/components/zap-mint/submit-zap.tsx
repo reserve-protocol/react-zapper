@@ -105,16 +105,16 @@ const LoadingButton = ({
   buttonLabel: string
   mode?: 'modal' | 'inline' | 'simple'
 }) => {
+  const { t } = useLingui()
+
   return (
     <>
       <Button size="lg" className="w-full rounded-xl" disabled>
-        {fetchingZapper ? (
-          <Trans>Loading...</Trans>
-        ) : insufficientBalance ? (
-          <Trans>Insufficient balance</Trans>
-        ) : (
-          buttonLabel
-        )}
+        {fetchingZapper
+          ? t`Loading...`
+          : insufficientBalance
+            ? t`Insufficient balance`
+            : buttonLabel}
       </Button>
       {mode !== 'simple' && <ZapErrorMsg error={zapperErrorMessage} />}
     </>

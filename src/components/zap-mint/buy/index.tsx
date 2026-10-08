@@ -226,14 +226,14 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
         to={{
           address: indexDTF.id,
           symbol: indexDTF.token.symbol,
-          price: priceTo ? (
-            <span>
-              ${formatCurrency(priceTo)}
-              {dustValue > 0.01
-                ? t` + $${formatCurrency(dustValue)} in dust`
-                : ''}
-            </span>
-          ) : undefined,
+          // WHY: one string, not sibling text nodes — page translators break React removing those
+          price: priceTo
+            ? `$${formatCurrency(priceTo)}${
+                dustValue > 0.01
+                  ? t` + $${formatCurrency(dustValue)} in dust`
+                  : ''
+              }`
+            : undefined,
           value: formatOutputAmount(Number(formatEther(BigInt(valueTo || 0)))),
         }}
         onSwap={changeTab}

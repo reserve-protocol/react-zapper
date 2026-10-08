@@ -1,3 +1,9 @@
+## [2.14.2] - 2026-10-08
+
+### Fixed
+
+- The widget no longer crashes when the page is machine-translated (Chrome/Google Translate). The translator moves text nodes into its own elements, and React threw when it later removed one. Two spots did that: the output price, when a refreshed quote dropped the " + $x in dust" suffix, and the disabled CTA, when it switched from "Loading..." / "Insufficient balance" to the button label (e.g. after a failed quote). Both now render a single string. Their translated messages are unchanged.
+
 ## [2.14.1] - 2026-10-01
 
 ### Removed

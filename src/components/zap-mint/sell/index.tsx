@@ -227,14 +227,14 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
         to={{
           address: selectedToken.address,
           symbol: selectedToken.symbol,
-          price: priceTo ? (
-            <span>
-              ${formatCurrency(priceTo)}
-              {dustValue > 0.01
-                ? t` + $${formatCurrency(dustValue)} in dust`
-                : ''}
-            </span>
-          ) : undefined,
+          // WHY: one string, not sibling text nodes — page translators break React removing those
+          price: priceTo
+            ? `$${formatCurrency(priceTo)}${
+                dustValue > 0.01
+                  ? t` + $${formatCurrency(dustValue)} in dust`
+                  : ''
+              }`
+            : undefined,
           value: formatOutputAmount(
             Number(formatUnits(BigInt(valueTo || 0), selectedToken.decimals))
           ),
