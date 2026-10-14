@@ -1,3 +1,9 @@
+## [2.14.3] - 2026-10-14
+
+### Fixed
+
+- Two more crashes when the page is machine-translated (Chrome/Google Translate). The transaction CTA crashed when its loading spinner appeared after a click, because React inserted the spinner before a text node the translator had moved. The projected slippage crashed when a refreshed quote changed its sign and the "+" prefix was removed. The CTA label is now in its own element, and the slippage renders as a single string. Translated messages are unchanged.
+
 ## [2.14.2] - 2026-10-08
 
 ### Fixed

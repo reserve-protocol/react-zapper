@@ -92,7 +92,10 @@ export function TransactionButton({
       )}
     >
       {busy && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-      {hasInsufficientGas ? <Trans>Insufficient gas balance</Trans> : children}
+      {/* WHY: page translators move bare text, so the spinner can't be inserted before it */}
+      <span>
+        {hasInsufficientGas ? <Trans>Insufficient gas balance</Trans> : children}
+      </span>
     </Button>
   )
 }

@@ -29,8 +29,7 @@ const SlippageValue = ({
   className?: string
 }) => (
   <span className={className}>
-    {value > 0 ? '' : '+'}
-    {formatPercentage(Math.abs(value))}
+    {`${value > 0 ? '' : '+'}${formatPercentage(Math.abs(value))}`}
     {usd != null && (
       <span className="text-muted-foreground">
         {' '}
