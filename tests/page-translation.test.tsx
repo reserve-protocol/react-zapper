@@ -6,7 +6,7 @@
  * REGISTER-19) and the disabled CTA leaving "Loading..." (REGISTER-1K).
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 
 import {
   getCta,
@@ -70,5 +70,43 @@ describe('widget under page translation', () => {
     await waitFor(() => expect(getCta().textContent).toMatch(/Market Buy/), {
       timeout: 10_000,
     })
+  }, 40_000)
+
+  it('survives the CTA spinner appearing after a click', async () => {
+    scenario.send = 'accept'
+    scenario.sendDelayMs = 2_000
+    await setup()
+    await waitForReadyCta()
+
+    translate(document.body)
+    fireEvent.click(getCta())
+
+    await waitFor(
+      () => expect(getCta().querySelector('.animate-spin')).toBeTruthy(),
+      { timeout: 10_000 }
+    )
+  }, 40_000)
+
+  it('survives the projected slippage changing sign', async () => {
+    let truePriceImpact = -0.5
+    setQuoteBuilder(() => makeQuote({ truePriceImpact }))
+    await setup({ refreshRate: 2_000 })
+    await waitForReadyCta()
+    fireEvent.click(screen.getByText('Details'))
+    await waitFor(() => expect(screen.getByText(/\+0\.5/)).toBeTruthy(), {
+      timeout: 10_000,
+    })
+
+    translate(document.body)
+    truePriceImpact = 0.5
+
+    await waitFor(
+      () => {
+        expect(document.body.textContent).not.toMatch(/\+0\.5/)
+        expect(document.body.textContent).toMatch(/0\.5/)
+      },
+      { timeout: 10_000 }
+    )
+    await waitForReadyCta()
   }, 40_000)
 })
