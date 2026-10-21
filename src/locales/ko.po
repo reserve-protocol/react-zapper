@@ -199,9 +199,14 @@ msgstr "견적에 수수료 포함"
 msgid "Received:"
 msgstr "받음:"
 
-#: src/components/zap-mint/refresh-quote.tsx:41
-msgid "Refresh"
-msgstr "새로고침"
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh in {seconds}s"
+msgstr "{seconds}초 후 새로고침"
+
+#: src/components/zap-mint/refresh-quote.tsx:48
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh quote"
+msgstr "견적 새로고침"
 
 #: src/components/zap-mint/zap-error-msg.tsx:124
 msgid "Report"

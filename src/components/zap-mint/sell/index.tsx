@@ -85,22 +85,29 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const insufficientBalance =
     !!account && parseEther(inputAmount) > indexDTFBalance
 
-  const { data, isLoading, isFetching, refetch, failureReason, sourcing } =
-    useZapSwapQuery({
-      tokenIn: indexDTF?.id,
-      tokenOut: selectedToken.address,
-      amountIn: parseEther(inputAmount).toString(),
-      slippage: Number(slippage),
-      disabled: ongoingTx,
-      forceMint,
-      dtfTicker: indexDTF?.token.symbol || '',
-      type: 'sell',
-      insufficientBalance,
-      tokenInPrice: indexDTFPrice,
-      tokenInDecimals: indexDTF?.token.decimals ?? 18,
-      tokenOutPrice: selectedTokenPrice,
-      tokenOutDecimals: selectedToken.decimals,
-    })
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch,
+    failureReason,
+    sourcing,
+    canRefetch,
+  } = useZapSwapQuery({
+    tokenIn: indexDTF?.id,
+    tokenOut: selectedToken.address,
+    amountIn: parseEther(inputAmount).toString(),
+    slippage: Number(slippage),
+    disabled: ongoingTx,
+    forceMint,
+    dtfTicker: indexDTF?.token.symbol || '',
+    type: 'sell',
+    insufficientBalance,
+    tokenInPrice: indexDTFPrice,
+    tokenInDecimals: indexDTF?.token.decimals ?? 18,
+    tokenOutPrice: selectedTokenPrice,
+    tokenOutDecimals: selectedToken.decimals,
+  })
 
   const zapperErrorMessage = isFetching
     ? ''
@@ -117,9 +124,9 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   const valueTo = data?.result?.amountOut
   const showTxButton = Boolean(
     data?.status === 'success' &&
-      data?.result &&
-      !insufficientBalance &&
-      !isLoading
+    data?.result &&
+    !insufficientBalance &&
+    !isLoading
   )
   const fetchingZapper = isLoading || isFetching
 
@@ -135,8 +142,8 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
   }
 
   useEffect(() => {
-    setZapRefetch({ fn: refetch })
-  }, [refetch, setZapRefetch])
+    setZapRefetch({ fn: refetch, ready: canRefetch })
+  }, [refetch, canRefetch, setZapRefetch])
 
   // Only the first load of a cache key: background refetches keep the shown
   // quote and a live CTA, so they must not flip the global fetching flag.

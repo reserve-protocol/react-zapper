@@ -1,44 +1,63 @@
-import { Trans } from '@lingui/react/macro'
-import { Button } from '../ui/button'
-import { cn } from '../../utils/cn'
+import { useLingui } from '@lingui/react/macro'
 import { Loader, RefreshCw } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Button } from '../ui/button'
+
+const REFRESH_COOLDOWN_MS = 5_000
 
 const RefreshQuote = ({
   onClick,
   loading,
   disabled,
-  small = false,
 }: {
   onClick?: () => void
   loading?: boolean
   disabled?: boolean
-  small?: boolean
 }) => {
-  if (loading) {
-    return (
-      <Button
-        size="sm"
-        className="h-[34px] px-2 rounded-xl cursor-not-allowed hover:bg-inherit"
-        variant="outline"
-      >
-        <Loader size={16} className="animate-spin-slow" />
-      </Button>
-    )
+  const { t } = useLingui()
+  const cooldownUntil = useRef(0)
+  const [seconds, setSeconds] = useState(0)
+  const coolingDown = seconds > 0
+
+  useEffect(() => {
+    if (!coolingDown) return
+    const timer = setInterval(() => {
+      setSeconds(
+        Math.max(0, Math.ceil((cooldownUntil.current - Date.now()) / 1000))
+      )
+    }, 250)
+    return () => clearInterval(timer)
+  }, [coolingDown])
+
+  const handleClick = () => {
+    if (disabled || loading || !onClick || Date.now() < cooldownUntil.current)
+      return
+    cooldownUntil.current = Date.now() + REFRESH_COOLDOWN_MS
+    setSeconds(REFRESH_COOLDOWN_MS / 1000)
+    onClick()
   }
 
   return (
     <Button
+      type="button"
       size="sm"
-      className={cn(
-        'gap-2 text-legend rounded-xl disabled:pointer-events-auto disabled:cursor-not-allowed',
-        small ? 'h-[34px] px-2 rounded-xl' : ''
-      )}
+      className="h-11 gap-2 text-legend rounded-xl disabled:pointer-events-auto disabled:cursor-not-allowed"
       variant="outline"
-      onClick={onClick}
-      disabled={disabled}
+      onClick={handleClick}
+      disabled={disabled || loading || coolingDown || !onClick}
+      aria-label={t`Refresh quote`}
+      aria-busy={!!loading}
     >
-      <RefreshCw size={16} />
-      {!small && <Trans>Refresh</Trans>}
+      {loading ? (
+        <Loader
+          size={16}
+          className="motion-safe:animate-spin-slow"
+          aria-hidden="true"
+        />
+      ) : (
+        <RefreshCw size={16} aria-hidden="true" />
+      )}
+      <span>{coolingDown ? t`Refresh in ${seconds}s` : t`Refresh quote`}</span>
     </Button>
   )
 }

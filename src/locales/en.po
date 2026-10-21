@@ -199,8 +199,13 @@ msgstr ""
 msgid "Received:"
 msgstr ""
 
-#: src/components/zap-mint/refresh-quote.tsx:41
-msgid "Refresh"
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh in {seconds}s"
+msgstr ""
+
+#: src/components/zap-mint/refresh-quote.tsx:48
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh quote"
 msgstr ""
 
 #: src/components/zap-mint/zap-error-msg.tsx:124

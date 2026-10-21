@@ -16,10 +16,9 @@ import {
   selectedTokenAtom,
   tokenInAtom,
   tokenOutAtom,
-  zapFetchingAtom,
+  zapQuoteStateAtom,
   zapMintInputAtom,
   zapOngoingTxAtom,
-  zapperDebugAtom,
   zapSuccessAtom,
   zapperCurrentTabAtom,
   zapRefetchAtom,
@@ -50,16 +49,15 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
   const defaultToken = useAtomValue(defaultSelectedTokenAtom)
   const setSelectedToken = useSetAtom(selectedTokenAtom)
   const zapRefetch = useAtomValue(zapRefetchAtom)
-  const zapFetching = useAtomValue(zapFetchingAtom)
+  const { loading: zapFetching } = useAtomValue(zapQuoteStateAtom)
   const zapOngoingTx = useAtomValue(zapOngoingTxAtom)
   const input = useAtomValue(zapMintInputAtom)
-  const invalidInput = isNaN(Number(input)) || Number(input) === 0
+  const invalidInput = !Number.isFinite(Number(input)) || Number(input) <= 0
 
   const tokenIn = useAtomValue(tokenInAtom)
   const tokenOut = useAtomValue(tokenOutAtom)
 
   const [zapSuccess, setZapSuccess] = useAtom(zapSuccessAtom)
-  const debug = useAtomValue(zapperDebugAtom)
   const resetZapperState = useSetAtom(resetZapperStateAtom)
 
   const { trackClick } = useTrackIndexDTFZapClick('overview')
@@ -94,19 +92,24 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
     setCurrentTab(newTab)
   }
 
-  // Nav header (debug-only refresh + close) shown above the Buy/Sell form.
+  const refreshButton = (
+    <RefreshQuote
+      onClick={handleRefreshClick}
+      loading={zapFetching}
+      disabled={
+        disabled ||
+        zapOngoingTx ||
+        invalidInput ||
+        !tokenIn ||
+        !tokenOut ||
+        !zapRefetch.ready
+      }
+    />
+  )
+
   const navHeader = (
     <DialogTitle className="flex justify-between gap-2 sm:p-0">
-      <div className="flex justify-between gap-1">
-        {debug && (
-          <RefreshQuote
-            small
-            onClick={handleRefreshClick}
-            loading={zapFetching}
-            disabled={zapFetching || zapOngoingTx || invalidInput}
-          />
-        )}
-      </div>
+      {refreshButton}
       <Button
         variant="outline"
         className="h-[34px] px-2 rounded-xl"
@@ -141,36 +144,25 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
           className="flex flex-col flex-grow"
           onValueChange={handleTabChange}
         >
-          {(showTabs || debug) && (
-            <div className="flex justify-between gap-2">
-              {showTabs ? (
-                <TabsList className="h-9 px-0.5">
-                  <TabsTrigger
-                    value="buy"
-                    disabled={sellOnly}
-                    className={sellOnly ? 'opacity-50 cursor-not-allowed' : ''}
-                  >
-                    <Trans>Buy</Trans>
-                  </TabsTrigger>
-                  <TabsTrigger value="sell">
-                    <Trans>Sell</Trans>
-                  </TabsTrigger>
-                </TabsList>
-              ) : (
-                <div />
-              )}
-              {debug && (
-                <div className="flex items-center gap-1">
-                  <RefreshQuote
-                    small
-                    onClick={handleRefreshClick}
-                    loading={zapFetching}
-                    disabled={zapFetching || zapOngoingTx || invalidInput}
-                  />
-                </div>
-              )}
-            </div>
-          )}
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            {showTabs ? (
+              <TabsList className="h-9 px-0.5">
+                <TabsTrigger
+                  value="buy"
+                  disabled={sellOnly}
+                  className={sellOnly ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                  <Trans>Buy</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="sell">
+                  <Trans>Sell</Trans>
+                </TabsTrigger>
+              </TabsList>
+            ) : (
+              <div />
+            )}
+            {refreshButton}
+          </div>
 
           <div className="flex flex-col">
             <LowLiquidityWarning className="mt-2" />

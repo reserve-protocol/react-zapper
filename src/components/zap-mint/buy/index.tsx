@@ -85,22 +85,29 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
     parseUnits(inputAmount, selectedToken.decimals) >
       parseUnits(selectedTokenBalance?.balance || '0', selectedToken.decimals)
 
-  const { data, isLoading, isFetching, refetch, failureReason, sourcing } =
-    useZapSwapQuery({
-      tokenIn: selectedToken.address,
-      tokenOut: indexDTF?.id,
-      amountIn: parseUnits(inputAmount, selectedToken.decimals).toString(),
-      slippage: isFinite(Number(slippage)) ? Number(slippage) : 10000,
-      disabled: ongoingTx,
-      forceMint,
-      dtfTicker: indexDTF?.token.symbol || '',
-      type: 'buy',
-      insufficientBalance,
-      tokenInPrice: selectedTokenPrice,
-      tokenInDecimals: selectedToken.decimals,
-      tokenOutPrice: indexDTFPrice,
-      tokenOutDecimals: indexDTF?.token.decimals ?? 18,
-    })
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch,
+    failureReason,
+    sourcing,
+    canRefetch,
+  } = useZapSwapQuery({
+    tokenIn: selectedToken.address,
+    tokenOut: indexDTF?.id,
+    amountIn: parseUnits(inputAmount, selectedToken.decimals).toString(),
+    slippage: isFinite(Number(slippage)) ? Number(slippage) : 10000,
+    disabled: ongoingTx,
+    forceMint,
+    dtfTicker: indexDTF?.token.symbol || '',
+    type: 'buy',
+    insufficientBalance,
+    tokenInPrice: selectedTokenPrice,
+    tokenInDecimals: selectedToken.decimals,
+    tokenOutPrice: indexDTFPrice,
+    tokenOutDecimals: indexDTF?.token.decimals ?? 18,
+  })
 
   const zapperErrorMessage = isFetching
     ? ''
@@ -118,9 +125,9 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   const valueTo = data?.result?.amountOut
   const showTxButton = Boolean(
     data?.status === 'success' &&
-      data?.result &&
-      !insufficientBalance &&
-      !isLoading
+    data?.result &&
+    !insufficientBalance &&
+    !isLoading
   )
   const fetchingZapper = isLoading || isFetching
   const dustValue = data?.result?.dustValue || 0
@@ -135,8 +142,8 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
   }
 
   useEffect(() => {
-    setZapRefetch({ fn: refetch })
-  }, [refetch, setZapRefetch])
+    setZapRefetch({ fn: refetch, ready: canRefetch })
+  }, [refetch, canRefetch, setZapRefetch])
 
   // Only the first load of a cache key: background refetches keep the shown
   // quote and a live CTA, so they must not flip the global fetching flag.

@@ -149,7 +149,10 @@ export const zapQuoteStateAtom = atom<UseQuoteResult>({
 // Inverted convention: value S ⇒ a fraction of 1/S — '200' = 0.5% (default)
 export const slippageAtom = atomWithReset<string>('200')
 export const forceMintAtom = atomWithReset<boolean>(false)
-export const zapRefetchAtom = atom<{ fn: () => void }>({ fn: () => {} })
+export const zapRefetchAtom = atom<{ fn: () => void; ready: boolean }>({
+  fn: () => {},
+  ready: false,
+})
 export const zapFetchingAtom = atom<boolean>(false)
 export const zapOngoingTxAtom = atom<boolean>(false)
 export const zapSwapEndpointAtom = atom<string>('')

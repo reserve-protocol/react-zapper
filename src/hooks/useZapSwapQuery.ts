@@ -129,29 +129,16 @@ const useZapSwapQuery = ({
   // Cache key for react-query — changes when any swap param changes. We
   // intentionally don't memoize endpoint strings here; `fetchBestZapQuote`
   // rebuilds them per fetch using the latest tracking ids.
-  const cacheKey = useDebounce(
-    useMemo(() => {
-      if (
-        !tokenIn ||
-        !tokenOut ||
-        isNaN(Number(amountIn)) ||
-        Number(amountIn) === 0
-      ) {
-        return null
-      }
-      return [
-        chainId,
-        tokenIn,
-        tokenOut,
-        amountIn,
-        slippage,
-        signer,
-        forceMint,
-        deepLiquidity,
-        debug,
-        availableProviders.map((p) => p.id).join(','),
-      ].join('|')
-    }, [
+  const inputKey = useMemo(() => {
+    if (
+      !tokenIn ||
+      !tokenOut ||
+      isNaN(Number(amountIn)) ||
+      Number(amountIn) === 0
+    ) {
+      return null
+    }
+    return [
       chainId,
       tokenIn,
       tokenOut,
@@ -161,10 +148,26 @@ const useZapSwapQuery = ({
       forceMint,
       deepLiquidity,
       debug,
-      availableProviders,
-    ]),
-    500
-  )
+      availableProviders.map((p) => p.id).join(','),
+    ].join('|')
+  }, [
+    chainId,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    slippage,
+    signer,
+    forceMint,
+    deepLiquidity,
+    debug,
+    availableProviders,
+  ])
+  const cacheKey = useDebounce(inputKey, 500)
+  const canRefetch =
+    !disabled &&
+    !!cacheKey &&
+    cacheKey === inputKey &&
+    availableProviders.length > 0
 
   const query = useQuery({
     queryKey: ['zapDeploy', cacheKey, quoteSource],
@@ -362,7 +365,13 @@ const useZapSwapQuery = ({
   // `data` is the ACTIVE quote (picked-or-best); `roundData` changes once per
   // completed round — use it for round-scoped UI like the refetch loader so a
   // user pick doesn't retrigger it.
-  return { ...query, data: active ?? undefined, roundData: query.data, sourcing }
+  return {
+    ...query,
+    data: active ?? undefined,
+    roundData: query.data,
+    sourcing,
+    canRefetch,
+  }
 }
 
 export default useZapSwapQuery

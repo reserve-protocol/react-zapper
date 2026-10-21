@@ -199,9 +199,14 @@ msgstr "报价包含费用"
 msgid "Received:"
 msgstr "已收到："
 
-#: src/components/zap-mint/refresh-quote.tsx:41
-msgid "Refresh"
-msgstr "刷新"
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh in {seconds}s"
+msgstr "{seconds}秒后刷新"
+
+#: src/components/zap-mint/refresh-quote.tsx:48
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh quote"
+msgstr "刷新报价"
 
 #: src/components/zap-mint/zap-error-msg.tsx:124
 msgid "Report"

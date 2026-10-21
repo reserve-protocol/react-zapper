@@ -199,9 +199,14 @@ msgstr "La cotización incluye comisiones"
 msgid "Received:"
 msgstr "Recibido:"
 
-#: src/components/zap-mint/refresh-quote.tsx:41
-msgid "Refresh"
-msgstr "Actualizar"
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh in {seconds}s"
+msgstr "Actualizar en {seconds}s"
+
+#: src/components/zap-mint/refresh-quote.tsx:48
+#: src/components/zap-mint/refresh-quote.tsx:60
+msgid "Refresh quote"
+msgstr "Actualizar cotización"
 
 #: src/components/zap-mint/zap-error-msg.tsx:124
 msgid "Report"

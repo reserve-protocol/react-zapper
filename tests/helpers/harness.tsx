@@ -16,8 +16,10 @@ import { mock } from 'wagmi/connectors'
 import { expect } from 'vitest'
 
 import Buy from '../../src/components/zap-mint/buy'
+import { ZapperContent } from '../../src/components/zapper'
 import {
   selectedTokenAtom,
+  openZapMintModalAtom,
   zapFetchingAtom,
   zapOngoingTxAtom,
   zapSuccessAtom,
@@ -33,6 +35,7 @@ import {
   quoteSourceAtom,
   refreshRateAtom,
   walletAtom,
+  zappableTokenOrderAtom,
 } from '../../src/state/atoms'
 import { pickedSourceAtom } from '../../src/state/quote-list-atoms'
 import { reducedZappableTokens } from '../../src/utils/constants'
@@ -737,6 +740,9 @@ const installFetchMock = () => {
     if (url.includes('current/prices')) {
       return new Response(JSON.stringify([{ price: 3000 }]), { status: 200 })
     }
+    if (url.endsWith('/health')) {
+      return jsonResponse({ ok: true, chains: [{ chainId: scenario.chainId, ok: true }] })
+    }
     return new Response(JSON.stringify({}), { status: 200 })
   }) as typeof fetch
 }
@@ -792,6 +798,7 @@ export const setup = async ({
   pickedSource,
   connected = true,
   connectWallet,
+  contentMode,
 }: {
   quoteSource?: QuoteSource
   inputAmount?: string
@@ -806,6 +813,7 @@ export const setup = async ({
   connected?: boolean
   // spy for the connect prompt fired by the disconnected CTA
   connectWallet?: () => void
+  contentMode?: 'inline' | 'modal'
 } = {}) => {
   const baseChain = chainName === 'bsc' ? bsc : mainnet
   scenario.chainId = baseChain.id
@@ -856,13 +864,18 @@ export const setup = async ({
     store.set(balancesAtom, { [ethAddress]: ethBalance })
   }
 
+  if (contentMode) {
+    store.set(openZapMintModalAtom, true)
+    store.set(zappableTokenOrderAtom, [ethAddress.toLowerCase()])
+  }
+
   const utils = render(
     <WagmiProvider config={config} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>
         <JotaiProvider store={store}>
           <ZapperI18nProvider>
             <Probe />
-            <Buy mode="modal" />
+            {contentMode ? <ZapperContent mode={contentMode} /> : <Buy mode="modal" />}
           </ZapperI18nProvider>
         </JotaiProvider>
       </QueryClientProvider>
@@ -870,11 +883,11 @@ export const setup = async ({
   )
 
   // type the input amount
-  const input = utils.container.querySelector('input')
+  const input = utils.baseElement.querySelector('input')
   expect(input).toBeTruthy()
   fireEvent.change(input!, { target: { value: inputAmount } })
 
-  return utils
+  return { ...utils, store }
 }
 
 const ctaMatcher =
