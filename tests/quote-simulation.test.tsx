@@ -48,7 +48,7 @@ describe('pre-selection quote simulation (best mode)', () => {
   beforeEach(async () => {
     await harnessBeforeEach()
     // reduce the pool to two providers so the fetch mock stays simple
-    PROVIDER_ENABLED[1] = { zap: true, velora: false, enso: true }
+    PROVIDER_ENABLED[1] = { zap2: true, velora: false, enso: true }
     providerQuotes()
   })
 
@@ -96,7 +96,7 @@ describe('pre-selection quote simulation (best mode)', () => {
     scenario.revertData = [ZAP_DATA]
     await setup({ quoteSource: 'best' })
 
-    // zap reverted and enso can't be verified (needs approval) -> enso wins
+    // zap2 reverted and enso can't be verified (needs approval) -> enso wins
     await waitFor(
       () => {
         expect(getCta().textContent).toMatch(/Approve and market buy/i)

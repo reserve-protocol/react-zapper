@@ -88,7 +88,7 @@ const simulatable = (source: string, data: string) =>
 describe('filterQuotesBySimulation', () => {
   it('splits reverting quotes from passing ones, preserving order', async () => {
     const quotes = [
-      simulatable('zap', '0xaa'),
+      simulatable('zap2', '0xaa'),
       simulatable('velora', '0xbb'),
       simulatable('enso', '0xcc'),
     ]
@@ -98,13 +98,13 @@ describe('filterQuotesBySimulation', () => {
         if (q.source === 'velora') throw estimateError(3, 'execution reverted')
       }
     )
-    expect(kept.map((q) => q.source)).toEqual(['zap', 'enso'])
+    expect(kept.map((q) => q.source)).toEqual(['zap2', 'enso'])
     expect(filtered.map((f) => f.quote.source)).toEqual(['velora'])
   })
 
   it('keeps quotes that fail for infra reasons', async () => {
     const { kept, filtered } = await filterQuotesBySimulation(
-      [simulatable('zap', '0xaa')],
+      [simulatable('zap2', '0xaa')],
       async () => {
         throw new HttpRequestError({ url: 'http://rpc' })
       }
@@ -117,7 +117,7 @@ describe('filterQuotesBySimulation', () => {
     let simulations = 0
     const { kept, filtered } = await filterQuotesBySimulation(
       [
-        quote('zap', { approvalNeeded: true, tx: { data: '0xaa', to: '0x1', value: '0' } }),
+        quote('zap2', { approvalNeeded: true, tx: { data: '0xaa', to: '0x1', value: '0' } }),
         quote('velora', { approvalNeeded: false, tx: null }),
         quote('enso', undefined),
       ],
@@ -133,7 +133,7 @@ describe('filterQuotesBySimulation', () => {
 
   it('keeps quotes whose simulation times out', async () => {
     const { kept, filtered } = await filterQuotesBySimulation(
-      [simulatable('zap', '0xaa')],
+      [simulatable('zap2', '0xaa')],
       () => new Promise(() => {}), // never settles
       100
     )

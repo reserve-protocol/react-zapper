@@ -35,7 +35,7 @@ msgstr ""
 msgid "Best"
 msgstr ""
 
-#: src/components/zapper.tsx:153
+#: src/components/zapper.tsx:152
 msgid "Buy"
 msgstr ""
 
@@ -43,7 +43,7 @@ msgstr ""
 msgid "Changes to assets inside this DTF"
 msgstr ""
 
-#: src/components/transaction-button.tsx:117
+#: src/components/transaction-button.tsx:120
 msgid "Connect Wallet"
 msgstr ""
 
@@ -55,7 +55,7 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:151
+#: src/components/zap-mint/zap-details.tsx:150
 msgid "Current price"
 msgstr ""
 
@@ -63,7 +63,7 @@ msgstr ""
 msgid "Deep liquidity search"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:143
+#: src/components/zap-mint/zap-details.tsx:142
 msgid "Details"
 msgstr ""
 
@@ -118,16 +118,16 @@ msgstr ""
 msgid "High projected slippage: {0}"
 msgstr ""
 
-#: src/components/zap-mint/submit-zap.tsx:114
+#: src/components/zap-mint/submit-zap.tsx:116
 msgid "Insufficient balance"
 msgstr ""
 
-#: src/components/transaction-button.tsx:95
+#: src/components/transaction-button.tsx:97
 msgid "Insufficient gas balance"
 msgstr ""
 
 #: src/components/zap-mint/submit-zap.tsx:90
-#: src/components/zap-mint/submit-zap.tsx:112
+#: src/components/zap-mint/submit-zap.tsx:114
 msgid "Loading..."
 msgstr ""
 
@@ -143,7 +143,7 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:181
+#: src/components/zap-mint/zap-details.tsx:180
 msgid "Max slippage"
 msgstr ""
 
@@ -151,7 +151,7 @@ msgstr ""
 msgid "Methodology or mandate updates"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:202
+#: src/components/zap-mint/zap-details.tsx:201
 msgid "Min Amount Out"
 msgstr ""
 
@@ -171,11 +171,7 @@ msgstr ""
 msgid "Please report this to help us improve"
 msgstr ""
 
-#: src/components/zap-mint/zap-healthcheck.tsx:29
-msgid "Please try refreshing, or switch to manual minting."
-msgstr ""
-
-#: src/components/zap-mint/zap-details.tsx:170
+#: src/components/zap-mint/zap-details.tsx:169
 msgid "Projected difference (%) between the value you pay and the value you receive, at current prices."
 msgstr ""
 
@@ -183,7 +179,7 @@ msgstr ""
 msgid "Projected proceeds"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:160
+#: src/components/zap-mint/zap-details.tsx:159
 msgid "Projected slippage"
 msgstr ""
 
@@ -191,7 +187,7 @@ msgstr ""
 msgid "Quote expired"
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:221
+#: src/components/zap-mint/zap-details.tsx:220
 msgid "Quote includes fees"
 msgstr ""
 
@@ -219,7 +215,7 @@ msgstr ""
 msgid "Routes"
 msgstr ""
 
-#: src/components/zapper.tsx:156
+#: src/components/zapper.tsx:155
 msgid "Sell"
 msgstr ""
 
@@ -283,15 +279,15 @@ msgstr ""
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:155
+#: src/components/zap-mint/zap-details.tsx:154
 msgid "The current exchange rate between the tokens."
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:225
+#: src/components/zap-mint/zap-details.tsx:224
 msgid "The displayed quote already includes all applicable fees."
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:211
+#: src/components/zap-mint/zap-details.tsx:210
 msgid "The minimum amount of tokens you will receive."
 msgstr ""
 
@@ -308,8 +304,8 @@ msgstr ""
 msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
 msgstr ""
 
-#: src/components/zapper.tsx:134
-#: src/components/zapper.tsx:194
+#: src/components/zapper.tsx:133
+#: src/components/zapper.tsx:192
 msgid "Transaction successful"
 msgstr ""
 
@@ -333,10 +329,6 @@ msgstr ""
 msgid "Waiting for order to fill..."
 msgstr ""
 
-#: src/components/zap-mint/zap-details.tsx:188
+#: src/components/zap-mint/zap-details.tsx:187
 msgid "Worst case: the value difference (%) if the trade executes at the minimum amount out allowed by your slippage tolerance."
-msgstr ""
-
-#: src/components/zap-mint/zap-healthcheck.tsx:24
-msgid "Zaps are currently experiencing issues"
 msgstr ""

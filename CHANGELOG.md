@@ -1,3 +1,14 @@
+## [2.15.0] - 2026-10-29
+
+### Removed
+
+- The `zap` quote provider (the TypeScript zapper). Its service is shut down, so every `zap` request failed, and the Reserve API now serves the Rust zapper on `api/zapper`. `ProviderId` and `QuoteSource` no longer include `'zap'`; hosts passing `defaultSource="zap"`, setting `PROVIDER_ENABLED[chain].zap` or comparing a source with `'zap'` get a compile error. At runtime a stale `'zap'` source still falls back to `'best'`. Equal quotes no longer prefer `zap`: ties go to the first provider in candidate order. Arbitrum has no native provider until the Rust zapper serves it.
+- `useZapHealthcheck` and the "Zaps are currently experiencing issues" banner. The hook polled `{zapperApiUrl}health` every minute, but that response never carried per-chain status, so the banner could never show. Nothing replaces them.
+
+### Changed
+
+- Alpha (`zap2`, the Rust zapper) now quotes through `{zapperApiUrl}api/zapper/{chain}/swap` instead of `api/zapper2/...`. The Reserve API behind `zapperApiUrl` must serve the Rust zapper on `api/zapper` (it keeps `api/zapper2` as a synonym for older widgets). The provider id stays `'zap2'`, so `sourceId` and analytics values are unchanged. A `zapperApiUrl` pointed directly at a Rust zapper host now works, since those hosts only serve `api/zapper`.
+
 ## [2.14.3] - 2026-10-14
 
 ### Fixed

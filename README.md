@@ -202,7 +202,7 @@ import { ZapperI18nProvider, ZapperContent } from '@reserve-protocol/react-zappe
 
 ### Quote Providers
 
-The zapper supports seven quote providers: the Reserve-native `zap`, its Rust successor `zap2` (shown as **Alpha**; proxied by the Reserve API as `api/zapper2`, Ethereum/Base/BSC), two external aggregators — `velora` and `enso` — and three RFQ/intent venues: `cowswap`, `pcsx` (PancakeSwap X, BSC only) and `1inch` (1inch Fusion, built and relayed by the Reserve API so the 1inch key and quota stay server-side). `zap2` competes like an external venue: it gets none of the tie-break preference `zap` has. Every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
+The zapper supports six quote providers: the Reserve-native `zap2` (shown as **Alpha**; the Rust zapper, proxied by the Reserve API as `api/zapper`, Ethereum/Base/BSC), two external aggregators — `velora` and `enso` — and three RFQ/intent venues: `cowswap`, `pcsx` (PancakeSwap X, BSC only) and `1inch` (1inch Fusion, built and relayed by the Reserve API so the 1inch key and quota stay server-side). Every enabled provider is queried in parallel; candidate transactions that don't require a new token approval are then simulated (`eth_estimateGas` through the host's wagmi transport for the target chain) and quotes whose transaction reverts are excluded, with the highest `minAmountOut` among the remaining ones winning. If every simulatable quote reverts, selection falls back to the raw best. Simulation is skipped when the user's balance can't cover the input amount (and doesn't apply to RFQ quotes, which carry no transaction). Individual provider failures are tolerated as long as at least one provider responds.
 
 #### Route list
 
@@ -416,7 +416,6 @@ The package integrates with the Reserve Protocol's zapper API for:
 - Real-time swap quotes
 - Price impact calculations
 - Transaction routing optimization
-- Health status monitoring
 
 ## TypeScript Support
 

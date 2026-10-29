@@ -1,5 +1,4 @@
 import type { ComponentType } from 'react'
-import { Zap } from 'lucide-react'
 import AlphaIcon from '../components/icons/alpha'
 import CowSwapIcon from '../components/icons/cowswap'
 import EnsoIcon from '../components/icons/enso'
@@ -14,7 +13,6 @@ import type { RfqAdapter } from './rfq/types'
 import { AvailableChain, ChainId } from './chains'
 
 export type ProviderId =
-  | 'zap'
   | 'zap2'
   | 'velora'
   | 'enso'
@@ -38,7 +36,7 @@ export interface ProviderConfig {
   Icon: IconComponent
   /**
    * URL slug used by the reserve-api for aggregator providers
-   * (e.g. `velora` => `{apiUrl}velora/swap`). Undefined for the native zap provider.
+   * (e.g. `velora` => `{apiUrl}velora/swap`). Undefined for the native provider.
    */
   apiSlug?: string
   /**
@@ -66,7 +64,6 @@ export const PROVIDER_ENABLED: Partial<
   Record<AvailableChain, Record<ProviderId, boolean>>
 > = {
   [ChainId.Mainnet]: {
-    zap: true,
     zap2: true,
     velora: true,
     enso: true,
@@ -75,7 +72,6 @@ export const PROVIDER_ENABLED: Partial<
     pcsx: false,
   },
   [ChainId.Base]: {
-    zap: true,
     zap2: true,
     velora: true,
     enso: true,
@@ -85,7 +81,6 @@ export const PROVIDER_ENABLED: Partial<
   },
   // The Rust zapper serves Ethereum, Base and BSC only
   [ChainId.Arbitrum]: {
-    zap: true,
     zap2: false,
     velora: true,
     enso: true,
@@ -95,7 +90,6 @@ export const PROVIDER_ENABLED: Partial<
   },
   // PCSX only prices BSC pairs (and only those including an RWA-program token)
   [ChainId.BSC]: {
-    zap: true,
     zap2: true,
     velora: true,
     enso: true,
@@ -136,21 +130,14 @@ const buildZapEndpoint =
   }
 
 export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
-  zap: {
-    id: 'zap',
-    label: 'Zap',
-    kind: 'native',
-    Icon: Zap,
-    buildEndpoint: buildZapEndpoint('zapper'),
-  },
-  // Alpha: the Rust zapper, proxied by reserve-api as `api/zapper2`. Competes
-  // like an outside venue: no tie-break preference (see compareQuotes).
+  // Alpha: the Rust zapper, proxied by reserve-api as `api/zapper`. The id
+  // stays `zap2` so `sourceId` and analytics stay continuous.
   zap2: {
     id: 'zap2',
     label: 'Alpha',
     kind: 'native',
     Icon: AlphaIcon,
-    buildEndpoint: buildZapEndpoint('zapper2'),
+    buildEndpoint: buildZapEndpoint('zapper'),
   },
   velora: {
     id: 'velora',
@@ -198,7 +185,6 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 }
 
 export const ALL_PROVIDER_IDS: ProviderId[] = [
-  'zap',
   'zap2',
   'velora',
   'enso',

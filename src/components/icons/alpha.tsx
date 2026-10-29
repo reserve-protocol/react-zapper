@@ -1,5 +1,5 @@
 // Alpha (the Rust zapper): a single-stroke α drawn on lucide's 24px grid with
-// its stroke settings, so it sits next to the lucide `Zap` bolt at equal weight.
+// its stroke settings, so it sits next to lucide icons at equal weight.
 const AlphaIcon = ({
   className = '',
   size = 16,

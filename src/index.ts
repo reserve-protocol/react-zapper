@@ -8,7 +8,6 @@ export { usePrice } from './hooks/usePrice'
 export { useQuote } from './hooks/useQuote'
 export type { UseQuoteResult, QuoteData, QuoteInput } from './hooks/useQuote'
 export type { ZapResult } from './types/api'
-export { default as useZapHealthcheck } from './hooks/use-zap-healthcheck'
 export * from './utils/tracking'
 export { reducedZappableTokens as zappableTokens } from './utils/constants'
 export {

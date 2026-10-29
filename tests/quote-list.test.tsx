@@ -63,7 +63,7 @@ describe('quote list', () => {
   beforeEach(async () => {
     await harnessBeforeEach()
     // reduce the pool to two providers so the fetch mock stays simple
-    PROVIDER_ENABLED[1] = { zap: true, velora: false, enso: true }
+    PROVIDER_ENABLED[1] = { zap2: true, velora: false, enso: true }
     providerQuotes()
     vi.mocked(mixpanel.track).mockClear()
     vi.mocked(mixpanel.register).mockClear()
@@ -85,10 +85,10 @@ describe('quote list', () => {
     await setup({ quoteSource: 'best', refreshRate: 60_000 })
     await openDetails()
 
-    // zap's quote shows while enso is still absent — rows only appear once
+    // zap2's quote shows while enso is still absent — rows only appear once
     // their quote resolves (no loading skeletons)
     await waitFor(() => {
-      expect(screen.getByTestId('quote-row-zap')).toBeTruthy()
+      expect(screen.getByTestId('quote-row-zap2')).toBeTruthy()
       expect(screen.queryByTestId('quote-row-enso')).toBeNull()
     })
 
@@ -97,7 +97,7 @@ describe('quote list', () => {
     // one sort at round completion: best (enso) on top, Best badge on it,
     // and the winner event agrees
     await waitFor(() => {
-      expect(rowIds()).toEqual(['quote-row-enso', 'quote-row-zap'])
+      expect(rowIds()).toEqual(['quote-row-enso', 'quote-row-zap2'])
       expect(
         within(screen.getByTestId('quote-row-enso')).getByText('Best')
       ).toBeTruthy()
@@ -114,7 +114,7 @@ describe('quote list', () => {
     expect(wonEndpoint()).toContain('enso/swap')
 
     const fetchesBeforePick = scenario.quoteFetches
-    fireEvent.click(screen.getByTestId('quote-row-zap'))
+    fireEvent.click(screen.getByTestId('quote-row-zap2'))
 
     // active switches to the picked source with no new round
     await waitFor(() => expect(wonEndpoint()).toContain('api/zapper'))
@@ -125,7 +125,7 @@ describe('quote list', () => {
       .mocked(mixpanel.register)
       .mock.calls.map((call) => call[0] as Record<string, unknown>)
       .filter((entry) => 'source' in entry)
-    expect(sourceRegs[sourceRegs.length - 1]).toEqual({ source: 'zap' })
+    expect(sourceRegs[sourceRegs.length - 1]).toEqual({ source: 'zap2' })
 
     // pick survives the next refresh round
     await waitFor(
@@ -141,7 +141,7 @@ describe('quote list', () => {
       timeout: 10_000,
     })
     expect(trackedEvents('Quote Source Picked')[0][1]).toMatchObject({
-      source: 'zap',
+      source: 'zap2',
       bestSource: 'enso',
       picked: true,
       isBest: false,
@@ -178,14 +178,14 @@ describe('quote list', () => {
     await waitForReadyCta()
     await openDetails()
 
-    fireEvent.click(screen.getByTestId('quote-row-zap'))
+    fireEvent.click(screen.getByTestId('quote-row-zap2'))
     await waitFor(() => expect(wonEndpoint()).toContain('api/zapper'))
 
     // picked source starts failing -> its row is hidden, active falls back
     zapFails = true
     await waitFor(
       () => {
-        expect(screen.queryByTestId('quote-row-zap')).toBeNull()
+        expect(screen.queryByTestId('quote-row-zap2')).toBeNull()
         expect(wonEndpoint()).toContain('enso/swap')
       },
       { timeout: 15_000 }
@@ -195,7 +195,7 @@ describe('quote list', () => {
     zapFails = false
     await waitFor(
       () => {
-        expect(screen.queryByTestId('quote-row-zap')).not.toBeNull()
+        expect(screen.queryByTestId('quote-row-zap2')).not.toBeNull()
         expect(wonEndpoint()).toContain('api/zapper')
       },
       { timeout: 15_000 }
@@ -207,7 +207,7 @@ describe('quote list', () => {
     await waitForReadyCta()
     await openDetails()
 
-    fireEvent.click(screen.getByTestId('quote-row-zap'))
+    fireEvent.click(screen.getByTestId('quote-row-zap2'))
     await waitFor(() => expect(wonEndpoint()).toContain('api/zapper'))
 
     const input = utils.container.querySelector('input')!
@@ -231,13 +231,13 @@ describe('quote list', () => {
     // expired rows dim (no "Expired" copy anymore) and stop being selectable
     await waitFor(
       () => {
-        const zapRow = screen.getByTestId('quote-row-zap')
+        const zapRow = screen.getByTestId('quote-row-zap2')
         expect(zapRow.getAttribute('aria-disabled')).toBe('true')
       },
       { timeout: 10_000 }
     )
 
-    fireEvent.click(screen.getByTestId('quote-row-zap'))
+    fireEvent.click(screen.getByTestId('quote-row-zap2'))
     await sleep(300)
     expect(wonEndpoint()).toContain('enso/swap')
   })
@@ -270,11 +270,11 @@ describe('quote list', () => {
     await setup({
       quoteSource: 'best',
       refreshRate: 60_000,
-      pickedSource: 'zap',
+      pickedSource: 'zap2',
     })
     await waitForReadyCta()
 
-    // zap is active from the seed even though enso wins the round
+    // zap2 is active from the seed even though enso wins the round
     expect(wonEndpoint()).toContain('api/zapper')
     expect(trackedEvents('Quote Source Picked')).toHaveLength(0)
   })
