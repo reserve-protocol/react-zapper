@@ -784,7 +784,7 @@ const ethBalance = {
 }
 
 export const setup = async ({
-  quoteSource = 'zap',
+  quoteSource = 'zap2',
   inputAmount = '1',
   inputToken,
   chain: chainName = 'mainnet',

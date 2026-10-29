@@ -4,8 +4,8 @@ import type { RfqOrder } from '../utils/rfq/types'
 // Default API URL - can be overridden via config
 export const DEFAULT_API_URL = 'https://api.reserve.org/'
 
-// `service` selects the reserve-api proxy slug: `zapper` (TS zapper) or
-// `zapper2` (Rust zapper). Both serve the same swap contract.
+// `service` selects the reserve-api proxy slug. `zapper` is the Rust zapper;
+// `zapper2` is a synonym for it.
 const getBaseZapApiUrl = (url: string, chain: number, service = 'zapper') =>
   url + `api/${service}/${chain}`
 
@@ -139,12 +139,6 @@ const zapper = {
     }: ZapPayload
   ) =>
     `${url}${source}/swap?chainId=${chainId}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}&slippage=${slippage}&signer=${signer}`,
-
-  zapDeploy: (url: string, chainId: number) =>
-    `${getBaseZapApiUrl(url, chainId)}/deploy?chainId=${chainId}`,
-
-  zapDeployUngoverned: (url: string, chainId: number) =>
-    `${getBaseZapApiUrl(url, chainId)}/deploy-ungoverned?chainId=${chainId}`,
 
   report: (url: string) => `${url}zapper/report`,
 

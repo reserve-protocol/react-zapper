@@ -11,7 +11,7 @@ import {
  * aggregator/RFQ sources don't exercise the zapper itself, and quoting every
  * source for every DTF on a refresh interval would hit their rate limits.
  */
-export const QUOTE_SOURCE = 'zap' as const
+export const QUOTE_SOURCE = 'zap2' as const
 
 /** Folio (DTF) tokens are always 18 decimals. */
 export const DTF_DECIMALS = 18

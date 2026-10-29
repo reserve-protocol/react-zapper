@@ -35,7 +35,7 @@ msgstr "잔액"
 msgid "Best"
 msgstr "최적"
 
-#: src/components/zapper.tsx:153
+#: src/components/zapper.tsx:152
 msgid "Buy"
 msgstr "매수"
 
@@ -43,7 +43,7 @@ msgstr "매수"
 msgid "Changes to assets inside this DTF"
 msgstr "이 DTF 내 자산 변경"
 
-#: src/components/transaction-button.tsx:117
+#: src/components/transaction-button.tsx:120
 msgid "Connect Wallet"
 msgstr "Wallet 연결"
 
@@ -55,7 +55,7 @@ msgstr "클립보드에 복사되었습니다!"
 msgid "Copy to clipboard"
 msgstr "클립보드에 복사"
 
-#: src/components/zap-mint/zap-details.tsx:151
+#: src/components/zap-mint/zap-details.tsx:150
 msgid "Current price"
 msgstr "현재 가격"
 
@@ -63,7 +63,7 @@ msgstr "현재 가격"
 msgid "Deep liquidity search"
 msgstr "심층 유동성 검색"
 
-#: src/components/zap-mint/zap-details.tsx:143
+#: src/components/zap-mint/zap-details.tsx:142
 msgid "Details"
 msgstr "상세 정보"
 
@@ -118,16 +118,16 @@ msgstr "높은 더스트 가치: ${0} (출력 가치의 {1})"
 msgid "High projected slippage: {0}"
 msgstr "높은 예상 슬리피지: {0}"
 
-#: src/components/zap-mint/submit-zap.tsx:114
+#: src/components/zap-mint/submit-zap.tsx:116
 msgid "Insufficient balance"
 msgstr "잔액이 부족합니다"
 
-#: src/components/transaction-button.tsx:95
+#: src/components/transaction-button.tsx:97
 msgid "Insufficient gas balance"
 msgstr "가스 잔액 부족"
 
 #: src/components/zap-mint/submit-zap.tsx:90
-#: src/components/zap-mint/submit-zap.tsx:112
+#: src/components/zap-mint/submit-zap.tsx:114
 msgid "Loading..."
 msgstr "로딩 중..."
 
@@ -143,7 +143,7 @@ msgstr "시장가 매도"
 msgid "Max"
 msgstr "최대"
 
-#: src/components/zap-mint/zap-details.tsx:181
+#: src/components/zap-mint/zap-details.tsx:180
 msgid "Max slippage"
 msgstr "최대 슬리피지"
 
@@ -151,7 +151,7 @@ msgstr "최대 슬리피지"
 msgid "Methodology or mandate updates"
 msgstr "방법론 또는 강령 업데이트"
 
-#: src/components/zap-mint/zap-details.tsx:202
+#: src/components/zap-mint/zap-details.tsx:201
 msgid "Min Amount Out"
 msgstr "최소 수령 수량"
 
@@ -171,11 +171,7 @@ msgstr "견적 가격과 체결 가격 간 허용되는 가격 편차(%)"
 msgid "Please report this to help us improve"
 msgstr "개선에 도움이 되도록 신고해 주세요"
 
-#: src/components/zap-mint/zap-healthcheck.tsx:29
-msgid "Please try refreshing, or switch to manual minting."
-msgstr "새로고침하거나 수동 Mint로 전환해 주세요."
-
-#: src/components/zap-mint/zap-details.tsx:170
+#: src/components/zap-mint/zap-details.tsx:169
 msgid "Projected difference (%) between the value you pay and the value you receive, at current prices."
 msgstr "현재 가격 기준으로 지불하는 가치와 받는 가치 간의 예상 차이(%)입니다."
 
@@ -183,7 +179,7 @@ msgstr "현재 가격 기준으로 지불하는 가치와 받는 가치 간의 �
 msgid "Projected proceeds"
 msgstr "예상 수령액"
 
-#: src/components/zap-mint/zap-details.tsx:160
+#: src/components/zap-mint/zap-details.tsx:159
 msgid "Projected slippage"
 msgstr "예상 슬리피지"
 
@@ -191,7 +187,7 @@ msgstr "예상 슬리피지"
 msgid "Quote expired"
 msgstr "견적 만료됨"
 
-#: src/components/zap-mint/zap-details.tsx:221
+#: src/components/zap-mint/zap-details.tsx:220
 msgid "Quote includes fees"
 msgstr "견적에 수수료 포함"
 
@@ -219,7 +215,7 @@ msgstr "경로 옵션"
 msgid "Routes"
 msgstr "경로"
 
-#: src/components/zapper.tsx:156
+#: src/components/zapper.tsx:155
 msgid "Sell"
 msgstr "매도"
 
@@ -283,15 +279,15 @@ msgstr "상환 성공"
 msgid "Thanks for getting involved, we’re excited to have you! We’ll reach out with any important updates on this DTF."
 msgstr "참여해 주셔서 감사합니다. 함께하게 되어 기쁩니다! 이 DTF에 대한 중요한 업데이트가 있으면 연락드리겠습니다."
 
-#: src/components/zap-mint/zap-details.tsx:155
+#: src/components/zap-mint/zap-details.tsx:154
 msgid "The current exchange rate between the tokens."
 msgstr "토큰 간 현재 환율입니다."
 
-#: src/components/zap-mint/zap-details.tsx:225
+#: src/components/zap-mint/zap-details.tsx:224
 msgid "The displayed quote already includes all applicable fees."
 msgstr "표시된 견적에는 적용되는 모든 수수료가 이미 포함되어 있습니다."
 
-#: src/components/zap-mint/zap-details.tsx:211
+#: src/components/zap-mint/zap-details.tsx:210
 msgid "The minimum amount of tokens you will receive."
 msgstr "받게 될 최소 토큰 수량입니다."
 
@@ -308,8 +304,8 @@ msgstr "이 DTF에는 DEX 유동성이 상대적으로 낮은 자산이 포함�
 msgid "This trade results in a large amount of dust, meaning you will receive {0} of the value in individual assets, with the remaining in {tokenOutSymbol}."
 msgstr "이 거래는 많은 양의 더스트를 발생시킵니다. 즉, 가치의 {0}를 개별 자산으로 받고 나머지는 {tokenOutSymbol}(으)로 받게 됩니다."
 
-#: src/components/zapper.tsx:134
-#: src/components/zapper.tsx:194
+#: src/components/zapper.tsx:133
+#: src/components/zapper.tsx:192
 msgid "Transaction successful"
 msgstr "트랜잭션 성공"
 
@@ -333,10 +329,6 @@ msgstr "잠시 후 다시 시도하거나 수동 모드 사용을 고려하세�
 msgid "Waiting for order to fill..."
 msgstr "주문 체결 대기 중..."
 
-#: src/components/zap-mint/zap-details.tsx:188
+#: src/components/zap-mint/zap-details.tsx:187
 msgid "Worst case: the value difference (%) if the trade executes at the minimum amount out allowed by your slippage tolerance."
 msgstr "최악의 경우: 슬리피지 허용치가 허용하는 최소 수령량으로 체결될 때의 가치 차이(%)입니다."
-
-#: src/components/zap-mint/zap-healthcheck.tsx:24
-msgid "Zaps are currently experiencing issues"
-msgstr "현재 Zap에 문제가 발생하고 있습니다"

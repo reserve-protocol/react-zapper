@@ -54,16 +54,12 @@ const ZAPPER_API_URLS = [
     value: 'https://api-staging.reserve.org/',
   },
   {
-    label: 'ZRS-1',
-    value: 'https://zrs-1.reserve-api.com/',
+    label: 'ZRS-Router',
+    value: 'https://zrs-router.reserve-api.com/',
   },
   {
-    label: 'ZRS-2',
-    value: 'https://zrs-2.reserve-api.com/',
-  },
-  {
-    label: 'ZRS-3',
-    value: 'https://zrs-3.reserve-api.com/',
+    label: 'ZRSX-1',
+    value: 'https://zrsx-1.reserve-api.com/',
   },
   {
     label: 'Local',
@@ -268,7 +264,7 @@ function App() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Zapper service endpoint (swap, deploy, healthcheck)
+                      Zapper service endpoint (swap)
                     </p>
                   </div>
                   <div>

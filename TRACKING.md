@@ -62,7 +62,7 @@ Main event for tracking swap/zap operations.
   - `'user_tx_error'`: Transaction execution error on blockchain
 - `tokenIn`: Input token address
 - `tokenOut`: Output token address
-- `source`: winning provider id (e.g. 'zap', 'velora')
+- `source`: winning provider id (e.g. 'zap2', 'velora')
 - `error`: HTTP error code (only when status='error')
 - `userError`: Error message (only when status='user_error' or 'user_tx_error')
 - `amountInValue`: Input amount (when result available)
@@ -83,9 +83,9 @@ Tracks which quote source won each comparison round (the automatic best).
 
 #### Properties:
 
-- `source`: winning provider id (e.g. 'zap', 'velora')
+- `source`: winning provider id (e.g. 'zap2', 'velora')
 - `reason`: Why this source was selected
-  - `'only_<source>_available'`: Only one provider survived the round (e.g. `only_zap_available`)
+  - `'only_<source>_available'`: Only one provider survived the round (e.g. `only_zap2_available`)
   - `'better_output'`: This source provided the best minAmountOut value
 - `winningMinAmountOut`: The winner's minimum output amount (multi-candidate rounds)
 - `comparedProviders`: Comma-joined provider ids that competed (multi-candidate rounds)
@@ -225,7 +225,7 @@ These properties are registered globally using `mixpanelRegister()` and automati
 ### Source
 
 - **Property**: `source`
-- **Values**: provider id (e.g. 'zap', 'velora', 'enso')
+- **Values**: provider id (e.g. 'zap2', 'velora', 'enso')
 - **Generation Triggers**:
   - When the active quote changes (round completion, user pick from the route list, or fallback)
 - **Purpose**: Track which source was ultimately used
@@ -233,7 +233,7 @@ These properties are registered globally using `mixpanelRegister()` and automati
 ### Best Source
 
 - **Property**: `bestSource`
-- **Values**: provider id (e.g. 'zap', 'velora', 'enso')
+- **Values**: provider id (e.g. 'zap2', 'velora', 'enso')
 - **Generation Triggers**:
   - When a comparison round completes with a winner
 - **Purpose**: Compare the active (possibly user-picked) source against the automatic best on any downstream event

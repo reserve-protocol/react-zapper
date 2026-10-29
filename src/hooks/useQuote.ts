@@ -18,7 +18,7 @@ export interface QuoteData {
   /** Active provider quote result (the user's pick from the quote list, or
    * the best). `undefined` until a quote resolves. */
   quote: ZapResult | undefined
-  /** Active provider id (e.g. `zap`, `velora`). `undefined` until a quote resolves. */
+  /** Active provider id (e.g. `zap2`, `velora`). `undefined` until a quote resolves. */
   source: ProviderId | undefined
 }
 

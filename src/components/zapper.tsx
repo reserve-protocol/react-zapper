@@ -28,7 +28,6 @@ import Buy from './zap-mint/buy'
 import LowLiquidityWarning from './zap-mint/low-liquidity-warning'
 import RefreshQuote from './zap-mint/refresh-quote'
 import Sell from './zap-mint/sell'
-import ZapHealthcheck from './zap-mint/zap-healthcheck'
 import ZapSuccessView from './zap-mint/zap-success-view'
 
 interface ZapperContentProps {
@@ -174,7 +173,6 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
 
           <div className="flex flex-col">
             <LowLiquidityWarning className="mt-2" />
-            <ZapHealthcheck className="mt-2" />
             <TabsContent value="buy">
               <Buy mode="inline" disabled={disabled} />
             </TabsContent>
@@ -200,7 +198,6 @@ const ZapperContent: React.FC<ZapperContentProps> = ({
       {navHeader}
       <div className="flex flex-col gap-2">
         <LowLiquidityWarning />
-        <ZapHealthcheck />
         {effectiveTab === 'buy' ? (
           <Buy disabled={disabled} />
         ) : (

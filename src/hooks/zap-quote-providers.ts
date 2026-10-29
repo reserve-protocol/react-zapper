@@ -178,7 +178,7 @@ const buildProviderUrl = (
   provider: ProviderConfig,
   params: EndpointContext
 ): string | null => {
-  // The zap provider talks to the zapper service URL; aggregators talk to the
+  // Native providers talk to the zapper service URL; aggregators talk to the
   // reserve API URL.
   const { apiUrl, zapperApiUrl, ...rest } = params
   const url = provider.kind === 'native' ? zapperApiUrl : apiUrl
@@ -420,24 +420,19 @@ const parseMinOut = (q: ProviderQuote): bigint => {
 
 /**
  * Sort comparator matching `pickBestQuote`'s selection: higher `minAmountOut`
- * first, ties prefer `zap`, otherwise stable. Sorting with this comparator
- * puts the round winner at index 0, so list ordering can never disagree with
- * the `Quote Source Winner` event. `zap2` (the Rust zapper) deliberately gets
- * no preference: it competes like an outside venue.
+ * first, otherwise stable. Sorting with this comparator puts the round winner
+ * at index 0, so list ordering can never disagree with the
+ * `Quote Source Winner` event.
  */
 export const compareQuotes = (a: ProviderQuote, b: ProviderQuote): number => {
   const amountA = parseMinOut(a)
   const amountB = parseMinOut(b)
   if (amountA !== amountB) return amountA > amountB ? -1 : 1
-  if (a.source === 'zap' && b.source !== 'zap') return -1
-  if (b.source === 'zap' && a.source !== 'zap') return 1
   return 0
 }
 
 /**
- * Selects the best quote by `minAmountOut`. Ties go to `zap` to preserve
- * historical behaviour (never to `zap2`); if no `zap` quote is in the list,
- * the first candidate wins the tie.
+ * Selects the best quote by `minAmountOut`. Ties go to the first candidate.
  */
 const pickBestQuote = (
   quotes: ProviderQuote[],
@@ -461,9 +456,6 @@ const pickBestQuote = (
     const candidate = quotes[i]
     const amount = parseMinOut(candidate)
     if (amount > bestAmount) {
-      best = candidate
-      bestAmount = amount
-    } else if (amount === bestAmount && candidate.source === 'zap') {
       best = candidate
       bestAmount = amount
     }

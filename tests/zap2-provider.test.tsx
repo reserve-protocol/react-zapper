@@ -1,7 +1,6 @@
 /**
- * `zap2`: the Rust zapper as a second native source, routed through the
- * reserve-api `api/zapper2/{chain}/swap` endpoint. It competes like any
- * outside venue: no tie-break preference, same query string as `zap`.
+ * `zap2` (Alpha): the Rust zapper as the native source, routed through the
+ * reserve-api `api/zapper/{chain}/swap` endpoint.
  */
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -19,13 +18,13 @@ import {
   ZAP_ROUTER,
 } from './helpers/harness'
 
-const ZAP_DATA = '0xaaaa0001'
+const ENSO_DATA = '0xbbbb0002'
 const ZAP2_DATA = '0xcccc0003'
-const ZAP_MIN_OUT = '995000000000000000000'
+const ENSO_MIN_OUT = '995000000000000000000'
 const ZAP2_MIN_OUT = '999000000000000000000'
 
-const zapQuote = () =>
-  makeQuote({ tx: { data: ZAP_DATA, to: ZAP_ROUTER, value: '1000000000000000000' } })
+const ensoQuote = () =>
+  makeQuote({ tx: { data: ENSO_DATA, to: ZAP_ROUTER, value: '1000000000000000000' } })
 const zap2Quote = (minAmountOut = ZAP2_MIN_OUT) =>
   makeQuote({
     amountOut: '1010000000000000000000',
@@ -52,15 +51,14 @@ describe('zap2 provider', () => {
   beforeEach(async () => {
     await harnessBeforeEach()
     PROVIDER_ENABLED[1] = {
-      zap: true,
       zap2: true,
       velora: false,
-      enso: false,
+      enso: true,
       cowswap: false,
       pcsx: false,
     }
     setQuoteBuilder((url) =>
-      url.includes('api/zapper2/') ? zap2Quote() : zapQuote()
+      url.includes('api/zapper/') ? zap2Quote() : ensoQuote()
     )
   })
 
@@ -69,13 +67,13 @@ describe('zap2 provider', () => {
     await harnessAfterEach()
   })
 
-  it('quotes through api/zapper2 with the same query as zap', async () => {
+  it('quotes through api/zapper', async () => {
     await setup({ quoteSource: 'zap2' })
     await waitForReadyCta()
 
     const endpoint = wonEndpoint()
-    expect(endpoint).toContain('api/zapper2/1/swap?')
-    expect(endpoint).not.toContain('api/zapper/')
+    expect(endpoint).toContain('api/zapper/1/swap?')
+    expect(endpoint).not.toContain('api/zapper2/')
     const params = new URL(endpoint).searchParams
     for (const key of ['chainId', 'signer', 'tokenIn', 'amountIn', 'tokenOut', 'slippage', 'trade']) {
       expect(params.get(key), key).not.toBeNull()
@@ -90,13 +88,13 @@ describe('zap2 provider', () => {
     expect(scenario.sentTransactions.at(-1)).toMatchObject({ data: ZAP2_DATA })
   })
 
-  it('wins the round on a better minAmountOut, next to the zap row', async () => {
+  it('shows as Alpha with the Best badge, next to the enso row', async () => {
     await setup({ quoteSource: 'best', refreshRate: 60_000 })
     await waitForReadyCta()
     await openDetails()
 
     await waitFor(() => {
-      expect(rowIds()).toEqual(['quote-row-zap2', 'quote-row-zap'])
+      expect(rowIds()).toEqual(['quote-row-zap2', 'quote-row-enso'])
       expect(
         within(screen.getByTestId('quote-row-zap2')).getByText('Best')
       ).toBeTruthy()
@@ -105,24 +103,23 @@ describe('zap2 provider', () => {
     expect(
       within(screen.getByTestId('quote-row-zap2')).getByText('Alpha')
     ).toBeTruthy()
-    expect(wonEndpoint()).toContain('api/zapper2/1/swap')
+    expect(wonEndpoint()).toContain('api/zapper/1/swap')
   })
 
-  it('gets no tie-break preference: an equal minAmountOut goes to zap', async () => {
+  it('wins an equal minAmountOut as the first candidate', async () => {
     setQuoteBuilder((url) =>
-      url.includes('api/zapper2/') ? zap2Quote(ZAP_MIN_OUT) : zapQuote()
+      url.includes('api/zapper/') ? zap2Quote(ENSO_MIN_OUT) : ensoQuote()
     )
     await setup({ quoteSource: 'best', refreshRate: 60_000 })
     await waitForReadyCta()
     await openDetails()
 
     await waitFor(() => {
-      expect(rowIds()).toEqual(['quote-row-zap', 'quote-row-zap2'])
+      expect(rowIds()).toEqual(['quote-row-zap2', 'quote-row-enso'])
       expect(
-        within(screen.getByTestId('quote-row-zap')).getByText('Best')
+        within(screen.getByTestId('quote-row-zap2')).getByText('Best')
       ).toBeTruthy()
     })
     expect(wonEndpoint()).toContain('api/zapper/1/swap')
-    expect(wonEndpoint()).not.toContain('api/zapper2/')
   })
 })
