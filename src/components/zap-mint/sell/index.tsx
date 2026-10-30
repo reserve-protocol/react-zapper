@@ -2,7 +2,7 @@ import { useLingui } from '@lingui/react/macro'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
-import { formatEther, formatUnits, parseEther } from 'viem'
+import { formatEther, formatUnits } from 'viem'
 import { usePrice } from '../../../hooks/usePrice'
 import useZapSwapQuery from '../../../hooks/useZapSwapQuery'
 import {
@@ -17,6 +17,7 @@ import { Token } from '../../../types'
 import {
   formatCurrency,
   formatOutputAmount,
+  parseAmount,
   resetTempRegistrations,
   useTrackQuoteErrorUX,
 } from '../../../utils'
@@ -82,7 +83,7 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     setOutputToken(token)
   }
 
-  const inputAmountWei = inputAmount ? parseEther(inputAmount) : 0n
+  const inputAmountWei = parseAmount(inputAmount, 18)
   const insufficientBalance =
     !!account && inputAmountWei > indexDTFBalance
 

@@ -17,6 +17,7 @@ import { Token } from '../../../types'
 import {
   formatCurrency,
   formatOutputAmount,
+  parseAmount,
   resetTempRegistrations,
   useTrackQuoteErrorUX,
 } from '../../../utils'
@@ -80,9 +81,7 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
     setInputToken(token)
   }
 
-  const inputAmountUnits = inputAmount
-    ? parseUnits(inputAmount, selectedToken.decimals)
-    : 0n
+  const inputAmountUnits = parseAmount(inputAmount, selectedToken.decimals)
   const insufficientBalance =
     !!account &&
     inputAmountUnits >
