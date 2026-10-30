@@ -1,3 +1,9 @@
+## [2.15.1] - 2026-10-30
+
+### Fixed
+
+- The widget no longer crashes on hosts running viem 2.57 or later when the amount field is empty or holds only a "." (e.g. while typing ".5"). Those viem versions reject such values when parsing units, and the buy and sell views parsed the raw input on every render. Partial input now counts as zero until it is a number.
+
 ## [2.15.0] - 2026-10-29
 
 ### Removed
