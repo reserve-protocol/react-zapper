@@ -1,4 +1,4 @@
-import { getAddress } from 'viem'
+import { getAddress, parseUnits } from 'viem'
 
 export function formatCurrency(
   value: number,
@@ -98,4 +98,13 @@ export function formatElapsedTime(seconds: number): string {
   const hours = Math.floor(minutes / 60)
   const m = minutes % 60
   return m > 0 ? `${hours}h ${m}m` : `${hours}h`
+}
+
+// Partial input like '' or '.' isn't a number yet; viem 2.57+ throws on it.
+export function parseAmount(value: string, decimals: number): bigint {
+  try {
+    return parseUnits(value, decimals)
+  } catch {
+    return 0n
+  }
 }
