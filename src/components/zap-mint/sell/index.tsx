@@ -82,14 +82,15 @@ const Sell = ({ mode = 'modal', sellOnly, disabled }: SellProps) => {
     setOutputToken(token)
   }
 
+  const inputAmountWei = inputAmount ? parseEther(inputAmount) : 0n
   const insufficientBalance =
-    !!account && parseEther(inputAmount) > indexDTFBalance
+    !!account && inputAmountWei > indexDTFBalance
 
   const { data, isLoading, isFetching, refetch, failureReason, sourcing } =
     useZapSwapQuery({
       tokenIn: indexDTF?.id,
       tokenOut: selectedToken.address,
-      amountIn: parseEther(inputAmount).toString(),
+      amountIn: inputAmountWei.toString(),
       slippage: Number(slippage),
       disabled: ongoingTx,
       forceMint,

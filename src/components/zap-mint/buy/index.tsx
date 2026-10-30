@@ -80,16 +80,19 @@ const Buy = ({ mode = 'modal', disabled }: BuyProps) => {
     setInputToken(token)
   }
 
+  const inputAmountUnits = inputAmount
+    ? parseUnits(inputAmount, selectedToken.decimals)
+    : 0n
   const insufficientBalance =
     !!account &&
-    parseUnits(inputAmount, selectedToken.decimals) >
+    inputAmountUnits >
       parseUnits(selectedTokenBalance?.balance || '0', selectedToken.decimals)
 
   const { data, isLoading, isFetching, refetch, failureReason, sourcing } =
     useZapSwapQuery({
       tokenIn: selectedToken.address,
       tokenOut: indexDTF?.id,
-      amountIn: parseUnits(inputAmount, selectedToken.decimals).toString(),
+      amountIn: inputAmountUnits.toString(),
       slippage: isFinite(Number(slippage)) ? Number(slippage) : 10000,
       disabled: ongoingTx,
       forceMint,
