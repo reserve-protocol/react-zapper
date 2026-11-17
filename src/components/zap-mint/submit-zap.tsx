@@ -213,7 +213,7 @@ const SubmitZapButton = ({
   const {
     data,
     isPending: loadingTx,
-    sendTransaction,
+    mutate: sendTransaction,
     error: sendError,
     isError: isErrorSend,
   } = useSendTransaction()

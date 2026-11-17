@@ -3,7 +3,7 @@ import { chainIdAtom, connectWalletAtom } from '@/state/atoms'
 import { useAtomValue } from 'jotai'
 import { Loader } from 'lucide-react'
 import React from 'react'
-import { useAccount, useBalance, useSwitchChain } from 'wagmi'
+import { useConnection, useBalance, useSwitchChain } from 'wagmi'
 import { cn } from '../utils/cn'
 import { Button } from './ui/button'
 
@@ -32,12 +32,12 @@ export function TransactionButton({
   variant = 'default',
   size = 'lg',
 }: TransactionButtonProps) {
-  const account = useAccount()
+  const account = useConnection()
   const chainId = useAtomValue(chainIdAtom)
   const walletChainId = account.chain?.id
   const isConnected = account.isConnected
   const isWrongChain = walletChainId && walletChainId !== chainId
-  const { switchChainAsync } = useSwitchChain()
+  const { mutateAsync: switchChainAsync } = useSwitchChain()
   const [switching, setSwitching] = React.useState(false)
 
   const { data: balance } = useBalance({
@@ -133,7 +133,7 @@ export function TransactionButtonContainer({
   connectLabel?: React.ReactNode
   connectClassName?: string
 }) {
-  const account = useAccount()
+  const account = useConnection()
 
   if (!account.isConnected) {
     return (

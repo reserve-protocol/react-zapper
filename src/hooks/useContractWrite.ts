@@ -36,9 +36,11 @@ const useContractWrite = <
     TFunctionName
   > = {} as UseSimulateContractParameters<TAbi, TFunctionName>
 ): UseContractWriteResult => {
-  const { data, error, isSuccess } = useSimulateContract(
-    call as UseSimulateContractParameters
-  )
+  const { data, error, isSuccess } = useSimulateContract<
+    Abi,
+    string,
+    readonly unknown[]
+  >(call as UseSimulateContractParameters<Abi, string, readonly unknown[]>)
 
   const enabled =
     call?.query?.enabled !== undefined ? call?.query?.enabled : true
@@ -73,7 +75,7 @@ const useContractWrite = <
   )
 
   const contractWrite = useWriteContract()
-  const { writeContract } = contractWrite
+  const { mutate: writeContract } = contractWrite
 
   const handleWrite = useCallback(() => {
     if (data?.request && gas) {

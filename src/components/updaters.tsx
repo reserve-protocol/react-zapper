@@ -2,7 +2,7 @@ import { AvailableChain } from '@/utils/chains'
 import { useQuery } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom, useStore } from 'jotai'
 import React, { useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useConnection } from 'wagmi'
 import { useIndexBasket } from '../hooks/use-index-basket'
 import { useIndexDTF } from '../hooks/use-index-dtf'
 import {
@@ -173,7 +173,7 @@ const ChainIdUpdater: React.FC<{ chainId: AvailableChain }> = ({ chainId }) => {
 
 const WalletUpdater = () => {
   const setWallet = useSetAtom(walletAtom)
-  const { address } = useAccount()
+  const { address } = useConnection()
 
   useEffect(() => {
     setWallet(address)
