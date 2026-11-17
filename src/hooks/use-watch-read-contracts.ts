@@ -16,6 +16,8 @@ import {
 } from 'wagmi'
 import { type ReadContractData, type ReadContractsData } from 'wagmi/query'
 
+type ContractCall = { abi?: unknown; address?: unknown; functionName?: unknown }
+
 const REFRESH_BLOCKS = {
   [ChainId.Mainnet]: 1n,
   [ChainId.Base]: 2n,
@@ -76,7 +78,20 @@ export function useWatchReadContracts<
     selectData
   > = {}
 ): UseReadContractsReturnType<contracts, allowFailure, selectData> {
-  const result = useReadContracts(parameters)
+  const contracts = (parameters.contracts ?? []) as readonly ContractCall[]
+  const isReady =
+    contracts.length > 0 &&
+    contracts.every(
+      ({ abi, address, functionName }) => abi && address && functionName
+    )
+  // wagmi v3 dropped v2's guard that skipped the query while a contract had no address.
+  const result = useReadContracts({
+    ...parameters,
+    query: {
+      ...parameters.query,
+      enabled: Boolean(isReady && (parameters.query?.enabled ?? true)),
+    },
+  } as typeof parameters)
   const shouldRefresh = useShouldRefresh(
     (parameters.contracts?.[0] as { chainId?: number } | undefined)?.chainId
   )
