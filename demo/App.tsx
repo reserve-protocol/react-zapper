@@ -1,4 +1,3 @@
-import { ConnectButton } from 'solariskit'
 import {
   useZapperModal,
   PROVIDERS,
@@ -8,6 +7,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import { useChains } from 'wagmi'
 import { Moon, Sun } from 'lucide-react'
+import ConnectButton from './components/connect-button'
 import { Button } from './components/ui/button'
 import {
   Card,

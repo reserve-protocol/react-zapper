@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'
-import { ConnectButton } from 'solariskit'
 import { Moon, RefreshCw, Sun } from 'lucide-react'
 import { useConnection } from 'wagmi'
 import { zappableTokens } from '@reserve-protocol/react-zapper'
 import { AvailableChain, CHAIN_TAGS, ChainId } from '@/utils/chains'
 import { usePrice } from '@/hooks/usePrice'
+import ConnectButton from './components/connect-button'
 import { Button } from './components/ui/button'
 import {
   Card,
