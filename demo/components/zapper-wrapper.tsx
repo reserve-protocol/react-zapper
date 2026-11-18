@@ -1,7 +1,7 @@
-import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { useConnectModal } from 'solariskit'
 import { Zapper, ZapperProps } from '@reserve-protocol/react-zapper'
 import React from 'react'
-import { useAccount } from 'wagmi'
+import { useConnection } from 'wagmi'
 
 const ZapperWithConnect = (props: ZapperProps) => {
   const { openConnectModal } = useConnectModal()
@@ -9,7 +9,7 @@ const ZapperWithConnect = (props: ZapperProps) => {
 }
 
 const ZapperWrapper = (props: ZapperProps) => {
-  const { isConnected } = useAccount()
+  const { isConnected } = useConnection()
 
   if (!isConnected) {
     return <ZapperWithConnect {...props} />

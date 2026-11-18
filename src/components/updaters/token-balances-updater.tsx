@@ -107,7 +107,7 @@ export const TokenBalancesUpdater = () => {
       }, {} as Record<string, TokenBalance>)
 
       balances[ethAddress] = {
-        balance: balance ? balance.formatted : '0',
+        balance: balance ? formatUnits(balance.value, balance.decimals) : '0',
         value: balance ? balance.value : 0n,
         decimals: 18,
       }
@@ -157,7 +157,7 @@ export const TokenBalancesUpdater = () => {
     }
 
     const formatted: Record<string, string> = {
-      [ethAddress.toLowerCase()]: balance.formatted,
+      [ethAddress.toLowerCase()]: formatUnits(balance.value, balance.decimals),
     }
     tokens.forEach(([address, decimals], index) => {
       formatted[address.toLowerCase()] = formatUnits(data[index], decimals)

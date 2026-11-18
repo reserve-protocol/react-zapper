@@ -50,8 +50,8 @@ const useRfqOrderExecution = ({
   const account = useAtomValue(walletAtom)
   const indexDTF = useAtomValue(indexDTFAtom)
   const currentTab = useAtomValue(zapperCurrentTabAtom)
-  const { signTypedDataAsync } = useSignTypedData()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { mutateAsync: signTypedDataAsync } = useSignTypedData()
+  const { mutateAsync: sendTransactionAsync } = useSendTransaction()
   const wagmiConfig = useConfig()
 
   const [phase, setPhase] = useState<RfqExecutionPhase>('idle')

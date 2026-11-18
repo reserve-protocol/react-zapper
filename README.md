@@ -1,6 +1,6 @@
 # @reserve-protocol/react-zapper
 
-A React component library for integrating DTF (Decentralized Token Folio) zap functionality into your Web3 applications. This package provides a complete zapping solution with support for both modal and inline modes, built on top of Wagmi v2.
+A React component library for integrating DTF (Decentralized Token Folio) zap functionality into your Web3 applications. This package provides a complete zapping solution with support for both modal and inline modes, built on top of Wagmi v3.
 
 **📖 [Live Demo](https://react-zapper.reserve.org/)**
 
@@ -9,7 +9,7 @@ A React component library for integrating DTF (Decentralized Token Folio) zap fu
 - 🔄 **Zap Minting**: Convert any supported token directly into DTF tokens
 - 🔄 **Zap Redeeming**: Convert DTF tokens back to any supported token
 - 🎨 **Flexible UI**: Three display modes - modal popup, inline embedded, and simple launcher
-- 🎯 **Modern Stack**: Built with Wagmi v2, Viem, RainbowKit v2, and TanStack Query v5
+- 🎯 **Modern Stack**: Built with Wagmi v3, Viem, and TanStack Query v5
 - ⚡ **Optimized**: Real-time price updates and slippage protection
 - 👀 **Browse before connecting**: quotes work without a wallet; the CTA prompts the connect flow
 - 🛡️ **Type Safe**: Full TypeScript support
@@ -26,7 +26,7 @@ pnpm add @reserve-protocol/react-zapper
 Make sure you have these peer dependencies installed:
 
 ```bash
-pnpm add react@^18.0.0 react-dom@^18.0.0 @tanstack/react-query@^5.87.4 wagmi@^2.19.0 viem@^2.50.0
+pnpm add react@^18.0.0 react-dom@^18.0.0 @tanstack/react-query@^5.87.4 wagmi@^3.0.0 viem@^2.50.0
 ```
 
 The Zapper consumes your application's existing `wagmi` and `@tanstack/react-query`
@@ -61,7 +61,7 @@ module.exports = {
 
 The Zapper reads `wagmi` and `@tanstack/react-query` from React context, so wrap
 your app once with your own `WagmiProvider` and `QueryClientProvider`. This is the
-standard wagmi v2 setup — the same providers your app already uses.
+standard wagmi v3 setup — the same providers your app already uses.
 
 ```tsx
 import { WagmiProvider } from 'wagmi'
@@ -356,7 +356,7 @@ Submissions fail silently for the user and emit Mixpanel events
 ### With Custom Wallet Connection
 
 ```tsx
-import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { useConnectModal } from 'solariskit'
 
 function ZapperWithCustomWallet() {
   const { openConnectModal } = useConnectModal()

@@ -1,3 +1,10 @@
+## [3.0.0] - 2026-11-17
+
+### Changed
+
+- The widget now runs on wagmi v3. The `wagmi` peer dependency is `^3.0.0`; hosts still on wagmi v2 must stay on `@reserve-protocol/react-zapper` 2.x. `ZapperProps` and the rest of the public API are unchanged, and the host still provides `WagmiProvider`, `QueryClientProvider` and the optional `connectWallet` callback.
+- The published bundle no longer includes a copy of `@wagmi/core` or the `viem/chains` definitions. `wagmi/actions` and `viem/chains` are now imported from the host's install, so the widget always uses the same wagmi instance as the host's config. Earlier builds bundled a private `@wagmi/core` 2.x for those calls.
+
 ## [2.15.1] - 2026-10-30
 
 ### Fixed

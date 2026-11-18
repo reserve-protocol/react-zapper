@@ -6,6 +6,8 @@ import { resolve } from 'path'
 import { readFileSync } from 'fs'
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'))
+const peerPackages = Object.keys(packageJson.peerDependencies || {})
+const dependencyPackages = Object.keys(packageJson.dependencies || {})
 
 // Lingui macros are compiled away at build time, and the `lingui()` plugin
 // turns `.po` catalog imports into plain message objects — so the published
@@ -73,13 +75,10 @@ export default defineConfig(({ mode, command }) => {
       fileName: (format) => `index.${format === 'es' ? 'esm' : 'cjs'}.js`,
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        ...Object.keys(packageJson.peerDependencies || {}),
-        ...Object.keys(packageJson.dependencies || {}),
-      ],
+      // Peer subpaths too, or wagmi/actions bundles its own @wagmi/core.
+      external: (id: string) =>
+        dependencyPackages.includes(id) ||
+        peerPackages.some((name) => id === name || id.startsWith(`${name}/`)),
       output: {
         globals: {
           react: 'React',

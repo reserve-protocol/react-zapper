@@ -1,6 +1,6 @@
 {
   "name": "@reserve-protocol/react-zapper",
-  "version": "2.15.1",
+  "version": "3.0.0",
   "type": "module",
   "packageManager": "pnpm@11.1.1",
   "description": "React component for DTF minting with zap functionality",
@@ -25,6 +25,7 @@
     "build:demo": "vite build --mode demo",
     "prepublishOnly": "pnpm run build",
     "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "clean": "rm -rf dist",
     "extract": "lingui extract",
@@ -52,7 +53,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "viem": "^2.50.0",
-    "wagmi": "^2.19.0"
+    "wagmi": "^3.0.0"
   },
   "dependencies": {
     "@cowprotocol/cow-sdk": "9.1.5",
@@ -84,7 +85,6 @@
     "@lingui/vite-plugin": "^5.9.5",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",
-    "@rainbow-me/rainbowkit": "^2.2.5",
     "@testing-library/react": "^16.3.2",
     "@types/mixpanel-browser": "^2.50.2",
     "@types/react": "^18.3.1",
@@ -102,12 +102,13 @@
     "postcss": "^8.5.28",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "solariskit": "1.12.1",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.0.0",
     "viem": "2.50.4",
     "vite": "^7.3.6",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "3.2.6",
-    "wagmi": "2.19.5"
+    "wagmi": "3.7.11"
   }
 }

@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Moon, RefreshCw, Sun } from 'lucide-react'
-import { useAccount } from 'wagmi'
+import { useConnection } from 'wagmi'
 import { zappableTokens } from '@reserve-protocol/react-zapper'
 import { AvailableChain, CHAIN_TAGS, ChainId } from '@/utils/chains'
 import { usePrice } from '@/hooks/usePrice'
+import ConnectButton from './components/connect-button'
 import { Button } from './components/ui/button'
 import {
   Card,
@@ -150,7 +150,7 @@ function QuotesApp() {
 
   // Connecting a wallet upgrades every row from a display-only quote to a real
   // signer's quote plus a simulation of its transaction.
-  const { address } = useAccount()
+  const { address } = useConnection()
 
   const onApprovalTarget = useCallback(
     (chainId: number, approvalAddress: Address) =>
