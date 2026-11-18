@@ -4,6 +4,9 @@ cleanupUnusedCatalogs: true
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - '@solana/*'
+  # Demo-only wallet kit and its icon package, published 2026-11-16; drop after 2026-11-23.
+  - solariskit
+  - '@akshatmittal/polycons'
 allowBuilds:
   bufferutil: true
   esbuild: true

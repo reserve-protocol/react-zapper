@@ -1,7 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Address, erc20Abi, parseUnits } from 'viem'
-import { useAccount, useConfig, useSwitchChain, useWriteContract } from 'wagmi'
+import {
+  useConfig,
+  useConnection,
+  useSwitchChain,
+  useWriteContract,
+} from 'wagmi'
 import { waitForTransactionReceipt } from 'wagmi/actions'
 import { AvailableChain, CHAIN_TAGS } from '@/utils/chains'
 import { Button } from './ui/button'
@@ -30,11 +35,11 @@ const ApproveInputs = ({
   inputs,
   approvalTargets,
 }: ApproveInputsProps) => {
-  const { address, chainId: connectedChain } = useAccount()
+  const { address, chainId: connectedChain } = useConnection()
   const config = useConfig()
   const queryClient = useQueryClient()
-  const { switchChainAsync } = useSwitchChain()
-  const { writeContractAsync } = useWriteContract()
+  const { mutateAsync: switchChainAsync } = useSwitchChain()
+  const { mutateAsync: writeContractAsync } = useWriteContract()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

@@ -1,4 +1,5 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { getDefaultConfig } from 'solariskit'
+import { injectedWallet } from 'solariskit/wallets'
 import { http } from 'wagmi'
 import { base, bsc, mainnet } from 'wagmi/chains'
 
@@ -12,6 +13,8 @@ export const config = getDefaultConfig({
     [bsc.id]: http(),
   },
   appName: 'React Zapper Demo',
-  projectId: 'a3c3b8f4a0c0f1d9e2b5a7d9c1e3f5a7', // Demo project ID
+  // Injected wallets only: WalletConnect needs a project id allowlisted for this origin.
+  wallets: [{ groupName: 'Installed', wallets: [injectedWallet] }],
+  projectId: '',
   ssr: false,
 })

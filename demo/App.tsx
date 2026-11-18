@@ -1,4 +1,4 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { ConnectButton } from 'solariskit'
 import {
   useZapperModal,
   PROVIDERS,
